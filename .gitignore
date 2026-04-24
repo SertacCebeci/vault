@@ -1,0 +1,5 @@
+.DS_Store
+
+# Local Obsidian UI state
+.obsidian/workspace*.json
+.obsidian/graph.json
