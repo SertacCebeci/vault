@@ -22,6 +22,10 @@ quality: c
 
 # Learning How to Learn: A Coursera MOOC
 
+## Lead
+
+Transcript of the Coursera MOOC by Barbara Oakley and Terrence Sejnowski — translates neuroscience research into practical learning strategies across four weeks. Builds from the focused-vs-diffuse mode distinction through chunking as the core mechanism of learning, into procrastination remedies and long-term-memory consolidation, and finally to deliberate practice and effective test-taking.
+
 ## Summary
 
 This is the complete transcript of the "Learning How to Learn" Coursera MOOC, one of the world's most popular online courses with millions of enrolled learners. The course translates neuroscience research into practical learning strategies, organized across four weeks. It builds from the brain's two fundamental thinking modes — [[focused-and-diffuse-modes]] — through [[chunking]] as the core mechanism of learning, into strategies for beating [[procrastination]] and strengthening [[long-term-memory]], and finally to higher-order techniques for unlocking potential through [[metaphor-and-analogy]], [[deliberate-practice]], and effective test-taking.

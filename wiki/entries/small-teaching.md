@@ -22,6 +22,10 @@ quality: c
 
 # Small Teaching: Everyday Lessons from the Science of Learning
 
+## Lead
+
+Lang (2021, 2nd ed.) — argues instructors can materially improve student learning through small, manageable modifications to their existing courses rather than wholesale transformation. Three parts: Knowledge (predicting, retrieving, interleaving), Understanding (connecting, practicing, explaining), Inspiration (belonging, motivating, learning). Each chapter pairs theory with concrete implementation models, guiding principles, and quick tips.
+
 ## Summary
 *Small Teaching* argues that instructors can significantly improve student learning through small, manageable modifications to their courses — brief classroom activities, one-time interventions, and minor design tweaks — rather than requiring wholesale transformation of their teaching. Lang draws on cognitive psychology, neuroscience, and educational research to identify principles that meet three criteria: grounded in learning science, demonstrated to work in real classrooms, and personally observed by the author. The book is organized into three parts reflecting a progression from foundational cognitive processes (Knowledge: predicting, retrieving, interleaving) through deeper comprehension (Understanding: connecting, practicing, explaining) to affective and motivational dimensions (Inspiration: belonging, motivating, learning). Each chapter follows a consistent structure — opening anecdote, theory, four to five detailed implementation models, guiding principles, and quick tips — making the strategies immediately actionable for busy faculty across disciplines and institutional contexts. The second edition (2021) substantially revises two chapters, broadening "Self-Explaining" into "Explaining" and replacing "Growing" (growth mindset) with "Belonging" (asset-based teaching and community).
 

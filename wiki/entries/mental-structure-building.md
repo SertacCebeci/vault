@@ -1,6 +1,6 @@
 ---
-id: structure-building
-title: "Structure Building"
+id: mental-structure-building
+title: "Structure Building (Skill)"
 category: concept
 classified_by: lens-concept
 domains: [learning-theory]

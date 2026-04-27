@@ -31,7 +31,7 @@ Rule learning is therefore closely connected to [[interleaving]] and [[discrimin
 
 ## Connections
 
-- Builds on: [[structure-building]] - you need a coherent representation of examples before you can abstract a rule from them
+- Builds on: [[mental-structure-building]] - you need a coherent representation of examples before you can abstract a rule from them
 - Related to: [[discrimination-learning]] - classifying cases correctly depends on noticing the features that determine which rule applies
 - Related to: [[interleaving]] - comparing varied cases helps reveal the underlying principle
 - Related to: [[transfer]] - rules travel better than isolated examples

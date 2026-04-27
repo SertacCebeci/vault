@@ -28,9 +28,9 @@ The week divides into three phases:
 
 **Monday — Learn it (asynchronous, "I do"):** Students watch instructional videos and read materials online, supported by embedded quizzes and discussion prompts. This is the [[direct-instruction]] "I do" phase delivered asynchronously, leveraging [[multimedia-learning-theory]] principles for clear, concise video segments (3-12 minutes each).
 
-**Wednesday — Respond (synchronous, "We do"):** The teacher provides personalized feedback, adds depth, and facilitates practice through synchronous instruction. Brief review, Q&A, individual practice, and small-group activities strengthen the neural links formed during Monday's initial exposure. [[Brain-breaks]] and [[collaborative-learning]] structures keep engagement high.
+**Wednesday — Respond (synchronous, "We do"):** The teacher provides personalized feedback, adds depth, and facilitates practice through synchronous instruction. Brief review, Q&A, individual practice, and small-group activities strengthen the neural links formed during Monday's initial exposure. [[brain-breaks]] and [[collaborative-learning]] structures keep engagement high.
 
-**Friday — Link it (student-directed, "You do"):** Students demonstrate competency through homework, quizzes, and real-world application. They extend their learning by connecting new material to prior knowledge and other domains. [[Race-car-and-hiker-brains]] naturally differentiate here — race-car students who mastered the material early can push into extensions, while hiker students who needed Wednesday's reinforcement can still demonstrate competency.
+**Friday — Link it (student-directed, "You do"):** Students demonstrate competency through homework, quizzes, and real-world application. They extend their learning by connecting new material to prior knowledge and other domains. [[race-car-and-hiker-brains]] naturally differentiate here — race-car students who mastered the material early can push into extensions, while hiker students who needed Wednesday's reinforcement can still demonstrate competency.
 
 ## Concepts applied
 - [[learn-it-link-it]] — the entire weekly structure implements the "I do, we do, you do, extend it" sequence

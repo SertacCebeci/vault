@@ -27,7 +27,7 @@ BDNF acts like a bit of yarn waiting to be woven into fabric: it does not create
 
 Beyond BDNF, exercise supports learning through neurogenesis — the creation of new neurons — which plays an important role in new learning and mood improvement. At least one hour of moderate to vigorous activity per day is recommended to buffer the negative effects of stress on cognition. Eliminating student recess to gain instructional time is counterproductive: exercise helps students focus and learn more efficiently when they are in class.
 
-[[Sleep-and-learning|Sleep]] and exercise play complementary roles in [[consolidation]]. Sleep strengthens preexisting connections through synaptic pruning and stabilization. Exercise produces BDNF that helps new dendritic spines emerge, providing fresh connection points. Together, they create optimal conditions for the [[declarative-learning-system]] to build durable [[long-term-memory]] links.
+[[sleep-and-learning|Sleep]] and exercise play complementary roles in [[consolidation]]. Sleep strengthens preexisting connections through synaptic pruning and stabilization. Exercise produces BDNF that helps new dendritic spines emerge, providing fresh connection points. Together, they create optimal conditions for the [[declarative-learning-system]] to build durable [[long-term-memory]] links.
 
 ## Connections
 

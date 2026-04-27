@@ -27,7 +27,7 @@ Schemas settle into the neocortex rather than the hippocampus. The stronger a sc
 
 The process is cumulative and self-reinforcing. A student learning art styles might first develop mini-schemas for impressionism, postmodernism, and modernism through [[interleaving|interleaved practice]]. These mini-schemas eventually merge into a broader "art schema" that makes it progressively easier to integrate new styles like cubism or neo-impressionism. Each new addition slots in more easily because the scaffolding already exists.
 
-Schemas shape how we perceive and think about what we are learning. This can be both positive — enabling rapid pattern recognition and flexible application — and negative — creating biases and prejudices that resist updating. [[Interleaving]] is especially valuable because it helps build schemas by forcing students to practice distinguishing between related concepts.
+Schemas shape how we perceive and think about what we are learning. This can be both positive — enabling rapid pattern recognition and flexible application — and negative — creating biases and prejudices that resist updating. [[interleaving]] is especially valuable because it helps build schemas by forcing students to practice distinguishing between related concepts.
 
 A common misconception is that specialized vocabulary equals a strong schema. Vocabulary is part of a schema but not its essence. A student can know all the geometric terms (isosceles, equilateral, scalene) without being able to perform calculations with them. The schema is the iceberg; vocabulary is just the visible tip. The deeper layers include the ability to recognize when and how to apply knowledge across varied contexts — which is precisely what [[transfer]] requires.
 
@@ -47,7 +47,7 @@ The relationship between schemas and motivation reveals an important dynamic. St
 - Related to: [[declarative-procedural-seesaw]] — robust schemas integrate both sides of the seesaw
 - Related to: [[hippocampus-as-index]] — as schemas strengthen, reliance on the hippocampal index decreases
 - Related to: [[expertise-reversal-effect]] — experts with strong schemas are harmed by instruction designed for novices without them
-- Related to: [[prior-knowledge|biologically-primary-and-secondary-knowledge]] — secondary knowledge requires deliberate schema construction through instruction and practice
+- Related to: [[biologically-primary-and-secondary-knowledge]] — secondary knowledge requires deliberate schema construction through instruction and practice
 - Related to: [[dopamine-and-learning]] — competence from schema development becomes its own reward source
 
 ## Sources

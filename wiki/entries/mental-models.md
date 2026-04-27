@@ -27,7 +27,7 @@ A baseball batter facing a pitch has less than an instant to decide what's comin
 
 Mental models differ from isolated facts in a crucial way: they're *operational*. A pilot who has memorized that a Cessna 401's single-engine ceiling depends on weight and fuel load has a fact. A pilot who can instantly assess those variables in a crisis, predict whether he can maintain altitude, and choose the correct landing approach has a mental model. The model includes the facts but also the relationships between them, the conditions under which they apply, and the procedures they imply.
 
-Two subskills help mental models form. [[structure-building]] is the ability to identify the foundational ideas in new material and organize them into a scaffold. [[rule-learning]] is the ability to abstract the underlying principle that links multiple cases. Mental models are what those skills produce over time: knowledge with enough structure and logic to be used.
+Two subskills help mental models form. [[mental-structure-building]] is the ability to identify the foundational ideas in new material and organize them into a scaffold. [[rule-learning]] is the ability to abstract the underlying principle that links multiple cases. Mental models are what those skills produce over time: knowledge with enough structure and logic to be used.
 
 People who learn to extract the underlying principles or rules that differentiate types of problems - rather than memorizing surface features - build better mental models. This skill is better acquired through [[interleaving|interleaved and varied practice]] than through [[overlearning|massed practice]] on a single type.
 
@@ -46,7 +46,7 @@ With enough effortful practice, a complex set of interrelated ideas or a sequenc
 - Related to: [[reconsolidation]] - effortful recall integrates learning into mental models through reconsolidation
 - Related to: [[varied-practice]] - varied contexts build more versatile mental models
 - Related to: [[desirable-difficulty]] - the effort of building mental models is the productive difficulty
-- Related to: [[structure-building]] - structure building identifies the foundational pieces and arranges them into a usable scaffold
+- Related to: [[mental-structure-building]] - structure building identifies the foundational pieces and arranges them into a usable scaffold
 - Related to: [[rule-learning]] - rule learning supplies the principles that make a model operational rather than merely descriptive
 
 ## Illustrations

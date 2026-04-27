@@ -29,7 +29,7 @@ Vince Dooley, head coach of the University of Georgia Bulldogs from 1964 to 1988
 
 The practice schedule was a natural embodiment of every major learning principle. Each day's practice began with position-specific fundamentals (spaced, since these recurred daily). Players then worked in small groups on multi-position maneuvers, gradually assembling into full team play — speeded up and slowed down, rehearsed mentally and physically. Special plays were practiced only on Thursdays (always a week between sessions) and run in a varied sequence. Players took their playbooks home and mentally rehearsed plays — walking through steps, leaning their bodies as if running routes, simulating reactions to opponents' adjustments.
 
-The Saturday quarterback going into the game — mentally running through plays, anticipating reactions, visualizing adjustments — was doing the same thing as the neurosurgeon [[mike-ebersold|Ebersold]] rehearsing what's about to unfold in the operating room.
+The Saturday quarterback going into the game — mentally running through plays, anticipating reactions, visualizing adjustments — was doing the same thing as the neurosurgeon Ebersold rehearsing what's about to unfold in the operating room.
 
 ## Why it matters
 

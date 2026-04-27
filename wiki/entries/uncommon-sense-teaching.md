@@ -22,6 +22,10 @@ quality: c
 
 # Uncommon Sense Teaching
 
+## Lead
+
+Oakley, Sejnowski, and Rogowsky bridging neuroscience and K-12 / higher-ed classroom practice. The central argument: many commonsense intuitions about teaching are wrong; understanding how the brain actually learns — through neural-link formation, working- and long-term-memory dynamics, and the declarative/procedural pathways — lets teachers make small but powerful adjustments to instruction.
+
 ## Summary
 
 *Uncommon Sense Teaching* bridges neuroscience and classroom practice, written by the creators of the massively popular "Learning How to Learn" MOOC ([[barbara-oakley]] and [[terrence-sejnowski]]) together with education professor Beth Rogowsky. The book translates brain science into practical, teacher-facing strategies for K-12 and higher education.

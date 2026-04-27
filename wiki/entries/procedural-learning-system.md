@@ -35,7 +35,7 @@ Procedural learning is strong in infancy and early childhood but gradually weake
 
 The procedural system's power extends beyond academic skills to everyday classroom management. Routines such as entering the room, lining up, transitioning between activities, and collecting materials can be taught as procedures and practiced until they become habitual. Once procedural memory has encoded a routine, students perform it automatically, freeing [[working-memory]] for academic learning. The key is the same tell-show-practice-reinforce cycle used for academic content: use [[direct-instruction]] to get the procedure into the declarative system, then practice repeatedly to transfer it to the procedural system. Consistency is paramount — inconsistent enforcement prevents the basal ganglia from consolidating the routine.
 
-[[Dopamine-and-learning]] interacts powerfully with procedural learning: unexpected rewards during practice sessions accelerate the formation of procedural links by bathing synapses in dopamine, while punitive responses trigger dopamine crashes that actively impair the consolidation in progress.
+[[dopamine-and-learning]] interacts powerfully with procedural learning: unexpected rewards during practice sessions accelerate the formation of procedural links by bathing synapses in dopamine, while punitive responses trigger dopamine crashes that actively impair the consolidation in progress.
 
 ## Connections
 

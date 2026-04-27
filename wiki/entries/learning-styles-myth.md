@@ -34,7 +34,7 @@ The alternative is not one-size-fits-all teaching. Instruction should match the 
 - Contrasts with: [[dynamic-testing]] - dynamic testing treats weak performance as a starting point for growth rather than evidence of a fixed type
 - Related to: [[calibration]] - performance data are more trustworthy than preference reports when judging whether learning is happening
 - Related to: [[desirable-difficulty]] - hard learning is not proof that the material has been delivered in the wrong style
-- Related to: [[structure-building]] - extracting the structure of an idea matters more than receiving it in a preferred modality
+- Related to: [[mental-structure-building]] - extracting the structure of an idea matters more than receiving it in a preferred modality
 - Applied in: [[low-stakes-classroom-quizzing]] - retrieval-based methods benefit learners regardless of modality preference
 
 ## Illustrations

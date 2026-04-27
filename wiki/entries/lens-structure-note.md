@@ -54,7 +54,7 @@ If the candidate is asserting facts about itself rather than organizing other en
 
 ## Notes
 
-[[structure-building]] currently lives at `category: concept` but reads more like a structure note. It is a candidate for reclassification in a later phase — Phase 5 of the spec migration.
+[[mental-structure-building]] is a single cognitive skill (a learner's ability to extract central ideas and organize them into a coherent framework). It was renamed during Phase 5a from `structure-building` to clear the reserved-prefix collision (§6.5); the entry remains `category: concept` because it describes one principle, not a cluster's organizing prose.
 
 ## Related lenses
 

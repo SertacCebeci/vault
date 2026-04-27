@@ -19,7 +19,7 @@ quality: c
 
 # The Myth of Errorless Learning
 
-In the 1950s-60s, [[b-f-skinner]] advocated "errorless learning" in education — the idea that learners should be spoonfed material in small bites and immediately quizzed while the answer is still fresh, ensuring they never make mistakes. Modern research has thoroughly debunked this approach. Errors are not the enemy of learning; they are an integral part of it. When learners commit errors and receive corrective feedback, the errors are not learned — instead, the struggle and correction produce stronger and more durable retention than passive, error-free reception ever could.
+In the 1950s-60s, B. F. Skinner advocated "errorless learning" in education — the idea that learners should be spoonfed material in small bites and immediately quizzed while the answer is still fresh, ensuring they never make mistakes. Modern research has thoroughly debunked this approach. Errors are not the enemy of learning; they are an integral part of it. When learners commit errors and receive corrective feedback, the errors are not learned — instead, the struggle and correction produce stronger and more durable retention than passive, error-free reception ever could.
 
 ## Elaboration
 

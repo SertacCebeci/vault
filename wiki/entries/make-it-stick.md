@@ -22,6 +22,10 @@ quality: c
 
 # Make It Stick: The Science of Successful Learning
 
+## Lead
+
+A 2014 cognitive-psychology synthesis (Brown, Roediger, McDaniel) arguing that the most effective learning strategies are deeply counterintuitive: the strategies most learners rely on — re-reading, massed practice, cramming — produce illusions of mastery without durable learning. The book introduces retrieval practice, spaced practice, interleaving, elaboration, generation, and calibration as the evidence-based core, anchored to controlled experiments and illustrated through cases from pilots, surgeons, athletes, and students.
+
 ## Summary
 *Make It Stick* synthesizes over a decade of cognitive psychology research into a practical guide for how people actually learn and retain knowledge. Written by two leading memory researchers (Roediger and McDaniel, Washington University) and a narrative writer (Brown), the book's central argument is that the most effective learning strategies are deeply counterintuitive — and that the strategies most people rely on (re-reading, massed practice, cramming) create illusions of mastery without durable learning.
 
@@ -91,7 +95,7 @@ The core evidence-based strategies advocated are retrieval practice, spaced prac
 ### Ch. 6: Get Beyond Learning Styles (pp. 131-161)
 - [[learning-styles-myth]] - people may have preferences, but there is no credible evidence that matching instruction to a preferred modality improves learning; instruction should match the content instead
 - [[dynamic-testing]] - Sternberg and Grigorenko's alternative to static labeling: test, focus on weaknesses, improve, and retest; low performance is a developmental signal, not a fixed identity
-- [[structure-building]] - strong learners identify the main ideas in new material and organize them into a coherent framework; low structure-builders retain too much noise to form a usable model
+- [[mental-structure-building]] - strong learners identify the main ideas in new material and organize them into a coherent framework; low structure-builders retain too much noise to form a usable model
 - [[rule-learning]] - successful transfer depends on abstracting underlying principles rather than memorizing examples; comparing cases helps learners discover the rule
 - [[mental-models]] (deepened) - Bruce Hendry's "winding stair" shows expertise as self-built templates that combine multiple rules into operational judgment
 - [[calibration]] (deepened) - dynamic testing turns assessment into ongoing developmental feedback rather than a one-time verdict
@@ -131,11 +135,11 @@ The core evidence-based strategies advocated are retrieval practice, spaced prac
 ## Questions raised
 - ~~How does the "generation effect" (trying to solve before being taught) relate to the desirable difficulty framework?~~ → Answered in Ch. 4: generation is a form of desirable difficulty; see [[priming-for-learning]]
 - ~~What is the boundary between "desirable" and "undesirable" difficulty?~~ → Answered in Ch. 4: Bjork defines desirable difficulties as those triggering encoding/retrieval processes; undesirable if learner lacks background to respond; see [[desirable-difficulty]]
-- ~~How do the learning styles theory and individual differences interact?~~ → Answered in Ch. 6: learning-style preferences exist, but the matching hypothesis lacks evidence; differences that matter include reading fluency, [[structure-building]], and [[rule-learning]]
+- ~~How do the learning styles theory and individual differences interact?~~ → Answered in Ch. 6: learning-style preferences exist, but the matching hypothesis lacks evidence; differences that matter include reading fluency, [[mental-structure-building]], and [[rule-learning]]
 - How do individual differences (intelligence, learning disabilities, personality) interact with desirable difficulty strategies?
 - How does the three-step model (encoding → consolidation → retrieval) map onto the neuroscience framework from [[learning-how-to-learn]]?
 - Is there an overarching rule that determines which kinds of impediments make learning stronger? The authors note this is still an open research question.
-- Are [[structure-building]] and [[rule-learning]] teachable skills, stable differences, or some combination of both?
+- Are [[mental-structure-building]] and [[rule-learning]] teachable skills, stable differences, or some combination of both?
 - How should formal education incorporate [[dynamic-testing]] without losing the administrative simplicity of static grading systems?
 - How durable are growth-mindset interventions once they leave a motivated classroom or workshop setting?
 - To what extent can [[deliberate-practice]] be self-directed without a coach or other reliable external feedback?
@@ -143,7 +147,7 @@ The core evidence-based strategies advocated are retrieval practice, spaced prac
 
 ## Connections
 - Heavy overlap with: [[learning-how-to-learn]] - many of the same principles (retrieval practice, spaced repetition, interleaving, illusions of competence) but with deeper research evidence and different framing
-- Supports: [[learning-styles-myth]], [[dynamic-testing]], [[structure-building]], [[rule-learning]]
+- Supports: [[learning-styles-myth]], [[dynamic-testing]], [[mental-structure-building]], [[rule-learning]]
 - Supports: [[neuroplasticity]], [[growth-mindset]]
 - Extends: [[recall-as-learning]], [[spaced-repetition]], [[interleaving]], [[illusions-of-competence]]
 - Extends: [[mental-models]], [[calibration]], [[desirable-difficulty]], [[deliberate-practice]], [[memory-techniques]]

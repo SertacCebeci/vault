@@ -23,7 +23,7 @@ quality: c
 
 # Bruce Hendry's Winding Stair
 
-**Concepts illustrated:** [[structure-building]], [[rule-learning]], [[dynamic-testing]], [[mental-models]]
+**Concepts illustrated:** [[mental-structure-building]], [[rule-learning]], [[dynamic-testing]], [[mental-models]]
 
 Bruce Hendry starts as a boy cutting up garage-sale string for resale, sneaking to South Dakota to buy illegal fireworks, and teaching himself construction well enough to build a lake house as a teenager. The story then follows him into real estate, stock brokerage, distressed bonds, bankrupt railroads, and railroad boxcars. At each step he is not simply accumulating anecdotes. He is identifying what questions matter, learning who knows what he does not, and building a template for judging value where other people see only chaos.
 
@@ -33,4 +33,4 @@ The "winding stair" becomes a fitting metaphor for expertise. Hendry keeps climb
 
 ## Why it matters
 
-The story makes abstract claims concrete. Expertise is shown as an active process of [[structure-building]] and [[rule-learning]], while setbacks function as [[dynamic-testing]] rather than as proof of fixed limits. It shows how robust [[mental-models]] are built, revised, and applied through experience.
+The story makes abstract claims concrete. Expertise is shown as an active process of [[mental-structure-building]] and [[rule-learning]], while setbacks function as [[dynamic-testing]] rather than as proof of fixed limits. It shows how robust [[mental-models]] are built, revised, and applied through experience.
