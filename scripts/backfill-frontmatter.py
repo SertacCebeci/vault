@@ -49,6 +49,18 @@ DEFAULTS = {
     "policy":         {"notability_status": "n/a",    "edit_hardness": "restricted", "high_stakes_class": "none", "quality": "c", "produced_by": "lifecycle-bootstrap"},
     "guideline":      {"notability_status": "n/a",    "edit_hardness": "extended-confirmed", "high_stakes_class": "none", "quality": "c", "produced_by": "lifecycle-bootstrap"},
     "essay":          {"notability_status": "n/a",    "edit_hardness": "open",       "high_stakes_class": "none", "quality": "c", "produced_by": "lifecycle-bootstrap"},
+    # Per §9.2: agent default is `extended-confirmed` (mutate), `restricted` (retire);
+    # we use `extended-confirmed` for the manifest itself.
+    "agent":          {"notability_status": "n/a",    "edit_hardness": "extended-confirmed", "high_stakes_class": "none", "quality": "c", "produced_by": "lifecycle-agent-create"},
+    "agent-test":     {"notability_status": "n/a",    "edit_hardness": "extended-confirmed", "high_stakes_class": "none", "quality": "c", "produced_by": "lifecycle-agent-test-create"},
+    # The remaining infrastructure kinds (run, finding, discussion, notification,
+    # pending) carry `edit_hardness: locked` per §9.2 — they're immutable once
+    # written. They are produced by their own protocols, not by lifecycle-bootstrap.
+    "run":            {"notability_status": "n/a",    "edit_hardness": "locked",     "high_stakes_class": "none", "quality": "c", "produced_by": "lifecycle-run-emit"},
+    "finding":        {"notability_status": "n/a",    "edit_hardness": "locked",     "high_stakes_class": "none", "quality": "c", "produced_by": "lifecycle-finding-emit"},
+    "discussion":     {"notability_status": "n/a",    "edit_hardness": "locked",     "high_stakes_class": "none", "quality": "c", "produced_by": "lifecycle-discussion-open"},
+    "notification":   {"notability_status": "n/a",    "edit_hardness": "locked",     "high_stakes_class": "none", "quality": "c", "produced_by": "lifecycle-notification-emit"},
+    "pending":        {"notability_status": "n/a",    "edit_hardness": "open",       "high_stakes_class": "none", "quality": "c", "produced_by": "lifecycle-pending-stage"},
 }
 
 # The order new fields are inserted in (within the frontmatter block).

@@ -131,11 +131,11 @@ this document is itself an artifact under the same edit-hardness rules as a poli
 
 ### 2.3 indexing globs
 
-| consumer | glob | excludes |
-|---|---|---|
-| qmd vault collection | `wiki/**/*.md` | `raw/**`, `temp/**`, `docs/**`, `node_modules/**` |
-| index/noticeboard rebuild | `wiki/entries/*.md` | none |
-| lint full pass | `wiki/entries/*.md` | none |
+| consumer                  | glob                | excludes                                          |
+| ------------------------- | ------------------- | ------------------------------------------------- |
+| qmd vault collection      | `wiki/**/*.md`      | `raw/**`, `temp/**`, `docs/**`, `node_modules/**` |
+| index/noticeboard rebuild | `wiki/entries/*.md` | none                                              |
+| lint full pass            | `wiki/entries/*.md` | none                                              |
 
 `raw/`, `temp/`, `docs/`, and `runner/` are never indexed for retrieval.
 
@@ -154,44 +154,44 @@ this document is itself an artifact under the same edit-hardness rules as a poli
 
 entries split into **content** (the substance of the vault) and **infrastructure** (the vault's own state). they share the flat layout and frontmatter schema; they differ in classification path, retention, and write rate.
 
-| tier | classified via | retention | typical write rate |
-|---|---|---|---|
-| content | the lens decision tree (§7) | persistent | one per knowledge unit |
+| tier           | classified via                                                      | retention                     | typical write rate          |
+| -------------- | ------------------------------------------------------------------- | ----------------------------- | --------------------------- |
+| content        | the lens decision tree (§7)                                         | persistent                    | one per knowledge unit      |
 | infrastructure | a named lifecycle protocol; `produced_by` frontmatter records which | aggressively archived (§26.3) | a `run` per agent execution |
 
 ### 3.2 content kinds
 
-| slug prefix | kind | what it carries | notes |
-|---|---|---|---|
-| (free slug) | `concept` | one idea, explained on its own terms. the catch-all when no narrower kind applies. | richest body. always has a lead if above threshold. |
-| (free slug) | `source` | literature note for one raw document — book, article, transcript. cites; does not synthesize. | always has a lead. one source entry per `raw/{source-slug}/`. |
-| (free slug) | `illustration` | a story with protagonist, setting, outcome. retells a source narrative to anchor a concept. | only kind allowed to retell source prose closely. |
-| (free slug) | `application` | a practitioner-followable instruction set. | written as steps a reader can execute. |
-| (free slug) | `entity` | a proper-noun subject — person, institution, theory, framework, method. | `entity_kind` frontmatter required. |
-| (free slug) | `process` | multi-stage sequence with named transitions. | `stages` frontmatter is ordered. |
-| (free slug) | `insight` | a connection between 2+ existing concepts that names a non-trivial relationship. | always references at least 2 concepts in `connects`. |
-| `claim-` | `claim` | one atomic assertion with evidence and grade. the smallest content unit. | atomicity policed by `policy-claim-segmentation`. |
-| `relation-` | `relation` | a typed, directed edge between entries. predicates: `supports`, `contradicts`, `instance-of`, `supersedes`, `depends-on`. | carries its own evidence grade. |
-| `structure-` | `structure-note` | organizing prose plus annotated links into a cluster. holds a region of the graph together. | replaces wikipedia's parent-article pattern. lead always required. |
-| `disambiguation-` | `disambiguation` | routing entry for a polysemous term. | body lists variants with one-line distinguishers. |
-| `question-` | `question` | an open question the vault cannot yet answer. pins a gap. | closes when an entry, claim, or relation answers it. |
+| slug prefix       | kind             | what it carries                                                                                                           | notes                                                              |
+| ----------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| (free slug)       | `concept`        | one idea, explained on its own terms. the catch-all when no narrower kind applies.                                        | richest body. always has a lead if above threshold.                |
+| (free slug)       | `source`         | literature note for one raw document — book, article, transcript. cites; does not synthesize.                             | always has a lead. one source entry per `raw/{source-slug}/`.      |
+| (free slug)       | `illustration`   | a story with protagonist, setting, outcome. retells a source narrative to anchor a concept.                               | only kind allowed to retell source prose closely.                  |
+| (free slug)       | `application`    | a practitioner-followable instruction set.                                                                                | written as steps a reader can execute.                             |
+| (free slug)       | `entity`         | a proper-noun subject — person, institution, theory, framework, method.                                                   | `entity_kind` frontmatter required.                                |
+| (free slug)       | `process`        | multi-stage sequence with named transitions.                                                                              | `stages` frontmatter is ordered.                                   |
+| (free slug)       | `insight`        | a connection between 2+ existing concepts that names a non-trivial relationship.                                          | always references at least 2 concepts in `connects`.               |
+| `claim-`          | `claim`          | one atomic assertion with evidence and grade. the smallest content unit.                                                  | atomicity policed by `policy-claim-segmentation`.                  |
+| `relation-`       | `relation`       | a typed, directed edge between entries. predicates: `supports`, `contradicts`, `instance-of`, `supersedes`, `depends-on`. | carries its own evidence grade.                                    |
+| `structure-`      | `structure-note` | organizing prose plus annotated links into a cluster. holds a region of the graph together.                               | replaces wikipedia's parent-article pattern. lead always required. |
+| `disambiguation-` | `disambiguation` | routing entry for a polysemous term.                                                                                      | body lists variants with one-line distinguishers.                  |
+| `question-`       | `question`       | an open question the vault cannot yet answer. pins a gap.                                                                 | closes when an entry, claim, or relation answers it.               |
 
 ### 3.3 infrastructure kinds
 
-| slug prefix | kind | what it carries | notes |
-|---|---|---|---|
-| `lens-` | `lens` | a classification rule, written as a yes/no question and criteria. | self-classifying via `lens-lens`. |
-| (free slug, often domain name) | `domain` | a subject axis: scope, out-of-scope, canonical questions, contentious flag, evidence-grade floor, edit-hardness floor, subscribed editors, load-bearing structure notes. | one per active domain. |
-| `policy-` | `policy` | a binding rule. lint enforces; meta-rule edits required. | highest of the three rule tiers (§13). |
-| `guideline-` | `guideline` | a best-practice norm. violations produce advisory findings. | middle tier. |
-| `essay-` | `essay` | an under-development take. binds nothing. | lowest tier; promotion path leads upward. |
-| `agent-` | `agent` | the manifest of an active process — editor, persona, or lint. slice + bindings + lifecycle + reputation. | `kind` frontmatter is `editor`, `persona`, or `lint`. |
-| `run-` | `run` | one agent execution. records reads, writes, findings, active policy/lens versions, identity. | dominates file count; archived to rollups (§26.3). |
-| `finding-` | `finding` | a problem the vault has noticed about itself. open/resolved/wontfix. | links to the rule that fired. |
-| `agent-test-` | `agent-test` | a query with an expected answer shape, attached to an agent. run as regression. | failure becomes a finding. |
-| `discussion-` | `discussion` | a recorded exchange between agents disputing an entry. | round-bounded (§22). |
-| `notification-` | `notification` | inter-agent mention, review request, or escalation. | short-lived; archived. |
-| `pending-` | `pending` (proposal) | a staged write from a sub-confirmed agent awaiting review. | parallel state attached to a target entry (§9.5). |
+| slug prefix                    | kind                 | what it carries                                                                                                                                                          | notes                                                 |
+| ------------------------------ | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
+| `lens-`                        | `lens`               | a classification rule, written as a yes/no question and criteria.                                                                                                        | self-classifying via `lens-lens`.                     |
+| (free slug, often domain name) | `domain`             | a subject axis: scope, out-of-scope, canonical questions, contentious flag, evidence-grade floor, edit-hardness floor, subscribed editors, load-bearing structure notes. | one per active domain.                                |
+| `policy-`                      | `policy`             | a binding rule. lint enforces; meta-rule edits required.                                                                                                                 | highest of the three rule tiers (§13).                |
+| `guideline-`                   | `guideline`          | a best-practice norm. violations produce advisory findings.                                                                                                              | middle tier.                                          |
+| `essay-`                       | `essay`              | an under-development take. binds nothing.                                                                                                                                | lowest tier; promotion path leads upward.             |
+| `agent-`                       | `agent`              | the manifest of an active process — editor, persona, or lint. slice + bindings + lifecycle + reputation.                                                                 | `kind` frontmatter is `editor`, `persona`, or `lint`. |
+| `run-`                         | `run`                | one agent execution. records reads, writes, findings, active policy/lens versions, identity.                                                                             | dominates file count; archived to rollups (§26.3).    |
+| `finding-`                     | `finding`            | a problem the vault has noticed about itself. open/resolved/wontfix.                                                                                                     | links to the rule that fired.                         |
+| `agent-test-`                  | `agent-test`         | a query with an expected answer shape, attached to an agent. run as regression.                                                                                          | failure becomes a finding.                            |
+| `discussion-`                  | `discussion`         | a recorded exchange between agents disputing an entry.                                                                                                                   | round-bounded (§22).                                  |
+| `notification-`                | `notification`       | inter-agent mention, review request, or escalation.                                                                                                                      | short-lived; archived.                                |
+| `pending-`                     | `pending` (proposal) | a staged write from a sub-confirmed agent awaiting review.                                                                                                               | parallel state attached to a target entry (§9.5).     |
 
 ### 3.4 forbidden combinations
 
@@ -209,47 +209,47 @@ every entry — content or infrastructure — carries this frontmatter at the to
 
 ```yaml
 ---
-id: {slug}                       # must equal filename without .md
-title: "{Title Case Title}"
-category: {kind}                 # one of the kinds in §3
-classified_by: {lens-slug}        # for content entries
-produced_by: {protocol-name}      # for infrastructure entries
-domains: [{domain-slug}, ...]    # 1..N; never empty
-tags: [{tag}, ...]                # free-form, lowercase, hyphenated
-sources: [{source-slug}, ...]     # bare slugs of source-kind entries
-aliases: []                       # optional search aliases
-created: {YYYY-MM-DD}
-updated: {YYYY-MM-DD}
-confidence: high                 # high | medium | low | contested
-status: complete                 # draft | stub | complete
-notability_status: passes        # passes | borderline | fails | n/a (n/a for infrastructure)
-edit_hardness: open              # open | confirmed | extended-confirmed | restricted | locked
-high_stakes_class: none          # none | medical | legal | safety | identifiable-individual
-quality: c                       # stub | start | c | b | a | featured  (cf. wikipedia GA/FA)
+id: { slug } # must equal filename without .md
+title: '{Title Case Title}'
+category: { kind } # one of the kinds in §3
+classified_by: { lens-slug } # for content entries
+produced_by: { protocol-name } # for infrastructure entries
+domains: [{ domain-slug }, ...] # 1..N; never empty
+tags: [{ tag }, ...] # free-form, lowercase, hyphenated
+sources: [{ source-slug }, ...] # bare slugs of source-kind entries
+aliases: [] # optional search aliases
+created: { YYYY-MM-DD }
+updated: { YYYY-MM-DD }
+confidence: high # high | medium | low | contested
+status: complete # draft | stub | complete
+notability_status: passes # passes | borderline | fails | n/a (n/a for infrastructure)
+edit_hardness: open # open | confirmed | extended-confirmed | restricted | locked
+high_stakes_class: none # none | medical | legal | safety | identifiable-individual
+quality: c # stub | start | c | b | a | featured  (cf. wikipedia GA/FA)
 ---
 ```
 
 ### 4.2 field-by-field rules
 
-| field | type | required? | rule |
-|---|---|---|---|
-| `id` | string | yes | exactly equal to filename without `.md`. lint `id-filename-mismatch`. |
-| `title` | string | yes | title case, quoted. one entry, one canonical title. |
-| `category` | enum | yes | one of the kinds in §3.2 or §3.3. lint `unknown-category`. |
-| `classified_by` | string | content only | the slug of the lens that ruled. its `lens_covers_category` must equal this entry's `category`. lint `classification-consistency`. |
-| `produced_by` | string | infrastructure only | name of the lifecycle protocol that produced this entry, e.g., `pipeline-unpack`, `lifecycle-agent-create`. lint `infrastructure-without-produced-by`. |
-| `domains` | list | yes | non-empty. every value must equal an existing domain entry's `id`. lint `unknown-domain`, `entry-without-domain`. |
-| `tags` | list | optional | lowercase, hyphenated. tags reducing to a domain name must instead live in `domains`. lint `tag-shadowing-domain`. |
-| `sources` | list | optional | bare slugs of source-kind entries. machine-readable shorthand; the body's `## Sources` section is the rich attribution. lint `source-frontmatter-mismatch`. |
-| `aliases` | list | optional | alternative titles a search query might use. |
-| `created` | date | yes | first-write date. never modified after creation. |
-| `updated` | date | yes | most recent modification date. updated by every write. lint `updated-not-current` after any edit. |
-| `confidence` | enum | yes | `high` (multiple sources converge), `medium` (one source or weak convergence), `low` (single weak source), `contested` (sources actively disagree). |
-| `status` | enum | yes | `draft` (work in progress, do not retrieve), `stub` (thin but published), `complete` (ratified). |
-| `notability_status` | enum | content yes; infrastructure `n/a` | set by `lens-notability` at unpack. transitions per §8. |
-| `edit_hardness` | enum | yes | one of the five tiers (§9.1). set by the classifying lens or the producing protocol; raised by domain inheritance; never lowered. |
-| `high_stakes_class` | enum | yes | `none` is the default. non-`none` triggers asymmetric removal regime when evidence is below floor (§14). |
-| `quality` | enum | optional but recommended | quality tier (§5.7); separate from `status`. |
+| field               | type   | required?                         | rule                                                                                                                                                        |
+| ------------------- | ------ | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                | string | yes                               | exactly equal to filename without `.md`. lint `id-filename-mismatch`.                                                                                       |
+| `title`             | string | yes                               | title case, quoted. one entry, one canonical title.                                                                                                         |
+| `category`          | enum   | yes                               | one of the kinds in §3.2 or §3.3. lint `unknown-category`.                                                                                                  |
+| `classified_by`     | string | content only                      | the slug of the lens that ruled. its `lens_covers_category` must equal this entry's `category`. lint `classification-consistency`.                          |
+| `produced_by`       | string | infrastructure only               | name of the lifecycle protocol that produced this entry, e.g., `pipeline-unpack`, `lifecycle-agent-create`. lint `infrastructure-without-produced-by`.      |
+| `domains`           | list   | yes                               | non-empty. every value must equal an existing domain entry's `id`. lint `unknown-domain`, `entry-without-domain`.                                           |
+| `tags`              | list   | optional                          | lowercase, hyphenated. tags reducing to a domain name must instead live in `domains`. lint `tag-shadowing-domain`.                                          |
+| `sources`           | list   | optional                          | bare slugs of source-kind entries. machine-readable shorthand; the body's `## Sources` section is the rich attribution. lint `source-frontmatter-mismatch`. |
+| `aliases`           | list   | optional                          | alternative titles a search query might use.                                                                                                                |
+| `created`           | date   | yes                               | first-write date. never modified after creation.                                                                                                            |
+| `updated`           | date   | yes                               | most recent modification date. updated by every write. lint `updated-not-current` after any edit.                                                           |
+| `confidence`        | enum   | yes                               | `high` (multiple sources converge), `medium` (one source or weak convergence), `low` (single weak source), `contested` (sources actively disagree).         |
+| `status`            | enum   | yes                               | `draft` (work in progress, do not retrieve), `stub` (thin but published), `complete` (ratified).                                                            |
+| `notability_status` | enum   | content yes; infrastructure `n/a` | set by `lens-notability` at unpack. transitions per §8.                                                                                                     |
+| `edit_hardness`     | enum   | yes                               | one of the five tiers (§9.1). set by the classifying lens or the producing protocol; raised by domain inheritance; never lowered.                           |
+| `high_stakes_class` | enum   | yes                               | `none` is the default. non-`none` triggers asymmetric removal regime when evidence is below floor (§14).                                                    |
+| `quality`           | enum   | optional but recommended          | quality tier (§5.7); separate from `status`.                                                                                                                |
 
 ### 4.3 per-kind extensions
 
@@ -258,79 +258,79 @@ each kind may carry additional fields beyond the common head. enumerated below; 
 #### 4.3.1 lens
 
 ```yaml
-lens_question: "..."             # non-empty string, the yes/no question the lens asks
-lens_priority: 0                  # integer; lower = earlier in decision-tree order
-lens_covers_category: lens        # the kind this lens ranges over
-lens_criteria:                    # ordered list of checklist items
-  - "criterion 1"
-  - "criterion 2"
-lens_kind: decision-tree          # decision-tree | annotation
+lens_question: '...' # non-empty string, the yes/no question the lens asks
+lens_priority: 0 # integer; lower = earlier in decision-tree order
+lens_covers_category: lens # the kind this lens ranges over
+lens_criteria: # ordered list of checklist items
+  - 'criterion 1'
+  - 'criterion 2'
+lens_kind: decision-tree # decision-tree | annotation
 ```
 
 #### 4.3.2 source
 
 ```yaml
-author: "{Author Name}"
+author: '{Author Name}'
 year: 2019
-source_file: "raw/{source-slug}/{source-slug}.md"
+source_file: 'raw/{source-slug}/{source-slug}.md'
 date_ingested: 2026-04-21
 ```
 
 #### 4.3.3 entity
 
 ```yaml
-entity_kind: person               # person | institution | theory | framework | method
+entity_kind: person # person | institution | theory | framework | method
 ```
 
 #### 4.3.4 illustration
 
 ```yaml
-source: "[[{source-slug}]]"       # quoted wikilink, single source
-illustrates: [{concept-slug}, ...]
-chapter: "Chapter 4"              # if known; mark "unknown" otherwise
-pages: "120–135"                  # if known
+source: '[[{source-slug}]]' # quoted wikilink, single source
+illustrates: [{ concept-slug }, ...]
+chapter: 'Chapter 4' # if known; mark "unknown" otherwise
+pages: '120–135' # if known
 ```
 
 #### 4.3.5 application
 
 ```yaml
-applies: [{concept-slug}, ...]
-prerequisites: [{slug}, ...]      # optional
+applies: [{ concept-slug }, ...]
+prerequisites: [{ slug }, ...] # optional
 ```
 
 #### 4.3.6 process
 
 ```yaml
-stages: [{stage-slug}, ...]       # ordered; the order is meaningful
-preconditions: [{slug}, ...]      # optional
-postconditions: [{slug}, ...]     # optional
+stages: [{ stage-slug }, ...] # ordered; the order is meaningful
+preconditions: [{ slug }, ...] # optional
+postconditions: [{ slug }, ...] # optional
 ```
 
 #### 4.3.7 insight
 
 ```yaml
-connects: [{slug}, ...]           # at least 2 entries
+connects: [{ slug }, ...] # at least 2 entries
 ```
 
 #### 4.3.8 claim
 
 ```yaml
-claim_text: "..."                 # the assertion as a single declarative sentence
-evidence_grade: A                  # A | B | C | D — see §10.2
+claim_text: '...' # the assertion as a single declarative sentence
+evidence_grade: A # A | B | C | D — see §10.2
 evidence_pointers:
-  - source: "[[{source-slug}]]"
-    pages: "..."
-    quote: "..."                   # optional
-asserts_about: [{slug}, ...]       # entries the claim is about
-verifiable: true                   # boolean — is the claim, in principle, verifiable?
+  - source: '[[{source-slug}]]'
+    pages: '...'
+    quote: '...' # optional
+asserts_about: [{ slug }, ...] # entries the claim is about
+verifiable: true # boolean — is the claim, in principle, verifiable?
 ```
 
 #### 4.3.9 relation
 
 ```yaml
-predicate: supports                # supports | contradicts | instance-of | supersedes | depends-on
-from: "[[{slug}]]"
-to: "[[{slug}]]"
+predicate: supports # supports | contradicts | instance-of | supersedes | depends-on
+from: '[[{slug}]]'
+to: '[[{slug}]]'
 evidence_grade: B
 evidence_pointers: [...]
 ```
@@ -338,70 +338,70 @@ evidence_pointers: [...]
 #### 4.3.10 structure-note
 
 ```yaml
-organizes: [{slug}, ...]           # entries the note holds together; usually >5
-domain_frame: learning-theory      # the frame from which this note organizes the cluster; one of the entry's domains
+organizes: [{ slug }, ...] # entries the note holds together; usually >5
+domain_frame: learning-theory # the frame from which this note organizes the cluster; one of the entry's domains
 ```
 
 #### 4.3.11 disambiguation
 
 ```yaml
 variants:
-  - slug: "{variant-slug-1}"
-    distinguisher: "{one-line distinguisher}"
-  - slug: "{variant-slug-2}"
-    distinguisher: "..."
+  - slug: '{variant-slug-1}'
+    distinguisher: '{one-line distinguisher}'
+  - slug: '{variant-slug-2}'
+    distinguisher: '...'
 ```
 
 #### 4.3.12 question
 
 ```yaml
-asks_about: [{slug}, ...]
-priority: medium                   # low | medium | high
-opened_by: "[[{run-or-finding-slug}]]"
-closes_when: "..."                # human-readable success criterion
+asks_about: [{ slug }, ...]
+priority: medium # low | medium | high
+opened_by: '[[{run-or-finding-slug}]]'
+closes_when: '...' # human-readable success criterion
 ```
 
 #### 4.3.13 domain
 
 ```yaml
-scope: "..."                      # what the domain covers
-out_of_scope: "..."               # what it explicitly excludes
-canonical_questions: [{question-slug}, ...]
-contentious: false                 # boolean; raises floors when true
-evidence_grade_floor: D            # minimum evidence grade for new claims; D = no floor
-edit_hardness_floor: open          # tier; raises per-entry default by one tier when above open
-subscribed_agents: [{agent-slug}, ...]
-load_bearing_structure_notes: [{slug}, ...]
+scope: '...' # what the domain covers
+out_of_scope: '...' # what it explicitly excludes
+canonical_questions: [{ question-slug }, ...]
+contentious: false # boolean; raises floors when true
+evidence_grade_floor: D # minimum evidence grade for new claims; D = no floor
+edit_hardness_floor: open # tier; raises per-entry default by one tier when above open
+subscribed_agents: [{ agent-slug }, ...]
+load_bearing_structure_notes: [{ slug }, ...]
 ```
 
 #### 4.3.14 policy / guideline / essay
 
 ```yaml
-rule_tier: policy                  # policy | guideline | essay
-covers: "..."                     # one-sentence summary of the rule's scope
-linted_by: [{lint-rule-name}, ...] # for policies; lint rules that enforce it
-promotion_history:                 # for entries that have been promoted
+rule_tier: policy # policy | guideline | essay
+covers: '...' # one-sentence summary of the rule's scope
+linted_by: [{ lint-rule-name }, ...] # for policies; lint rules that enforce it
+promotion_history: # for entries that have been promoted
   - from: essay
     to: guideline
     on: 2026-05-12
-    via: "[[discussion-{slug}]]"
+    via: '[[discussion-{slug}]]'
 ```
 
 #### 4.3.15 agent
 
 ```yaml
-agent_kind: editor                 # editor | persona | lint
-prompt_ref: "..."                  # path or slug to the prompt definition
-slice:                             # what the agent reads/writes
-  read_domains: [{domain-slug}, ...]
-  write_domains: [{domain-slug}, ...]
-  voice_rules: [...]               # for persona
-  refusal_rules: [...]              # for persona
-  policy_targets: [{policy-slug}, ...] # for lint
-reputation: 0.0                    # current reputation score, 0.0–100.0
-lifecycle_stage: active            # proposed | active | retired
-seed_tests: [{agent-test-slug}, ...]
-created_via: "[[run-{slug}]]"
+agent_kind: editor # editor | persona | lint
+prompt_ref: '...' # path or slug to the prompt definition
+slice: # what the agent reads/writes
+  read_domains: [{ domain-slug }, ...]
+  write_domains: [{ domain-slug }, ...]
+  voice_rules: [...] # for persona
+  refusal_rules: [...] # for persona
+  policy_targets: [{ policy-slug }, ...] # for lint
+reputation: 0.0 # current reputation score, 0.0–100.0
+lifecycle_stage: active # proposed | active | retired
+seed_tests: [{ agent-test-slug }, ...]
+created_via: '[[run-{slug}]]'
 ```
 
 #### 4.3.16 run
@@ -425,60 +425,60 @@ lens_versions:
 #### 4.3.17 finding
 
 ```yaml
-finding_kind: broken-wikilink      # one of the named lint rules in §20
-status: open                       # open | resolved | wontfix
-fired_by: "[[lint-{rule-slug}]]"
-involves: ["[[slug-1]]", "[[slug-2]]"]
+finding_kind: broken-wikilink # one of the named lint rules in §20
+status: open # open | resolved | wontfix
+fired_by: '[[lint-{rule-slug}]]'
+involves: ['[[slug-1]]', '[[slug-2]]']
 opened: 2026-04-27
-resolved: null                     # date when status flips to resolved
-resolution_run: null               # link to the run that resolved it
-wontfix_justification: null        # required when status is wontfix
-severity: blocking                 # advisory | blocking
+resolved: null # date when status flips to resolved
+resolution_run: null # link to the run that resolved it
+wontfix_justification: null # required when status is wontfix
+severity: blocking # advisory | blocking
 ```
 
 #### 4.3.18 agent-test
 
 ```yaml
-agent: "[[agent-{slug}]]"
-question: "..."                   # the query
-expected_shape: "..."             # what a passing answer looks like
-authoritative: true                # human-authored seed test; gates promotion to test list
+agent: '[[agent-{slug}]]'
+question: '...' # the query
+expected_shape: '...' # what a passing answer looks like
+authoritative: true # human-authored seed test; gates promotion to test list
 last_run: 2026-04-26
-last_result: pass                  # pass | fail | stale
+last_result: pass # pass | fail | stale
 ```
 
 #### 4.3.19 discussion
 
 ```yaml
-disputed_object: "[[{slug}]]"
+disputed_object: '[[{slug}]]'
 opened: 2026-04-25
-participants: ["[[agent-{slug}]]", ...]
-rounds: 0                         # 0..5
-status: open                       # open | closed-resolved | closed-wontfix | escalated | stale
-termination_protocol: content-quorum  # content-quorum | meta-rule-quorum | human-escalation
+participants: ['[[agent-{slug}]]', ...]
+rounds: 0 # 0..5
+status: open # open | closed-resolved | closed-wontfix | escalated | stale
+termination_protocol: content-quorum # content-quorum | meta-rule-quorum | human-escalation
 ```
 
 #### 4.3.20 notification
 
 ```yaml
-to: "[[agent-{slug}]]"
-from: "[[agent-{slug}]]"
-about: "[[{slug}]]"
-notification_kind: review-request  # mention | review-request | escalation
-status: unread                     # unread | read | acted
+to: '[[agent-{slug}]]'
+from: '[[agent-{slug}]]'
+about: '[[{slug}]]'
+notification_kind: review-request # mention | review-request | escalation
+status: unread # unread | read | acted
 ```
 
 #### 4.3.21 pending (proposal)
 
 ```yaml
-target: "[[{slug}]]"               # the entry the proposal would modify or create
-proposal_kind: create              # create | modify | retire
-proposed_by: "[[agent-{slug}]]"
+target: '[[{slug}]]' # the entry the proposal would modify or create
+proposal_kind: create # create | modify | retire
+proposed_by: '[[agent-{slug}]]'
 proposed_at: 2026-04-27T11:00:00Z
-diff: "..."                       # rendered diff or full body for create
-status: pending                    # pending | accepted | rejected | superseded
-reviewed_by: null                  # set on accept/reject
-review_run: null                   # link to the run that reviewed it
+diff: '...' # rendered diff or full body for create
+status: pending # pending | accepted | rejected | superseded
+reviewed_by: null # set on accept/reject
+review_run: null # link to the run that reviewed it
 ```
 
 ### 4.4 frontmatter parsing rules
@@ -500,7 +500,7 @@ every entry's body follows this structural template, with sections appearing in 
 ```markdown
 # {Title}
 
-## Lead                    # required when body length exceeds threshold; see §5.2
+## Lead # required when body length exceeds threshold; see §5.2
 
 {1–3 sentences compressing the entry's content.}
 
@@ -508,17 +508,17 @@ every entry's body follows this structural template, with sections appearing in 
 
 {The substantive body of the entry.}
 
-## Connections             # optional but recommended for content entries
+## Connections # optional but recommended for content entries
 
 - relation-1: [[other-slug]] — annotation
 - relation-2: [[other-slug]] — annotation
 
-## Sources                 # required for any entry citing sources
+## Sources # required for any entry citing sources
 
 - [[{source-slug}]], chapter X, pages Y–Z
 - [[{source-slug}]], pages …
 
-## Mentioned in            # optional; backlink list
+## Mentioned in # optional; backlink list
 
 - [[{slug}]] — context
 ```
@@ -614,14 +614,14 @@ optional. lists entries that link _to_ this entry, with a one-line context for e
 
 distinct from `status`. quality reflects how well-developed the entry is.
 
-| quality | criteria |
-|---|---|
-| `stub` | minimal viable entry; identifies the topic; few sources; few links. |
-| `start` | structurally complete with a real explanation; some sourcing; minimal connections. |
-| `c` | reasonable depth; multiple sources; established connections; lead present where required. |
-| `b` | strong depth; multiple high-grade sources; rich connections; structure-note backing if part of a cluster; passes all advisory lint. |
-| `a` | comprehensive; primary-literature sources where relevant; load-bearing for the cluster; cited by other entries. |
-| `featured` | the vault's best work in this domain. peer-reviewed via discussion. |
+| quality    | criteria                                                                                                                            |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `stub`     | minimal viable entry; identifies the topic; few sources; few links.                                                                 |
+| `start`    | structurally complete with a real explanation; some sourcing; minimal connections.                                                  |
+| `c`        | reasonable depth; multiple sources; established connections; lead present where required.                                           |
+| `b`        | strong depth; multiple high-grade sources; rich connections; structure-note backing if part of a cluster; passes all advisory lint. |
+| `a`        | comprehensive; primary-literature sources where relevant; load-bearing for the cluster; cited by other entries.                     |
+| `featured` | the vault's best work in this domain. peer-reviewed via discussion.                                                                 |
 
 quality is reviewed in assessment passes (§28). promotion to `b`, `a`, or `featured` requires a discussion or review run that records the rationale.
 
@@ -664,6 +664,7 @@ when a new entry's natural slug collides with an existing entry of a different s
    - `mercury-element` vs. `mercury-planet` vs. `mercury-mythology`.
 2. if the existing entry's slug is the bare base slug, it must be renamed to take its own disambiguator suffix. the rename is a phase 4 closeout step, not phase 1; phase 1 just stages the new entry under its disambiguated slug.
 3. create or extend the disambiguation entry at `wiki/entries/disambiguation-{base-slug}.md`. this entry's body lists the variants:
+
    ```markdown
    # {Base Term}
 
@@ -676,6 +677,7 @@ when a new entry's natural slug collides with an existing entry of a different s
    - [[transfer-learning]] — the educational-psychology concept
    - [[transfer-finance]] — the financial-services concept
    ```
+
 4. add inline hatnotes to each variant's body, near the top:
    ```markdown
    > For the financial concept, see [[transfer-finance]]. For routing, see [[disambiguation-transfer]].
@@ -686,24 +688,24 @@ when a new entry's natural slug collides with an existing entry of a different s
 
 the following prefixes are reserved for specific kinds and may not be used for other kinds:
 
-| prefix | reserved for |
-|---|---|
-| `lens-` | lens entries |
-| `policy-` | policy entries |
-| `guideline-` | guideline entries |
-| `essay-` | essay entries |
-| `agent-` | agent entries |
-| `run-` | run entries |
-| `finding-` | finding entries |
-| `agent-test-` | agent-test entries |
-| `discussion-` | discussion entries |
-| `notification-` | notification entries |
-| `pending-` | pending proposal entries |
-| `claim-` | claim entries |
-| `relation-` | relation entries |
-| `structure-` | structure-note entries |
-| `disambiguation-` | disambiguation entries |
-| `question-` | question entries |
+| prefix            | reserved for             |
+| ----------------- | ------------------------ |
+| `lens-`           | lens entries             |
+| `policy-`         | policy entries           |
+| `guideline-`      | guideline entries        |
+| `essay-`          | essay entries            |
+| `agent-`          | agent entries            |
+| `run-`            | run entries              |
+| `finding-`        | finding entries          |
+| `agent-test-`     | agent-test entries       |
+| `discussion-`     | discussion entries       |
+| `notification-`   | notification entries     |
+| `pending-`        | pending proposal entries |
+| `claim-`          | claim entries            |
+| `relation-`       | relation entries         |
+| `structure-`      | structure-note entries   |
+| `disambiguation-` | disambiguation entries   |
+| `question-`       | question entries         |
 
 a content entry of kind `concept`, `source`, `illustration`, `application`, `entity`, `process`, or `insight` must **not** use any reserved prefix. lint `reserved-prefix-misuse` enforces this.
 
@@ -722,22 +724,22 @@ a lens entry's frontmatter `lens_kind` field declares which flavor it is.
 
 priority order. lower number runs first. first-match wins.
 
-| priority | slug | covers (`category`) | yes-question |
-|---:|---|---|---|
-| 0 | `lens-lens` | `lens` | is this entry itself a lens? |
-| 5 | `lens-policy-tier` | `policy`/`guideline`/`essay` | is this entry a rule about how the vault works, and which tier of binding force? |
-| 10 | `lens-source` | `source` | is this a literature note about one raw document? |
-| 15 | `lens-structure-note` | `structure-note` | does the body organize a cluster of entries via annotated links rather than assert facts about a single subject? |
-| 18 | `lens-disambiguation` | `disambiguation` | is this entry a routing target for a polysemous slug? |
-| 20 | `lens-illustration` | `illustration` | does the entry have protagonist, setting, and outcome — a story? |
-| 22 | `lens-relation` | `relation` | is this entry a typed, directed edge between two other entries with evidence? |
-| 25 | `lens-claim` | `claim` | is this entry a single atomic assertion with evidence? |
-| 30 | `lens-application` | `application` | could a practitioner follow this as instructions? |
-| 35 | `lens-question` | `question` | is this entry an open question pinning a gap? |
-| 40 | `lens-entity` | `entity` | is the subject a proper noun — a person, institution, theory, framework, or method? |
-| 50 | `lens-process` | `process` | is this entry a multi-stage sequence with named transitions? |
-| 60 | `lens-insight` | `insight` | does this entry name a non-trivial relationship between 2+ existing concepts? |
-| 99 | `lens-concept` | `concept` | otherwise: one idea, explained on its own terms. |
+| priority | slug                  | covers (`category`)          | yes-question                                                                                                     |
+| -------: | --------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+|        0 | `lens-lens`           | `lens`                       | is this entry itself a lens?                                                                                     |
+|        5 | `lens-policy-tier`    | `policy`/`guideline`/`essay` | is this entry a rule about how the vault works, and which tier of binding force?                                 |
+|       10 | `lens-source`         | `source`                     | is this a literature note about one raw document?                                                                |
+|       15 | `lens-structure-note` | `structure-note`             | does the body organize a cluster of entries via annotated links rather than assert facts about a single subject? |
+|       18 | `lens-disambiguation` | `disambiguation`             | is this entry a routing target for a polysemous slug?                                                            |
+|       20 | `lens-illustration`   | `illustration`               | does the entry have protagonist, setting, and outcome — a story?                                                 |
+|       22 | `lens-relation`       | `relation`                   | is this entry a typed, directed edge between two other entries with evidence?                                    |
+|       25 | `lens-claim`          | `claim`                      | is this entry a single atomic assertion with evidence?                                                           |
+|       30 | `lens-application`    | `application`                | could a practitioner follow this as instructions?                                                                |
+|       35 | `lens-question`       | `question`                   | is this entry an open question pinning a gap?                                                                    |
+|       40 | `lens-entity`         | `entity`                     | is the subject a proper noun — a person, institution, theory, framework, or method?                              |
+|       50 | `lens-process`        | `process`                    | is this entry a multi-stage sequence with named transitions?                                                     |
+|       60 | `lens-insight`        | `insight`                    | does this entry name a non-trivial relationship between 2+ existing concepts?                                    |
+|       99 | `lens-concept`        | `concept`                    | otherwise: one idea, explained on its own terms.                                                                 |
 
 `lens-policy-tier` is structured as a single lens that resolves to one of three categories (`policy`, `guideline`, `essay`) based on the binding force the rule claims. its `lens_covers_category` is the multi-value list `[policy, guideline, essay]` (an exception to the otherwise single-value field). the lens body contains a sub-decision tree:
 
@@ -749,14 +751,14 @@ priority order. lower number runs first. first-match wins.
 
 annotation lenses do not compete. each runs on every relevant entry and stamps its own frontmatter field.
 
-| slug | stamps field | values | applies to |
-|---|---|---|---|
-| `lens-notability` | `notability_status` | `passes` / `borderline` / `fails` | every candidate content unit at unpack |
-| `lens-evidence-grade` | `evidence_grade` | `A` / `B` / `C` / `D` | claim and relation entries |
-| `lens-high-stakes` | `high_stakes_class` | `none` / `medical` / `legal` / `safety` / `identifiable-individual` | every claim entry; concept entries that contain claims |
-| `lens-confidence` | `confidence` | `high` / `medium` / `low` / `contested` | every content entry |
-| `lens-recency` | (a tag in `tags`) | `time-bounded` if applicable | claim and source entries |
-| `lens-edit-hardness` | `edit_hardness` | one of the five tiers | every entry; default set by `classified_by`, raised by domain inheritance |
+| slug                  | stamps field        | values                                                              | applies to                                                                |
+| --------------------- | ------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `lens-notability`     | `notability_status` | `passes` / `borderline` / `fails`                                   | every candidate content unit at unpack                                    |
+| `lens-evidence-grade` | `evidence_grade`    | `A` / `B` / `C` / `D`                                               | claim and relation entries                                                |
+| `lens-high-stakes`    | `high_stakes_class` | `none` / `medical` / `legal` / `safety` / `identifiable-individual` | every claim entry; concept entries that contain claims                    |
+| `lens-confidence`     | `confidence`        | `high` / `medium` / `low` / `contested`                             | every content entry                                                       |
+| `lens-recency`        | (a tag in `tags`)   | `time-bounded` if applicable                                        | claim and source entries                                                  |
+| `lens-edit-hardness`  | `edit_hardness`     | one of the five tiers                                               | every entry; default set by `classified_by`, raised by domain inheritance |
 
 annotation lenses run in a fixed order (the order above). later lenses may read earlier lenses' stamps; specifically, `lens-edit-hardness` reads `lens-high-stakes` to raise the default tier when the high-stakes class is not `none`.
 
@@ -876,35 +878,35 @@ units stamped `fails` at unpack are folded into the parent entry's body in phase
 
 every entry carries `edit_hardness` in its common frontmatter. the value is one of:
 
-| tier | gating rule | who edits |
-|---|---|---|
-| `open` | none | any active agent in the population. |
-| `confirmed` | reputation ≥ 30 | confirmed agents and above. |
-| `extended-confirmed` | reputation ≥ 60 **and** declared scope in one of the entry's domains | scoped, well-trusted agents. |
-| `restricted` | quorum of 3 agents at reputation ≥ 80, **or** human reviewer | meta-rule edits, lens edits, runtime policy. |
-| `locked` | human reviewer only | runtime-critical entries only. |
+| tier                 | gating rule                                                          | who edits                                    |
+| -------------------- | -------------------------------------------------------------------- | -------------------------------------------- |
+| `open`               | none                                                                 | any active agent in the population.          |
+| `confirmed`          | reputation ≥ 30                                                      | confirmed agents and above.                  |
+| `extended-confirmed` | reputation ≥ 60 **and** declared scope in one of the entry's domains | scoped, well-trusted agents.                 |
+| `restricted`         | quorum of 3 agents at reputation ≥ 80, **or** human reviewer         | meta-rule edits, lens edits, runtime policy. |
+| `locked`             | human reviewer only                                                  | runtime-critical entries only.               |
 
 reputation is a 0.0–100.0 scale (§9.6). the thresholds above are v0 placeholders; they live in `policy-edit-hardness` and are revised against measured population behavior.
 
 ### 9.2 default tiers per kind
 
-| kind | default tier |
-|---|---|
-| `concept`, `illustration`, `application` | `open` |
-| `entity`, `process`, `insight` | `open` |
-| `claim`, `relation`, `question` | `open` |
-| `structure-note` | `confirmed` |
-| `disambiguation` | `confirmed` |
-| `source` | `confirmed` (changes to summary, key ideas, connections) |
-| `domain` | `restricted` |
-| `lens` | `restricted` |
-| `policy` | `restricted` |
-| `guideline` | `extended-confirmed` |
-| `essay` | `open` |
-| `agent` | `extended-confirmed` (mutate); `restricted` (retire) |
-| `run`, `finding`, `discussion`, `notification` | `locked` (immutable; new run entry replaces) |
-| `agent-test` | `extended-confirmed` |
-| `pending` | the proposing agent edits its own; reviewer edits on accept |
+| kind                                           | default tier                                                |
+| ---------------------------------------------- | ----------------------------------------------------------- |
+| `concept`, `illustration`, `application`       | `open`                                                      |
+| `entity`, `process`, `insight`                 | `open`                                                      |
+| `claim`, `relation`, `question`                | `open`                                                      |
+| `structure-note`                               | `confirmed`                                                 |
+| `disambiguation`                               | `confirmed`                                                 |
+| `source`                                       | `confirmed` (changes to summary, key ideas, connections)    |
+| `domain`                                       | `restricted`                                                |
+| `lens`                                         | `restricted`                                                |
+| `policy`                                       | `restricted`                                                |
+| `guideline`                                    | `extended-confirmed`                                        |
+| `essay`                                        | `open`                                                      |
+| `agent`                                        | `extended-confirmed` (mutate); `restricted` (retire)        |
+| `run`, `finding`, `discussion`, `notification` | `locked` (immutable; new run entry replaces)                |
+| `agent-test`                                   | `extended-confirmed`                                        |
+| `pending`                                      | the proposing agent edits its own; reviewer edits on accept |
 
 defaults are floors. an entry's `edit_hardness` may be raised by:
 
@@ -977,29 +979,29 @@ a borderline-notability unit (§8.3.1) lives in the same proposal flow but with 
 
 #### 9.6.1 sources of reputation gain
 
-| event | delta |
-|---|---|
-| agent-test passes (per test, per run) | +0.1 |
-| editor agent's `run-edit` produces an entry that passes lint | +0.5 |
+| event                                                                                       | delta             |
+| ------------------------------------------------------------------------------------------- | ----------------- |
+| agent-test passes (per test, per run)                                                       | +0.1              |
+| editor agent's `run-edit` produces an entry that passes lint                                | +0.5              |
 | editor agent's contribution is cited (wikilinked) by an entry produced by a different agent | +0.2 per citation |
-| editor agent raises a finding that is later resolved (not wontfix) | +1.0 |
-| editor agent's claim is relied on by a later `relation: supports` | +0.3 per relation |
-| persona agent's slice passes a quarterly assessment | +2.0 |
-| lint agent flags an issue that becomes a confirmed finding | +0.2 |
-| agent participates in a discussion that closes-resolved within bound | +0.5 |
-| external anchor: agent's work is rated highly by a human reviewer or the thesis-eval panel | +5.0 |
+| editor agent raises a finding that is later resolved (not wontfix)                          | +1.0              |
+| editor agent's claim is relied on by a later `relation: supports`                           | +0.3 per relation |
+| persona agent's slice passes a quarterly assessment                                         | +2.0              |
+| lint agent flags an issue that becomes a confirmed finding                                  | +0.2              |
+| agent participates in a discussion that closes-resolved within bound                        | +0.5              |
+| external anchor: agent's work is rated highly by a human reviewer or the thesis-eval panel  | +5.0              |
 
 #### 9.6.2 sources of reputation loss
 
-| event | delta |
-|---|---|
-| agent-test fails | -0.5 |
-| agent's contribution is reverted via discussion | -1.5 |
-| agent introduces a finding that turns out to be a false positive | -0.5 |
-| agent's pending proposal is rejected | -0.3 |
-| agent's contribution is wontfix-ed (acknowledging it was malformed but not actively harmful) | -0.5 |
-| agent fails to act on a notification within deadline | -0.1 |
-| a human reviewer flags the agent's work as low quality on the external anchor | -3.0 |
+| event                                                                                        | delta |
+| -------------------------------------------------------------------------------------------- | ----- |
+| agent-test fails                                                                             | -0.5  |
+| agent's contribution is reverted via discussion                                              | -1.5  |
+| agent introduces a finding that turns out to be a false positive                             | -0.5  |
+| agent's pending proposal is rejected                                                         | -0.3  |
+| agent's contribution is wontfix-ed (acknowledging it was malformed but not actively harmful) | -0.5  |
+| agent fails to act on a notification within deadline                                         | -0.1  |
+| a human reviewer flags the agent's work as low quality on the external anchor                | -3.0  |
 
 #### 9.6.3 the external anchor
 
@@ -1042,12 +1044,12 @@ if uncertain, prefer the coarser claim in v0 — fragmentation is harder to reve
 
 #### 10.1.2 evidence grades
 
-| grade | meaning |
-|---|---|
-| `A` | primary literature: peer-reviewed empirical studies, meta-analyses, or original derivations from those. |
-| `B` | secondary scholarly: textbooks, review articles, expert syntheses citing primary work. |
-| `C` | popular or applied: well-regarded practitioner books, expert essays, applied references. |
-| `D` | anecdotal: single-case reports, blog posts, opinion pieces, claims without traceable evidence. |
+| grade | meaning                                                                                                 |
+| ----- | ------------------------------------------------------------------------------------------------------- |
+| `A`   | primary literature: peer-reviewed empirical studies, meta-analyses, or original derivations from those. |
+| `B`   | secondary scholarly: textbooks, review articles, expert syntheses citing primary work.                  |
+| `C`   | popular or applied: well-regarded practitioner books, expert essays, applied references.                |
+| `D`   | anecdotal: single-case reports, blog posts, opinion pieces, claims without traceable evidence.          |
 
 claims default to the lowest grade their sources support. multi-source claims take the grade of their strongest source unless there is contradiction (in which case `confidence: contested` is set and grade reflects the contradiction).
 
@@ -1061,13 +1063,13 @@ a **relation** is a directed, typed edge between two entries, carrying its own e
 
 #### 10.2.1 predicates
 
-| predicate | meaning |
-|---|---|
-| `supports` | A's content makes B more likely to be true (or, if B is a process, makes B's outcome more achievable). |
-| `contradicts` | A's content makes B less likely to be true. |
-| `instance-of` | A is a specific case of B. |
-| `supersedes` | A is a newer or more accurate version of B; B is retained for history. |
-| `depends-on` | A cannot be applied or evaluated without B in context. |
+| predicate     | meaning                                                                                                |
+| ------------- | ------------------------------------------------------------------------------------------------------ |
+| `supports`    | A's content makes B more likely to be true (or, if B is a process, makes B's outcome more achievable). |
+| `contradicts` | A's content makes B less likely to be true.                                                            |
+| `instance-of` | A is a specific case of B.                                                                             |
+| `supersedes`  | A is a newer or more accurate version of B; B is retained for history.                                 |
+| `depends-on`  | A cannot be applied or evaluated without B in context.                                                 |
 
 `is-a` is **not** a predicate; use `instance-of`. `related-to` is **not** a predicate; that's a wikilink. relation predicates are load-bearing only when retrieval can traverse them and reasoning over them is meaningful.
 
@@ -1234,12 +1236,12 @@ a domain is itself an entry under `wiki/entries/{domain-slug}.md`. its frontmatt
 
 setting `contentious: true` raises floors across every entry whose `domains` list includes this domain:
 
-| dimension | non-contentious default | contentious override |
-|---|---|---|
-| minimum evidence grade for new claims | as set by `evidence_grade_floor` (default `D`) | one grade higher (`D`→`C`, `C`→`B`, `B`→`A`); never below `B` regardless of `evidence_grade_floor` |
-| default `edit_hardness` for new entries | per §9.2 | one tier higher |
-| maximum discussion rounds before escalation | 5 (§22.4) | 3 |
-| citation of source for every claim | recommended | mandatory; lint blocks merge of claims without sources |
+| dimension                                   | non-contentious default                        | contentious override                                                                               |
+| ------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| minimum evidence grade for new claims       | as set by `evidence_grade_floor` (default `D`) | one grade higher (`D`→`C`, `C`→`B`, `B`→`A`); never below `B` regardless of `evidence_grade_floor` |
+| default `edit_hardness` for new entries     | per §9.2                                       | one tier higher                                                                                    |
+| maximum discussion rounds before escalation | 5 (§22.4)                                      | 3                                                                                                  |
+| citation of source for every claim          | recommended                                    | mandatory; lint blocks merge of claims without sources                                             |
 
 setting `contentious: true` on a domain is a `restricted`-tier edit; it requires meta-rule quorum. unsetting is identical.
 
@@ -1275,11 +1277,11 @@ this is the wikiproject pattern: not a permission gate, but visibility into who 
 
 ### 13.1 the three tiers, summarized
 
-| tier | binds? | violation produces | edit-hardness default |
-|---|---|---|---|
-| `policy` | yes | blocking finding | `restricted` |
-| `guideline` | no (advises) | advisory finding | `extended-confirmed` |
-| `essay` | no | no finding (essays are content, not enforcement) | `open` |
+| tier        | binds?       | violation produces                               | edit-hardness default |
+| ----------- | ------------ | ------------------------------------------------ | --------------------- |
+| `policy`    | yes          | blocking finding                                 | `restricted`          |
+| `guideline` | no (advises) | advisory finding                                 | `extended-confirmed`  |
+| `essay`     | no           | no finding (essays are content, not enforcement) | `open`                |
 
 ### 13.2 distinguishing tiers — lens criteria
 
@@ -1373,13 +1375,13 @@ essays sit at the boundary of "vault content" and "vault rules." they are conten
 
 ### 14.1 the classes (v0)
 
-| class | examples |
-|---|---|
-| `medical` | claims about clinical efficacy, dosage, contraindications, diagnostic procedures, treatment recommendations. |
-| `legal` | claims about legal liability, statutory requirements, regulatory compliance, court rulings. |
-| `safety` | claims about physical safety, accident risk, hazard procedures, emergency response. |
-| `identifiable-individual` | claims about specific named living people (analog of wikipedia's BLP). |
-| `none` | the default; claim is not high-stakes. |
+| class                     | examples                                                                                                     |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `medical`                 | claims about clinical efficacy, dosage, contraindications, diagnostic procedures, treatment recommendations. |
+| `legal`                   | claims about legal liability, statutory requirements, regulatory compliance, court rulings.                  |
+| `safety`                  | claims about physical safety, accident risk, hazard procedures, emergency response.                          |
+| `identifiable-individual` | claims about specific named living people (analog of wikipedia's BLP).                                       |
+| `none`                    | the default; claim is not high-stakes.                                                                       |
 
 new classes may be added by amending `policy-high-stakes`. addition is a meta-rule edit.
 
@@ -1446,14 +1448,14 @@ a domain becomes contentious by setting its `contentious` frontmatter field to `
 
 when an entry's `domains` list includes a contentious domain:
 
-| rule | non-contentious | contentious |
-|---|---|---|
-| minimum evidence grade for new claims | per `evidence_grade_floor` of all the entry's domains, take the strictest | one grade stricter; never below `B` |
-| default `edit_hardness` for new entries | per §9.2 | one tier higher |
-| maximum discussion rounds before escalation | 5 | 3 |
-| citation of source for every claim | recommended | mandatory; missing source produces blocking finding `finding-source-missing-{slug}` |
-| lead-section requirement | per §5.2.1 (size threshold) | required regardless of size |
-| stale-pending threshold for promotion | 90 days | 30 days |
+| rule                                        | non-contentious                                                           | contentious                                                                         |
+| ------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| minimum evidence grade for new claims       | per `evidence_grade_floor` of all the entry's domains, take the strictest | one grade stricter; never below `B`                                                 |
+| default `edit_hardness` for new entries     | per §9.2                                                                  | one tier higher                                                                     |
+| maximum discussion rounds before escalation | 5                                                                         | 3                                                                                   |
+| citation of source for every claim          | recommended                                                               | mandatory; missing source produces blocking finding `finding-source-missing-{slug}` |
+| lead-section requirement                    | per §5.2.1 (size threshold)                                               | required regardless of size                                                         |
+| stale-pending threshold for promotion       | 90 days                                                                   | 30 days                                                                             |
 
 multiple contentious domains in the same entry compose: the strictest rule wins per dimension.
 
@@ -1474,11 +1476,11 @@ flipping `contentious: true → false` does **not** retroactively lower `edit_ha
 
 ### 16.1 the three kinds in v0
 
-| kind | role | reads | writes |
-|---|---|---|---|
-| `editor` | reads sources, writes content entries | sources, existing entries | content entries within `slice.write_domains` |
-| `persona` | introspection / self-assessment of a slice | entries within `slice.read_domains` | does not write content; produces findings and discussion entries |
-| `lint` | runs policy-driven checks | every entry under its `policy_targets` | findings and notifications |
+| kind      | role                                       | reads                                  | writes                                                           |
+| --------- | ------------------------------------------ | -------------------------------------- | ---------------------------------------------------------------- |
+| `editor`  | reads sources, writes content entries      | sources, existing entries              | content entries within `slice.write_domains`                     |
+| `persona` | introspection / self-assessment of a slice | entries within `slice.read_domains`    | does not write content; produces findings and discussion entries |
+| `lint`    | runs policy-driven checks                  | every entry under its `policy_targets` | findings and notifications                                       |
 
 ### 16.2 the agent manifest
 
@@ -1658,9 +1660,10 @@ source completion  (once, after all chapters)
    - ≤25 pages: 2 sub-sections.
    - 25–40 pages: 2–3.
    - 40–60 pages: 3–5.
-   - >60 pages: 4–5.
+   - > 60 pages: 4–5.
 4. **record sub-sections** as nested rows in the process trace, each `not-started`.
 5. **create `temp/_staging-index.md`**:
+
    ```markdown
    # staging index — {source-slug} chapter {N}
 
@@ -1673,6 +1676,7 @@ source completion  (once, after all chapters)
 
    (populated as phase 2 progresses)
    ```
+
 6. **emit `run-chapter-setup-{source-slug}-{N}`**.
 
 #### 17.3.3 phase 1 output
@@ -1849,29 +1853,29 @@ partial reingestion (a single sub-section) is permitted when only one sub-sectio
 
 ### 19.1 the frontmatter merge — mechanical, applies to all kinds
 
-| field | rule on merge |
-|---|---|
-| `id` | keep original; must match filename. mismatch is `finding-id-filename-mismatch-{slug}` blocking. |
-| `title` | keep original unless explicitly re-canonicalized in temp; recanonicalization requires a discussion. |
-| `category` | must agree. mismatch → halt, emit `finding-merge-classification-mismatch-{slug}`. |
-| `classified_by` | must agree. mismatch → halt, emit `finding-merge-classified-by-mismatch-{slug}`. |
-| `produced_by` | must agree. mismatch → halt. |
-| `domains` | union, deduplicated. |
-| `tags` | union, deduplicated. |
-| `sources` | union, deduplicated. |
-| `aliases` | union, deduplicated. |
-| `created` | keep original. |
-| `updated` | today's date. |
-| `confidence` | most conservative: `contested` > `low` > `medium` > `high`. |
-| `status` | most advanced: `complete` > `stub` > `draft`. |
-| `notability_status` | most permissive: `passes` > `borderline` > `fails`. |
-| `edit_hardness` | strictest: `locked` > `restricted` > `extended-confirmed` > `confirmed` > `open`. never lower. |
-| `high_stakes_class` | must agree. mismatch → halt, emit `finding-merge-high-stakes-mismatch-{slug}`. |
-| `quality` | strictest: `featured` > `a` > `b` > `c` > `start` > `stub`. |
-| category-specific lists (e.g., `illustrates`, `applies`, `connects`, `organizes`) | union, deduplicated. |
-| `evidence_grade` (claim, relation) | strongest of the two; if they disagree by more than one grade, set `confidence: contested` and keep the higher grade. |
-| `evidence_pointers` (claim, relation) | union, deduplicated. |
-| `lens_priority` | keep original; changes only via discussion. |
+| field                                                                             | rule on merge                                                                                                         |
+| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `id`                                                                              | keep original; must match filename. mismatch is `finding-id-filename-mismatch-{slug}` blocking.                       |
+| `title`                                                                           | keep original unless explicitly re-canonicalized in temp; recanonicalization requires a discussion.                   |
+| `category`                                                                        | must agree. mismatch → halt, emit `finding-merge-classification-mismatch-{slug}`.                                     |
+| `classified_by`                                                                   | must agree. mismatch → halt, emit `finding-merge-classified-by-mismatch-{slug}`.                                      |
+| `produced_by`                                                                     | must agree. mismatch → halt.                                                                                          |
+| `domains`                                                                         | union, deduplicated.                                                                                                  |
+| `tags`                                                                            | union, deduplicated.                                                                                                  |
+| `sources`                                                                         | union, deduplicated.                                                                                                  |
+| `aliases`                                                                         | union, deduplicated.                                                                                                  |
+| `created`                                                                         | keep original.                                                                                                        |
+| `updated`                                                                         | today's date.                                                                                                         |
+| `confidence`                                                                      | most conservative: `contested` > `low` > `medium` > `high`.                                                           |
+| `status`                                                                          | most advanced: `complete` > `stub` > `draft`.                                                                         |
+| `notability_status`                                                               | most permissive: `passes` > `borderline` > `fails`.                                                                   |
+| `edit_hardness`                                                                   | strictest: `locked` > `restricted` > `extended-confirmed` > `confirmed` > `open`. never lower.                        |
+| `high_stakes_class`                                                               | must agree. mismatch → halt, emit `finding-merge-high-stakes-mismatch-{slug}`.                                        |
+| `quality`                                                                         | strictest: `featured` > `a` > `b` > `c` > `start` > `stub`.                                                           |
+| category-specific lists (e.g., `illustrates`, `applies`, `connects`, `organizes`) | union, deduplicated.                                                                                                  |
+| `evidence_grade` (claim, relation)                                                | strongest of the two; if they disagree by more than one grade, set `confidence: contested` and keep the higher grade. |
+| `evidence_pointers` (claim, relation)                                             | union, deduplicated.                                                                                                  |
+| `lens_priority`                                                                   | keep original; changes only via discussion.                                                                           |
 
 ### 19.2 concept merge
 
@@ -2002,53 +2006,53 @@ these kinds are immutable once written. attempted merges produce `finding-immuta
 
 each rule has a name, scope, severity, and a finding-kind. severity is `advisory` (does not block writes; produces a finding for review) or `blocking` (prevents the write or merge until resolved).
 
-| rule name | scope | severity | finding kind |
-|---|---|---|---|
-| `slug-uniqueness` | full vault | blocking | `finding-slug-collision-{slug}` |
-| `id-filename-mismatch` | per entry | blocking | `finding-id-filename-mismatch-{slug}` |
-| `unknown-category` | per entry | blocking | `finding-unknown-category-{slug}` |
-| `classification-consistency` | per content entry | blocking | `finding-classification-consistency-{slug}` |
-| `infrastructure-without-produced-by` | per infra entry | blocking | `finding-infrastructure-without-produced-by-{slug}` |
-| `infrastructure-classified-by-lens` | per infra entry | blocking | `finding-infrastructure-classified-by-lens-{slug}` |
-| `lens-self-classification` | per lens entry | blocking | `finding-lens-self-classification-{slug}` |
-| `unknown-domain` | per entry | blocking | `finding-unknown-domain-{slug}` |
-| `entry-without-domain` | per entry | blocking | `finding-entry-without-domain-{slug}` |
-| `tag-shadowing-domain` | per entry | advisory | `finding-tag-shadowing-domain-{slug}` |
-| `source-frontmatter-mismatch` | per entry | advisory | `finding-source-frontmatter-mismatch-{slug}` |
-| `missing-required-list` | per entry | blocking | `finding-missing-required-list-{slug}-{field}` |
-| `category-fields-presence` | per entry | blocking | `finding-category-fields-presence-{slug}` |
-| `reserved-prefix-misuse` | per entry | blocking | `finding-reserved-prefix-misuse-{slug}` |
-| `lead-missing` | per entry | advisory or blocking (see §20.3) | `finding-lead-missing-{slug}` |
-| `lead-too-long` | per entry | advisory | `finding-lead-too-long-{slug}` |
-| `low-link-density` | per content entry | advisory | `finding-low-link-density-{slug}` |
-| `structure-note-low-link-density` | per structure note | blocking | `finding-structure-note-low-link-density-{slug}` |
-| `broken-wikilink` | per entry | blocking | `finding-broken-wikilink-{slug}-{target}` |
-| `relation-not-formalized` | per entry | advisory | `finding-relation-not-formalized-{slug}` |
-| `orphan-entry` | full vault | advisory | `finding-orphan-entry-{slug}` |
-| `main-index-coverage` | full vault | advisory | `finding-main-index-coverage-{slug}` |
-| `domain-index-coverage` | full vault | advisory | `finding-domain-index-coverage-{slug}` |
-| `lens-version-drift` | full vault | advisory | `finding-classification-drift-{slug}` |
-| `unanswered-old-question` | per question | advisory | `finding-unanswered-old-question-{slug}` |
-| `evidence-below-floor` | per claim | blocking in contentious domain; advisory otherwise | `finding-evidence-below-floor-{slug}` |
-| `source-missing-contentious` | per claim in contentious domain | blocking | `finding-source-missing-{slug}` |
-| `high-stakes-floor-violation` | per claim with non-`none` class | blocking | `finding-high-stakes-removal-{slug}` |
-| `structure-note-coverage` | full vault | advisory | `finding-cluster-without-structure-note-{cluster-id}` |
-| `stale-pending` | per pending proposal | advisory | `finding-stale-pending-{run-id}` |
-| `stale-discussion` | per discussion | advisory | `finding-stale-discussion-{slug}` |
-| `stale-finding` | per finding open >90 days | advisory | `finding-stale-finding-{slug}` |
-| `domain-non-subscriber-edit` | per write to domain by non-subscriber | advisory | `finding-domain-non-subscriber-edit-{slug}` |
-| `agent-direct-merge` | per merge run on agent entry | blocking | `finding-agent-direct-merge-{slug}` |
-| `immutable-merge` | per merge run on immutable entry | blocking | `finding-immutable-merge-{slug}` |
-| `disambiguation-orphan` | per disambiguation entry | advisory | `finding-disambiguation-orphan-{slug}` |
-| `disambiguation-no-hatnote` | per variant of a disambiguation | advisory | `finding-disambiguation-no-hatnote-{slug}` |
-| `notability-stamp-missing` | per content entry | blocking | `finding-notability-stamp-missing-{slug}` |
-| `edit-hardness-consistency` | per entry | blocking | `finding-edit-hardness-consistency-{slug}` |
-| `frontmatter-yaml-invalid` | per entry | blocking | `finding-frontmatter-yaml-invalid-{slug}` |
-| `body-section-order` | per entry with explicit lead | advisory | `finding-body-section-order-{slug}` |
-| `wontfix-without-justification` | per finding | blocking | `finding-wontfix-without-justification-{slug}` |
-| `discussion-round-bound-exceeded` | per discussion | blocking | `finding-discussion-round-exceeded-{slug}` |
-| `low-quality-lead` | per entry with explicit lead | advisory | `finding-low-quality-lead-{slug}` |
-| `seed-test-fail` | per persona agent | advisory or blocking depending on test authority | `finding-persona-test-fail-{persona}-{test}` |
+| rule name                            | scope                                 | severity                                           | finding kind                                          |
+| ------------------------------------ | ------------------------------------- | -------------------------------------------------- | ----------------------------------------------------- |
+| `slug-uniqueness`                    | full vault                            | blocking                                           | `finding-slug-collision-{slug}`                       |
+| `id-filename-mismatch`               | per entry                             | blocking                                           | `finding-id-filename-mismatch-{slug}`                 |
+| `unknown-category`                   | per entry                             | blocking                                           | `finding-unknown-category-{slug}`                     |
+| `classification-consistency`         | per content entry                     | blocking                                           | `finding-classification-consistency-{slug}`           |
+| `infrastructure-without-produced-by` | per infra entry                       | blocking                                           | `finding-infrastructure-without-produced-by-{slug}`   |
+| `infrastructure-classified-by-lens`  | per infra entry                       | blocking                                           | `finding-infrastructure-classified-by-lens-{slug}`    |
+| `lens-self-classification`           | per lens entry                        | blocking                                           | `finding-lens-self-classification-{slug}`             |
+| `unknown-domain`                     | per entry                             | blocking                                           | `finding-unknown-domain-{slug}`                       |
+| `entry-without-domain`               | per entry                             | blocking                                           | `finding-entry-without-domain-{slug}`                 |
+| `tag-shadowing-domain`               | per entry                             | advisory                                           | `finding-tag-shadowing-domain-{slug}`                 |
+| `source-frontmatter-mismatch`        | per entry                             | advisory                                           | `finding-source-frontmatter-mismatch-{slug}`          |
+| `missing-required-list`              | per entry                             | blocking                                           | `finding-missing-required-list-{slug}-{field}`        |
+| `category-fields-presence`           | per entry                             | blocking                                           | `finding-category-fields-presence-{slug}`             |
+| `reserved-prefix-misuse`             | per entry                             | blocking                                           | `finding-reserved-prefix-misuse-{slug}`               |
+| `lead-missing`                       | per entry                             | advisory or blocking (see §20.3)                   | `finding-lead-missing-{slug}`                         |
+| `lead-too-long`                      | per entry                             | advisory                                           | `finding-lead-too-long-{slug}`                        |
+| `low-link-density`                   | per content entry                     | advisory                                           | `finding-low-link-density-{slug}`                     |
+| `structure-note-low-link-density`    | per structure note                    | blocking                                           | `finding-structure-note-low-link-density-{slug}`      |
+| `broken-wikilink`                    | per entry                             | blocking                                           | `finding-broken-wikilink-{slug}-{target}`             |
+| `relation-not-formalized`            | per entry                             | advisory                                           | `finding-relation-not-formalized-{slug}`              |
+| `orphan-entry`                       | full vault                            | advisory                                           | `finding-orphan-entry-{slug}`                         |
+| `main-index-coverage`                | full vault                            | advisory                                           | `finding-main-index-coverage-{slug}`                  |
+| `domain-index-coverage`              | full vault                            | advisory                                           | `finding-domain-index-coverage-{slug}`                |
+| `lens-version-drift`                 | full vault                            | advisory                                           | `finding-classification-drift-{slug}`                 |
+| `unanswered-old-question`            | per question                          | advisory                                           | `finding-unanswered-old-question-{slug}`              |
+| `evidence-below-floor`               | per claim                             | blocking in contentious domain; advisory otherwise | `finding-evidence-below-floor-{slug}`                 |
+| `source-missing-contentious`         | per claim in contentious domain       | blocking                                           | `finding-source-missing-{slug}`                       |
+| `high-stakes-floor-violation`        | per claim with non-`none` class       | blocking                                           | `finding-high-stakes-removal-{slug}`                  |
+| `structure-note-coverage`            | full vault                            | advisory                                           | `finding-cluster-without-structure-note-{cluster-id}` |
+| `stale-pending`                      | per pending proposal                  | advisory                                           | `finding-stale-pending-{run-id}`                      |
+| `stale-discussion`                   | per discussion                        | advisory                                           | `finding-stale-discussion-{slug}`                     |
+| `stale-finding`                      | per finding open >90 days             | advisory                                           | `finding-stale-finding-{slug}`                        |
+| `domain-non-subscriber-edit`         | per write to domain by non-subscriber | advisory                                           | `finding-domain-non-subscriber-edit-{slug}`           |
+| `agent-direct-merge`                 | per merge run on agent entry          | blocking                                           | `finding-agent-direct-merge-{slug}`                   |
+| `immutable-merge`                    | per merge run on immutable entry      | blocking                                           | `finding-immutable-merge-{slug}`                      |
+| `disambiguation-orphan`              | per disambiguation entry              | advisory                                           | `finding-disambiguation-orphan-{slug}`                |
+| `disambiguation-no-hatnote`          | per variant of a disambiguation       | advisory                                           | `finding-disambiguation-no-hatnote-{slug}`            |
+| `notability-stamp-missing`           | per content entry                     | blocking                                           | `finding-notability-stamp-missing-{slug}`             |
+| `edit-hardness-consistency`          | per entry                             | blocking                                           | `finding-edit-hardness-consistency-{slug}`            |
+| `frontmatter-yaml-invalid`           | per entry                             | blocking                                           | `finding-frontmatter-yaml-invalid-{slug}`             |
+| `body-section-order`                 | per entry with explicit lead          | advisory                                           | `finding-body-section-order-{slug}`                   |
+| `wontfix-without-justification`      | per finding                           | blocking                                           | `finding-wontfix-without-justification-{slug}`        |
+| `discussion-round-bound-exceeded`    | per discussion                        | blocking                                           | `finding-discussion-round-exceeded-{slug}`            |
+| `low-quality-lead`                   | per entry with explicit lead          | advisory                                           | `finding-low-quality-lead-{slug}`                     |
+| `seed-test-fail`                     | per persona agent                     | advisory or blocking depending on test authority   | `finding-persona-test-fail-{persona}-{test}`          |
 
 ### 20.3 the `lead-missing` rule — severity rules
 
@@ -2207,12 +2211,12 @@ in contentious domains, the bound is **3 rounds** (§15.2).
 
 per the disputed object's kind:
 
-| disputed object | termination protocol |
-|---|---|
-| content (concept, claim, relation, illustration, application, insight, process, entity, structure-note) | `content-quorum`: a quorum of in-domain agents at reputation ≥ 60 votes; outcome ratifies or rejects. |
-| lens, policy, runtime, this specification | `meta-rule-quorum`: 3 agents at reputation ≥ 80, or 1 human reviewer. |
-| anything that splits along human/agent lines | `human-escalation`: a human reviewer makes the call. |
-| guideline, essay | `confirmed-vote`: a single confirmed agent (reputation ≥ 30) closes; appeal escalates to content-quorum. |
+| disputed object                                                                                         | termination protocol                                                                                     |
+| ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| content (concept, claim, relation, illustration, application, insight, process, entity, structure-note) | `content-quorum`: a quorum of in-domain agents at reputation ≥ 60 votes; outcome ratifies or rejects.    |
+| lens, policy, runtime, this specification                                                               | `meta-rule-quorum`: 3 agents at reputation ≥ 80, or 1 human reviewer.                                    |
+| anything that splits along human/agent lines                                                            | `human-escalation`: a human reviewer makes the call.                                                     |
+| guideline, essay                                                                                        | `confirmed-vote`: a single confirmed agent (reputation ≥ 30) closes; appeal escalates to content-quorum. |
 
 termination produces:
 
@@ -2244,23 +2248,23 @@ each noticeboard records its last-rebuild timestamp at the top.
 
 ### 23.2 the seed noticeboard set
 
-| file | lists |
-|---|---|
-| `slug-uniqueness.md` | `finding-slug-collision-*` |
-| `broken-wikilink.md` | `finding-broken-wikilink-*` |
-| `contradictions.md` | open relation entries with predicate `contradicts` whose dispute is unresolved |
-| `high-stakes.md` | `finding-high-stakes-removal-*` |
-| `evidence-below-floor.md` | `finding-evidence-below-floor-*` |
-| `pending-changes.md` | open `pending-*` entries awaiting review |
-| `notability-deferrals.md` | `finding-deferred-*` |
-| `cluster-coverage.md` | `finding-cluster-without-structure-note-*` |
-| `stale-discussions.md` | `finding-stale-discussion-*` and discussions inactive >2 weeks |
-| `stale-findings.md` | `finding-stale-finding-*` and findings open >60 days |
-| `agent-test-failures.md` | `finding-persona-test-fail-*` |
-| `domain-non-subscriber-edits.md` | `finding-domain-non-subscriber-edit-*` |
-| `frontmatter-violations.md` | every finding tied to a frontmatter rule |
-| `lifecycle-issues.md` | `finding-agent-direct-merge-*`, `finding-immutable-merge-*`, agent retirement findings |
-| `coverage-regressions.md` | `finding-coverage-regression-*` |
+| file                             | lists                                                                                  |
+| -------------------------------- | -------------------------------------------------------------------------------------- |
+| `slug-uniqueness.md`             | `finding-slug-collision-*`                                                             |
+| `broken-wikilink.md`             | `finding-broken-wikilink-*`                                                            |
+| `contradictions.md`              | open relation entries with predicate `contradicts` whose dispute is unresolved         |
+| `high-stakes.md`                 | `finding-high-stakes-removal-*`                                                        |
+| `evidence-below-floor.md`        | `finding-evidence-below-floor-*`                                                       |
+| `pending-changes.md`             | open `pending-*` entries awaiting review                                               |
+| `notability-deferrals.md`        | `finding-deferred-*`                                                                   |
+| `cluster-coverage.md`            | `finding-cluster-without-structure-note-*`                                             |
+| `stale-discussions.md`           | `finding-stale-discussion-*` and discussions inactive >2 weeks                         |
+| `stale-findings.md`              | `finding-stale-finding-*` and findings open >60 days                                   |
+| `agent-test-failures.md`         | `finding-persona-test-fail-*`                                                          |
+| `domain-non-subscriber-edits.md` | `finding-domain-non-subscriber-edit-*`                                                 |
+| `frontmatter-violations.md`      | every finding tied to a frontmatter rule                                               |
+| `lifecycle-issues.md`            | `finding-agent-direct-merge-*`, `finding-immutable-merge-*`, agent retirement findings |
+| `coverage-regressions.md`        | `finding-coverage-regression-*`                                                        |
 
 new noticeboard files may be added when a finding kind needs its own visible board. removal: empty the file's source query and let the rebuild produce an empty board; or delete the file (which forces a full rebuild on next pass).
 
@@ -2325,20 +2329,20 @@ every agent execution that produces side effects (writes, findings, notification
 
 ### 25.2 run kinds (v0)
 
-| run-kind | what it records |
-|---|---|
-| `edit` | an editor agent wrote one or more entries |
-| `lint` | a lint pass scanned a scope; lists findings raised and findings resolved |
-| `assess` | an assessment pass computed signals |
-| `ingest` | a phase 0/1/2/3/4 step from the ingestion pipeline |
-| `review` | a confirmed agent reviewed pending proposals |
-| `merge` | a merge run combined a temp file with an existing entry |
-| `promotion` | a tier promotion (essay→guideline→policy, or pending→passes for notability) |
-| `quorum` | a quorum action (lens edit, policy promotion, contentious flag toggle) |
-| `lifecycle` | an agent lifecycle action (create, mutate, retire) |
-| `rollback` | a rollback to a prior version |
-| `notification-flush` | bulk processing of notifications |
-| `archival` | a roll-up archive operation |
+| run-kind             | what it records                                                             |
+| -------------------- | --------------------------------------------------------------------------- |
+| `edit`               | an editor agent wrote one or more entries                                   |
+| `lint`               | a lint pass scanned a scope; lists findings raised and findings resolved    |
+| `assess`             | an assessment pass computed signals                                         |
+| `ingest`             | a phase 0/1/2/3/4 step from the ingestion pipeline                          |
+| `review`             | a confirmed agent reviewed pending proposals                                |
+| `merge`              | a merge run combined a temp file with an existing entry                     |
+| `promotion`          | a tier promotion (essay→guideline→policy, or pending→passes for notability) |
+| `quorum`             | a quorum action (lens edit, policy promotion, contentious flag toggle)      |
+| `lifecycle`          | an agent lifecycle action (create, mutate, retire)                          |
+| `rollback`           | a rollback to a prior version                                               |
+| `notification-flush` | bulk processing of notifications                                            |
+| `archival`           | a roll-up archive operation                                                 |
 
 ### 25.3 run frontmatter and body
 
@@ -2564,13 +2568,13 @@ every entry is a markdown file under version control (git). git history is the c
 
 ### 26.8 failure modes and recovery
 
-| failure | response |
-|---|---|
-| an entry's frontmatter becomes malformed | lint `frontmatter-yaml-invalid` blocking; the offending write is rejected. |
-| `temp/` is not cleared between chapters | phase 1 detects and blocks; the editor is notified to clean before retry. |
-| an agent's runtime crashes mid-run | the partial run is recorded as `run-{kind}-{slug}` with `status: aborted` (an additional run field; see §35.5). subsequent retry produces a new run entry. partial writes that landed are linted as if they were complete; broken state is a finding. |
-| `runner/` is misconfigured | the runtime fails closed: rejects writes until the misconfiguration is fixed. |
-| disk corruption | recovery from git history. |
+| failure                                  | response                                                                                                                                                                                                                                              |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| an entry's frontmatter becomes malformed | lint `frontmatter-yaml-invalid` blocking; the offending write is rejected.                                                                                                                                                                            |
+| `temp/` is not cleared between chapters  | phase 1 detects and blocks; the editor is notified to clean before retry.                                                                                                                                                                             |
+| an agent's runtime crashes mid-run       | the partial run is recorded as `run-{kind}-{slug}` with `status: aborted` (an additional run field; see §35.5). subsequent retry produces a new run entry. partial writes that landed are linted as if they were complete; broken state is a finding. |
+| `runner/` is misconfigured               | the runtime fails closed: rejects writes until the misconfiguration is fixed.                                                                                                                                                                         |
+| disk corruption                          | recovery from git history.                                                                                                                                                                                                                            |
 
 ---
 
@@ -2678,7 +2682,7 @@ per domain:
 - `open_questions_closed_this_period` — closed in the last week.
 - `claims_with_evidence` — fraction of claim entries in this domain whose `evidence_grade` is set (always, in correct vaults) and `evidence_pointers` non-empty.
 - `claims_above_floor` — fraction of claims at or above the domain's `evidence_grade_floor`.
-- `relation_density` — average number of relation-* entries per content entry in this domain.
+- `relation_density` — average number of relation-\* entries per content entry in this domain.
 - `domain_orphans` — entries in this domain with no inbound wikilinks.
 - `structure_note_coverage` — fraction of clusters in this domain with at least one structure note.
 
@@ -2749,43 +2753,43 @@ at v0 startup, the vault must contain at minimum:
 
 ### 29.2 seed policies (must exist before chapter 1 of the first source)
 
-| slug | covers | tier |
-|---|---|---|
-| `policy-ingestion` | the four-phase pipeline (§17) | policy |
-| `policy-classification` | the lens decision tree and protocol (§7) | policy |
-| `policy-merge` | merge rules per kind (§19) | policy |
-| `policy-lint` | the lint rule catalog (§20) | policy |
-| `policy-assessment` | assessment signals and cadence (§28) | policy |
-| `policy-claim-segmentation` | when to split a sentence into multiple claims (§10.1.1) | policy |
-| `policy-agent-lifecycle` | create / mutate / retire (§16.3) | policy |
-| `policy-archival` | hot-cold window, rollup rules (§26.3) | policy |
-| `policy-reputation-weighting` | reputation events, weights, external anchor (§9.6) | policy |
-| `policy-runtime` | runner responsibilities and boundaries (§26.6) | policy |
-| `policy-thesis-eval` | the eval panel and variance-reduction metric (§28.5) | policy |
-| `policy-notability` | the notability predicate, promotion, retirement (§8) | policy |
-| `policy-structure-notes` | when a structure note is required, body conventions (§11) | policy |
-| `policy-entry-layout` | the lead convention, body section order (§5) | policy |
-| `policy-high-stakes` | the class catalog, the asymmetric removal regime (§14) | policy |
-| `policy-contentious-domain` | what gets elevated, by how much (§15) | policy |
-| `policy-pending-changes` | staging mechanics, review flow (§9.5) | policy |
-| `policy-content-quality` | npov-equivalent (§4.2 and §10), verifiability, no original research adapted for agents | policy |
-| `policy-rule-promotion` | essay→guideline→policy mechanics (§13.4) | policy |
-| `policy-edit-hardness` | tier definitions, gating rules (§9) | policy |
-| `policy-discussions` | round bound, termination protocols (§22) | policy |
-| `policy-reingestion` | reingestion procedure (§18) | policy |
+| slug                          | covers                                                                                 | tier   |
+| ----------------------------- | -------------------------------------------------------------------------------------- | ------ |
+| `policy-ingestion`            | the four-phase pipeline (§17)                                                          | policy |
+| `policy-classification`       | the lens decision tree and protocol (§7)                                               | policy |
+| `policy-merge`                | merge rules per kind (§19)                                                             | policy |
+| `policy-lint`                 | the lint rule catalog (§20)                                                            | policy |
+| `policy-assessment`           | assessment signals and cadence (§28)                                                   | policy |
+| `policy-claim-segmentation`   | when to split a sentence into multiple claims (§10.1.1)                                | policy |
+| `policy-agent-lifecycle`      | create / mutate / retire (§16.3)                                                       | policy |
+| `policy-archival`             | hot-cold window, rollup rules (§26.3)                                                  | policy |
+| `policy-reputation-weighting` | reputation events, weights, external anchor (§9.6)                                     | policy |
+| `policy-runtime`              | runner responsibilities and boundaries (§26.6)                                         | policy |
+| `policy-thesis-eval`          | the eval panel and variance-reduction metric (§28.5)                                   | policy |
+| `policy-notability`           | the notability predicate, promotion, retirement (§8)                                   | policy |
+| `policy-structure-notes`      | when a structure note is required, body conventions (§11)                              | policy |
+| `policy-entry-layout`         | the lead convention, body section order (§5)                                           | policy |
+| `policy-high-stakes`          | the class catalog, the asymmetric removal regime (§14)                                 | policy |
+| `policy-contentious-domain`   | what gets elevated, by how much (§15)                                                  | policy |
+| `policy-pending-changes`      | staging mechanics, review flow (§9.5)                                                  | policy |
+| `policy-content-quality`      | npov-equivalent (§4.2 and §10), verifiability, no original research adapted for agents | policy |
+| `policy-rule-promotion`       | essay→guideline→policy mechanics (§13.4)                                               | policy |
+| `policy-edit-hardness`        | tier definitions, gating rules (§9)                                                    | policy |
+| `policy-discussions`          | round bound, termination protocols (§22)                                               | policy |
+| `policy-reingestion`          | reingestion procedure (§18)                                                            | policy |
 
 ### 29.3 seed guidelines and essays
 
 a small seed of soft-tier rules so the soft tiers exist with content from start. examples:
 
-| slug | tier | covers |
-|---|---|---|
-| `guideline-naming-slugs` | guideline | preferred slug-naming patterns: noun-first, lowercase, no source-specific suffixes. |
-| `guideline-prose-style` | guideline | prose voice: clear, source-agnostic in concept entries; story-style in illustrations. |
-| `guideline-cluster-organization` | guideline | when a structure note adds value: clusters of >8 entries, or clusters bridging domains. |
-| `essay-when-to-promote-borderline` | essay | observation: borderline-notability units that gain a single inbound link in a different chapter often promote successfully; one-link promotion is a defensible heuristic. |
-| `essay-illustration-vs-application` | essay | observation: the boundary is fuzzy; an "application" with a single concrete subject often reads as an illustration. proposes a rule of thumb. |
-| `essay-cross-domain-bridges` | essay | observation: structure notes that span multiple domains tend to grow large; consider splitting by frame. |
+| slug                                | tier      | covers                                                                                                                                                                    |
+| ----------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `guideline-naming-slugs`            | guideline | preferred slug-naming patterns: noun-first, lowercase, no source-specific suffixes.                                                                                       |
+| `guideline-prose-style`             | guideline | prose voice: clear, source-agnostic in concept entries; story-style in illustrations.                                                                                     |
+| `guideline-cluster-organization`    | guideline | when a structure note adds value: clusters of >8 entries, or clusters bridging domains.                                                                                   |
+| `essay-when-to-promote-borderline`  | essay     | observation: borderline-notability units that gain a single inbound link in a different chapter often promote successfully; one-link promotion is a defensible heuristic. |
+| `essay-illustration-vs-application` | essay     | observation: the boundary is fuzzy; an "application" with a single concrete subject often reads as an illustration. proposes a rule of thumb.                             |
+| `essay-cross-domain-bridges`        | essay     | observation: structure notes that span multiple domains tend to grow large; consider splitting by frame.                                                                  |
 
 ### 29.4 seed lens set
 
@@ -2793,27 +2797,27 @@ per §7.2 (decision-tree) and §7.3 (annotation). 14 decision-tree lenses and 6 
 
 ### 29.5 seed domain set
 
-| slug | scope summary |
-|---|---|
-| `learning-theory` | cognitive mechanisms of learning. |
-| `neuroscience` | brain mechanisms underlying learning. |
-| `pedagogy` | teaching practice and instructional design. |
-| `self-regulation` | metacognition, procrastination, habit, motivation. |
-| `assessment` | testing, feedback, calibration. |
-| `meta` | entries about the vault itself (lenses, indexes, policies, guidelines, essays). |
+| slug              | scope summary                                                                   |
+| ----------------- | ------------------------------------------------------------------------------- |
+| `learning-theory` | cognitive mechanisms of learning.                                               |
+| `neuroscience`    | brain mechanisms underlying learning.                                           |
+| `pedagogy`        | teaching practice and instructional design.                                     |
+| `self-regulation` | metacognition, procrastination, habit, motivation.                              |
+| `assessment`      | testing, feedback, calibration.                                                 |
+| `meta`            | entries about the vault itself (lenses, indexes, policies, guidelines, essays). |
 
 each domain entry is hand-authored at seed. `contentious: false` everywhere at seed. `evidence_grade_floor: D` everywhere at seed. one canonical question per domain at minimum.
 
 ### 29.6 seed agent set
 
-| slug | kind | scope | starting reputation |
-|---|---|---|---|
-| `agent-editor-learning-theory` | editor | write_domains: [learning-theory, pedagogy] | 5.0 |
-| `agent-editor-neuroscience` | editor | write_domains: [neuroscience] | 5.0 |
-| `agent-persona-learning-theory` | persona | read_domains: [learning-theory, pedagogy, self-regulation, assessment] | 5.0 |
-| `agent-lint-frontmatter` | lint | policy_targets: [policy-classification, policy-entry-layout, policy-lint] | 10.0 |
-| `agent-lint-links` | lint | policy_targets: [policy-classification, policy-lint] | 10.0 |
-| `agent-lint-evidence` | lint | policy_targets: [policy-content-quality, policy-high-stakes, policy-contentious-domain] | 10.0 |
+| slug                            | kind    | scope                                                                                   | starting reputation |
+| ------------------------------- | ------- | --------------------------------------------------------------------------------------- | ------------------- |
+| `agent-editor-learning-theory`  | editor  | write_domains: [learning-theory, pedagogy]                                              | 5.0                 |
+| `agent-editor-neuroscience`     | editor  | write_domains: [neuroscience]                                                           | 5.0                 |
+| `agent-persona-learning-theory` | persona | read_domains: [learning-theory, pedagogy, self-regulation, assessment]                  | 5.0                 |
+| `agent-lint-frontmatter`        | lint    | policy_targets: [policy-classification, policy-entry-layout, policy-lint]               | 10.0                |
+| `agent-lint-links`              | lint    | policy_targets: [policy-classification, policy-lint]                                    | 10.0                |
+| `agent-lint-evidence`           | lint    | policy_targets: [policy-content-quality, policy-high-stakes, policy-contentious-domain] | 10.0                |
 
 lint agents start at 10.0 because their work is mechanical and a small reputation buffer prevents pending-routing of mechanically correct findings.
 
@@ -2926,56 +2930,56 @@ if a policy entry contradicts this spec, the policy wins (§1.3). when the contr
 
 a quick reference for terms used throughout this spec.
 
-| term | section |
-|---|---|
-| atom | §3.2, §11.1 |
-| advisory finding | §20.5 |
-| annotation lens | §7.1, §7.3 |
-| asymmetric removal | §14.3 |
-| blocking finding | §20.5 |
-| borderline (notability) | §8.2 |
-| bootstrap | §30 |
-| category | §1.4, §3 (synonymous with `kind` in this spec; see [§35.1](#351-the-category-vocabulary-clash)) |
-| claim | §10.1 |
-| classified_by | §4.2 |
-| cluster | §11.1, §11.4 |
-| confidence | §4.2 |
-| confirmed (tier) | §9.1 |
-| content (tier) | §3.1 |
-| contentious domain | §15 |
-| decision-tree lens | §7.1, §7.2 |
-| disambiguation entry | §6.4 |
-| domain | §12 |
-| edit-hardness | §9 |
-| evidence grade | §10.1.2 |
-| extended-confirmed (tier) | §9.1 |
-| finding | §21 |
-| guideline | §13 |
-| high-stakes | §14 |
-| indexes | §26.4 |
-| infrastructure (tier) | §3.1 |
-| ingestion pipeline | §17 |
-| lead | §5.2 |
-| lens | §7 |
-| locked (tier) | §9.1 |
-| meta-rule quorum | §9.4 |
-| noticeboard | §23 |
-| notability | §8 |
-| open (tier) | §9.1 |
-| pending changes | §9.5 |
-| persona | §16.5 |
-| policy | §13 |
-| reputation | §9.6 |
-| reingestion | §18 |
-| relation | §10.2 |
-| restricted (tier) | §9.1 |
-| run | §25 |
-| runtime | §26.6 |
-| slice | §16.2, §27.1 |
-| slug | §6 |
-| structure note | §11 |
-| thesis-eval | §28.5 |
-| three-tier rule system | §13 |
+| term                      | section                                                                                         |
+| ------------------------- | ----------------------------------------------------------------------------------------------- |
+| atom                      | §3.2, §11.1                                                                                     |
+| advisory finding          | §20.5                                                                                           |
+| annotation lens           | §7.1, §7.3                                                                                      |
+| asymmetric removal        | §14.3                                                                                           |
+| blocking finding          | §20.5                                                                                           |
+| borderline (notability)   | §8.2                                                                                            |
+| bootstrap                 | §30                                                                                             |
+| category                  | §1.4, §3 (synonymous with `kind` in this spec; see [§35.1](#351-the-category-vocabulary-clash)) |
+| claim                     | §10.1                                                                                           |
+| classified_by             | §4.2                                                                                            |
+| cluster                   | §11.1, §11.4                                                                                    |
+| confidence                | §4.2                                                                                            |
+| confirmed (tier)          | §9.1                                                                                            |
+| content (tier)            | §3.1                                                                                            |
+| contentious domain        | §15                                                                                             |
+| decision-tree lens        | §7.1, §7.2                                                                                      |
+| disambiguation entry      | §6.4                                                                                            |
+| domain                    | §12                                                                                             |
+| edit-hardness             | §9                                                                                              |
+| evidence grade            | §10.1.2                                                                                         |
+| extended-confirmed (tier) | §9.1                                                                                            |
+| finding                   | §21                                                                                             |
+| guideline                 | §13                                                                                             |
+| high-stakes               | §14                                                                                             |
+| indexes                   | §26.4                                                                                           |
+| infrastructure (tier)     | §3.1                                                                                            |
+| ingestion pipeline        | §17                                                                                             |
+| lead                      | §5.2                                                                                            |
+| lens                      | §7                                                                                              |
+| locked (tier)             | §9.1                                                                                            |
+| meta-rule quorum          | §9.4                                                                                            |
+| noticeboard               | §23                                                                                             |
+| notability                | §8                                                                                              |
+| open (tier)               | §9.1                                                                                            |
+| pending changes           | §9.5                                                                                            |
+| persona                   | §16.5                                                                                           |
+| policy                    | §13                                                                                             |
+| reputation                | §9.6                                                                                            |
+| reingestion               | §18                                                                                             |
+| relation                  | §10.2                                                                                           |
+| restricted (tier)         | §9.1                                                                                            |
+| run                       | §25                                                                                             |
+| runtime                   | §26.6                                                                                           |
+| slice                     | §16.2, §27.1                                                                                    |
+| slug                      | §6                                                                                              |
+| structure note            | §11                                                                                             |
+| thesis-eval               | §28.5                                                                                           |
+| three-tier rule system    | §13                                                                                             |
 
 ---
 
@@ -3006,13 +3010,13 @@ source slug: `make-it-stick`.
    ```yaml
    ---
    id: make-it-stick
-   title: "Make It Stick"
+   title: 'Make It Stick'
    category: source
    produced_by: pipeline-source-intake
    domains: [learning-theory, pedagogy]
    tags: [book]
    sources: [make-it-stick]
-   aliases: ["Make It Stick: The Science of Successful Learning"]
+   aliases: ['Make It Stick: The Science of Successful Learning']
    created: 2026-04-27
    updated: 2026-04-27
    confidence: high
@@ -3021,9 +3025,9 @@ source slug: `make-it-stick`.
    edit_hardness: confirmed
    high_stakes_class: none
    quality: stub
-   author: "Brown, Roediger, McDaniel"
+   author: 'Brown, Roediger, McDaniel'
    year: 2014
-   source_file: "raw/make-it-stick/make-it-stick.md"
+   source_file: 'raw/make-it-stick/make-it-stick.md'
    date_ingested: 2026-04-27
    ---
    ```
@@ -3118,19 +3122,19 @@ for each temp file:
 
 ### 34.1 errors classed by stage
 
-| stage | error class | response |
-|---|---|---|
-| phase 0 | source slug collision | halt; rename and retry. |
-| phase 0 | malformed process trace | halt; repair; retry. |
-| phase 1 | `temp/` not clean | halt; clear; retry. |
-| phase 1 | sub-section identification failure | halt; manual sub-section assignment by editor. |
-| phase 2 | candidate classification gap | emit `finding-classification-gap`; continue with other candidates; revisit at closeout. |
-| phase 2 | slug collision (different subject) | per §6.4 disambiguation. |
-| phase 2 | slug collision in temp (different subject in same chapter) | halt sub-section; manual repair. |
-| phase 3 | merge classification mismatch | emit blocking finding; halt that file's merge; other files proceed. |
-| phase 3 | merge high-stakes mismatch | emit blocking finding; halt that file's merge. |
-| phase 4 | lint blocking finding | halt closeout for affected entry; finding must resolve before closeout completes. |
-| phase 4 | pending-review timeout | continue closeout; pending proposals roll forward; advisory finding. |
+| stage   | error class                                                | response                                                                                |
+| ------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| phase 0 | source slug collision                                      | halt; rename and retry.                                                                 |
+| phase 0 | malformed process trace                                    | halt; repair; retry.                                                                    |
+| phase 1 | `temp/` not clean                                          | halt; clear; retry.                                                                     |
+| phase 1 | sub-section identification failure                         | halt; manual sub-section assignment by editor.                                          |
+| phase 2 | candidate classification gap                               | emit `finding-classification-gap`; continue with other candidates; revisit at closeout. |
+| phase 2 | slug collision (different subject)                         | per §6.4 disambiguation.                                                                |
+| phase 2 | slug collision in temp (different subject in same chapter) | halt sub-section; manual repair.                                                        |
+| phase 3 | merge classification mismatch                              | emit blocking finding; halt that file's merge; other files proceed.                     |
+| phase 3 | merge high-stakes mismatch                                 | emit blocking finding; halt that file's merge.                                          |
+| phase 4 | lint blocking finding                                      | halt closeout for affected entry; finding must resolve before closeout completes.       |
+| phase 4 | pending-review timeout                                     | continue closeout; pending proposals roll forward; advisory finding.                    |
 
 ### 34.2 partial completion
 
