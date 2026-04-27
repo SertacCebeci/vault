@@ -1,6 +1,6 @@
 # vault specification
 
-> companion to [`../intent/intent.md`](../intent/intent.md). where intent describes _why_ the vault is shaped the way it is, this document specifies _exactly how_. every process, every entry kind, every frontmatter field, every gate, every lifecycle is named and given concrete rules. anything still under discussion is collected in §35 (open issues / deferred decisions); everything else is binding.
+> this is the vault's operational specification. it describes — in extreme detail — what the end product is: every process, every entry kind, every frontmatter field, every gate, every lifecycle is named and given concrete rules. it is the source from which working documents are generated under a clean-room implementation schema; it is itself not a working document. anything still under discussion is collected in §35 (open issues / deferred decisions); everything else is binding within the spec.
 
 ## table of contents
 
@@ -46,24 +46,15 @@
 
 ### 1.1 purpose
 
-this is the operational specification of the vault. it is the document an editor agent (or a human reviewer) reads when they need to know exactly what a process does, what an entry must contain, what a lint check enforces, what a finding means. it is binding: when this document and a non-policy document conflict, this document wins for the seed phase. policy entries inside the vault take precedence once they exist; until then, the rules here are the rules.
+this document describes — in extreme, unambiguous detail — what the end product is. its purpose is to serve as the blueprint from which the end product is produced under a clean-room implementation schema: the blueprint is read once, the end product is realized from it, and the result thereafter stands on its own. the spec itself is a blueprint, not part of what it describes.
 
-### 1.2 relationship to other documents
+### 1.2 translation to working documents
 
-- [`../intent/intent.md`](../intent/intent.md) — _why_ the design is what it is. read this for motivation.
-- [`../../CLAUDE.md`](../../CLAUDE.md) — bootstrap pointer for an agent operating in the repository. it currently contains operational rules; once policy entries land, it shrinks to a pointer at `policy-bootstrap`.
-- this document — _how_ everything works. read this for rules.
+the spec follows a clean-room implementation schema. it is consulted to produce working documents — the runtime under `runner/`, the seed entries under `wiki/entries/`, the policy/guideline/essay corpus, the build scripts and lint runners. once a working document is produced, it stands on its own and is governed by its own rules. working documents do not contain references back to this spec; the relationship is one-way and one-time. the spec is a high-fidelity blueprint, not a runtime reference.
 
-### 1.3 authority and conflict resolution
+### 1.3 authority
 
-when two sources conflict, the rule of last specificity wins:
-
-1. policy entries inside `wiki/entries/policy-*.md` (highest authority once the seed populates them)
-2. this specification (`docs/spec/specification.md`)
-3. `CLAUDE.md`
-4. `intent.md`
-
-if a contradiction surfaces between this spec and a policy entry, the policy entry wins and the spec must be updated to match. if the contradiction surfaces between this spec and intent.md, the spec is wrong if the policy entries that flow from intent are correct; otherwise intent should be revised. either way, contradictions are findings (§21) and resolution is a vault operation (§22).
+this spec is the highest-authority document at the moment working documents are produced from it: nothing else outranks it for that purpose. it confers no ongoing authority against working documents that already exist. once a working document is produced — a policy entry, a runtime module, a lens entry, a configuration — it carries its own authority and is governed by its own rules. divergence between a working document and this spec is not a conflict to be resolved against the spec: the working document is the authority on its own behavior; the spec, at most, is a record of the original blueprint.
 
 ### 1.4 notation
 
@@ -77,7 +68,7 @@ if a contradiction surfaces between this spec and a policy entry, the policy ent
 - `A`, `B`, `C`, `D` — evidence grades (§10).
 - timestamps and dates — `YYYY-MM-DD` always.
 - counts are integers; thresholds are integers unless explicitly fractional.
-- prose is lowercase to match the existing style of `intent.md`.
+- prose is lowercase.
 
 ### 1.5 stability of this document
 
@@ -159,14 +150,7 @@ phase 1 freezes the entirety of "wiki structure" and "wiki governance" against a
 
 ```
 .
-├── CLAUDE.md                      # bootstrap pointer
 ├── docs/
-│   ├── intent/                    # design rationale
-│   │   ├── intent.md
-│   │   ├── origin.md
-│   │   ├── information.md
-│   │   ├── wikipedia-governance.md
-│   │   └── wikipedia-organizing-information.md
 │   └── spec/
 │       └── specification.md       # this document
 ├── raw/
@@ -3100,13 +3084,13 @@ amendments to this document are `restricted`-tier edits. they require:
 - meta-rule quorum (§9.4).
 - a `run-spec-amend-{date}` entry that records the change.
 
-### 31.2 the spec must remain consistent with policy entries
+### 31.2 the spec is descriptive once working documents exist
 
-if a policy entry contradicts this spec, the policy wins (§1.3). when the contradiction is detected (lint `spec-policy-contradiction`), the spec is amended to match. if the policy itself is wrong, the policy is amended; the spec follows.
+once a working document has been generated from this spec — a policy entry, a runtime module, a lens — that working document is the authority on its own behavior. divergence between such a working document and this spec is not a conflict that the spec adjudicates: the working document governs itself; the spec, if it still serves any purpose, may be updated as a historical record of the original blueprint, but it does not enforce against the working artifact.
 
-### 31.3 the spec is referenced from multiple places
+### 31.3 the spec is not referenced from working documents
 
-`CLAUDE.md`, `intent.md`, and policy entries reference sections of this spec. amendments must check that the references still resolve. lint `spec-broken-section-reference` catches stale section anchors after amendments.
+per §1.2, working documents do not link back to this spec. the spec's reach ends at the moment of translation. amendments to this spec therefore have no effect on already-generated working documents; their effect is limited to subsequent translation passes that produce new working documents from the amended blueprint.
 
 ---
 
