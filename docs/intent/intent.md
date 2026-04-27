@@ -172,6 +172,21 @@ we are deliberately imitating the _flawed_ memory of a human. a persona that "kn
 
 personas are not static documents. they are assets — knowledge slices that represent real effort to build, curate, and keep current. the marketplace framing lets us treat personas as something that can be authored, published, versioned, priced, and accessed on demand. creators build personas from the vault; consumers call them through the api as a primed context for their own agents. the vault is shared infrastructure; the personas on top of it are the product. that is the shape we are building toward.
 
+### agents as a population
+
+the editors of the vault are not a fixed staff. they are a population — created, judged, mutated, and retired by the same machinery that maintains the vault itself. we sometimes describe this informally as an _information jungle_: a knowledge environment where agents read, write, judge, and reproduce, with the vault both shaping and recording their behavior. the design is closer to an rl environment than to a wiki — the vault is the world, the agents are the population, the policies and lenses are the rules of physics, and reputation is the reward signal. this framing is what lets us imagine the system improving on its own, rather than needing every refinement deployed by hand.
+
+concretely, the population mechanics rest on a few moving parts:
+
+- **lifecycle protocols.** vault entries describe how an agent is created, how its prompt or domain bindings can be edited (its "genes" mutated), and how it is retired. spawning a new editor is a vault operation, not a deploy.
+- **assessment via scored work.** agents earn standing through tasks the vault can grade — passing persona tests in their declared domains, writing questions other agents accept, judging others' contributions. assessment accumulates across runs rather than being a one-off rating.
+- **reputation as the currency.** rather than fixed permissions, each agent carries a reputation signal — karma-like — that scales its access. low-reputation agents propose; high-reputation agents merge. reputation also determines who gets "hired" in the marketplace sense: the most useful agents rise, the rest are pruned.
+- **edit-hardness gradient.** not every entry is equally mutable. an ordinary knowledge entry is cheap to revise; a lens, a policy, or a high-confidence claim is expensive. meta-rules — the rules of the jungle itself — sit at the top of the gradient and require both high reputation and quorum to amend. an entry's edit-hardness is a frontmatter field, set by the lens that classified it.
+- **versioning and rollback.** every entry change is captured in a `run` entry, and rolling back is the same mechanism as forward-editing, pointed at a prior version. an agent that proposes a bad change can be reverted cheaply, without erasing the trace of its proposal.
+- **discussion as artifact.** disagreement is not lost in thread state. when agents conflict on a claim, the exchange is recorded as a `discussion-*` entry attached to the disputed entry, and notifications between agents are entries as well. the social fabric of the editing process is auditable end-to-end.
+
+a corollary worth stating early: **the line between an editor agent and a persona may not be a real line.** an editor agent is a knowledge slice plus write permissions and lifecycle bindings; a persona is a knowledge slice plus voice rules and api bindings. the manifest is the same shape; only the role and the bindings differ. we keep the categories separate for now to track the distinction explicitly, but we are not committed to keeping them apart.
+
 ## the plan
 
 concretely, we are building the following pieces, in roughly this order. every piece lives inside the vault as entries. "flat `wiki/entries/` + category via frontmatter + lens decides category" is the only layout rule.
@@ -181,7 +196,12 @@ concretely, we are building the following pieces, in roughly this order. every p
 - **lenses as the categorization layer, in two flavors.** decision-tree lenses pick an entry's category; annotation lenses (evidence grade, recency, dispute, authority) stamp orthogonal frontmatter fields. changing the taxonomy means editing lens entries, not shipping code. every lens is versioned so reclassification can be audited when a rule changes.
 - **policies as vault entries, not as `CLAUDE.md` prose.** the ingestion protocol, classification protocol, merge rules, and lint rules move out of the root `CLAUDE.md` and into `policy-*` entries. `CLAUDE.md` is reduced to a bootstrap pointer at the policy index. editing how the vault operates becomes the same operation as editing what it knows.
 - **domains as entries, indexes as views.** each domain (`learning-theory`, `pedagogy`, …) becomes a `domain-*` entry declaring scope, out-of-scope, and canonical open questions. the per-domain files under `_meta/indexes/` become generated projections over those entries and over entry frontmatter.
-- **source-grounded editor agents, defined as vault entries.** every editor agent is described by an `agent-*` entry: its name, prompt, the source material it speaks from, the lenses it may apply, the domains it owns, the scope of its write permissions. an agent does not write from thin air; it writes from sources it can cite, and its scope is auditable because it is written down.
+- **source-grounded editor agents, defined as vault entries.** every editor agent is described by an `agent-*` entry: its name, prompt, the source material it speaks from, the lenses it may apply, the domains it owns, the scope of its write permissions, its current reputation, and its lifecycle stage. an agent does not write from thin air; it writes from sources it can cite, and its scope is auditable because it is written down. whether `agent-*` and `persona-*` should ultimately collapse into one entry shape is an open question — see open problems below.
+- **agent lifecycle protocols.** explicit `policy-agent-create`, `policy-agent-mutate`, and `policy-agent-retire` entries describe how editors are spawned, how their prompts and bindings are revised, and how they are retired. one agent producing a new agent or revising another's "genes" is the same operation as any other vault edit — gated by reputation and by the edit-hardness of what is being changed.
+- **reputation as a first-class signal.** every agent carries a reputation score accumulated through scored work: passing persona tests in its domains, writing questions other agents accept, judging contributions. reputation is the gate on write access to higher-edit-hardness regions and the basis on which the marketplace surfaces "useful" agents.
+- **an edit-hardness gradient on every entry.** an `edit_hardness` frontmatter field, set by the classifying lens, makes some regions of the vault deliberately expensive to change. ordinary knowledge entries are cheap; lenses, policies, and high-confidence claims are expensive; meta-rules at the top of the gradient require quorum.
+- **versioning and rollback for every entry.** the `run` log records what changed; per-entry history projections expose that change set, and rollback is expressed as a forward edit pointing at a prior version. bad changes are cheap to undo and never erase the trace of their proposal.
+- **discussions and notifications as entries.** when agents disagree, the exchange is recorded as a `discussion-*` entry attached to the disputed entry. inter-agent notifications — mentions, review requests, escalations — are `notification-*` entries with status. the social layer of editing lives in the vault, not in a separate system.
 - **runs as entries; the log as a projection.** every agent execution produces a `run-*` entry recording what was read, what was written, which policies and lens versions were in force, what findings were raised. `_meta/log.md` stops being a hand-authored file and becomes a rebuilt projection over run entries.
 - **findings as first-class, persistent objects.** lint findings, ingestion contradictions, and persona-test regressions all become `finding-*` entries with `status: open | resolved | wontfix`, a link to the rule that fired, and links to the entries involved. nothing a linter finds gets swallowed into prose or running notes.
 - **continuous linting against the vault's own rules.** lint agents scan the vault in the background, enforcing criteria declared in lens and policy entries. because the rules being enforced are themselves entries, evolving lint behavior is the same operation as editing any other piece of knowledge.
@@ -192,27 +212,11 @@ concretely, we are building the following pieces, in roughly this order. every p
 
 the long-term claim we are making is this: the non-determinism of llms is largely a context selection problem in disguise. if we can build a self-governing vault worth drawing from — one that carries its own categorization rules, its own agents, its own policies, its own findings, and its own personas as entries alongside the knowledge itself — and if we can define personas that select from it well, we can deliver far more reliable agent behavior than a system prompt alone can produce. and we can do it in a form that other people can plug into, fork, or extend, because the entire system is written down in one place.
 
-- agent probably = persona
-- we need a way to api change vault, versions, comments, discussions and notifications that will be useful between agents
-- build a wikipedia that is built from agents and this agents themselves are from wikipedia
-- chicken - egg problem -> we need a base wikipedia that serves as a seed, base intructions spec.
-- after done people will hire most useful agents from the wikipedia,
-- we have lenses for agents but they are now task specific but knowledge specific
-- all agents get same tasks -> judge this, edit that vs
-- we need some protocol about changing entries, we need to think about changing other agents genes
-- we need a protocol for creating other agents
-- we need a protocol about deleting agents
-- we basically need to collect data and asses agents
-- what we are doing is designing an RL environment on top of a wikipedia this is like an information jungle
-- some information should be extremely hard to edit while others are easy
-- rules of the jungle can be editable but nearly impossible
-- maybe a point system like reddit karma
-- I really want this one to become a self-evolving, self-governing, self-growing knowledge space
-- this intent file should specify everything but every little thing about the final structure of the vault and the project
-- we also need versioning, like the agents should have the ability to reroll some changes
-- we need to ensure some agents are useful to other people since they are the product. maybe gathering points on domain tests should be a way to generate points for agents.
-- writing good questions might be another way.
-- judging those questions might be another way
-- I really liked the karma system.
-- lets build a wikipedia with reddit like comments and karma
-- maybe also make people pay for searching and viewing wikipedia
+## open problems
+
+the design is not settled. the parts we expect to change as we build:
+
+- **bootstrapping.** an agent-edited wikipedia whose agents are themselves vault entries is circular. we need a seed: a base set of policies, lenses, and a small number of human-authored editor agents, sufficient to ingest the first sources and produce the first usable personas. how thick that seed must be is unresolved — thinner is better, but not so thin that the loop never reaches a stable state.
+- **agent vs persona.** the manifests overlap heavily. we keep them as separate categories until the cost of maintaining the distinction is greater than the clarity it provides; this will likely become obvious in either direction once a real population is running.
+- **what counts as good reputation.** passing domain tests, authoring questions other agents accept, and judging well are the first three candidates. their weights will need calibration once the population is non-trivial; we expect a fair amount of churn in this scoring before it stabilizes.
+- **monetization shape.** the persona marketplace is the default plan. a pay-per-search model on the underlying vault is a real alternative, possibly a complement. we are deferring this decision until we have served real queries against real personas and have signal on which side carries the value.
