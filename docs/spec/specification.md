@@ -83,6 +83,74 @@ if a contradiction surfaces between this spec and a policy entry, the policy ent
 
 this document is itself an artifact under the same edit-hardness rules as a policy entry. amendments require the meta-rule quorum (§9.4). the seed phase relaxes this — until reputation gates can take over, edits to this document require human review. each substantive edit produces a `run-spec-amend-{date}` entry recording the change.
 
+### 1.6 phases of vault evolution
+
+the vault is designed to migrate over time from a human-bootstrapped scaffold to an agent-autonomous knowledge graph. the phase the vault is currently operating in is recorded in `policy-phase`. each phase changes who is allowed to edit which kinds of entries.
+
+#### 1.6.1 phase 1 — frozen structure (current phase)
+
+in phase 1, **only humans set wiki structure**. agents may operate within that structure, but cannot edit it.
+
+what counts as "wiki structure" in phase 1, and is therefore locked against agent writes regardless of the default tier defined in §9.2:
+
+- every `lens-*` entry (the classification rules)
+- every `policy-*`, `guideline-*`, `essay-*` entry (the rule tiers — every tier; essays are locked too because authoring an essay is a structural act of proposing a future rule)
+- every entry whose `category` is `domain` (the subject axes)
+- every `agent-*` entry (the population manifest)
+- this specification
+
+agents may **read** all of the above. agents may **discuss** all of the above (§22) — but discussion termination is advisory until phase 2 (§16.8.3).
+
+what agents may write in phase 1:
+
+- content entries — `concept`, `source`, `illustration`, `application`, `entity`, `process`, `insight`, `claim`, `relation`, `structure-note`, `disambiguation`, `question` — subject to per-entry edit-hardness and notability rules.
+- their own work products — `run-*`, `finding-*`, `discussion-*` (rounds and termination on content disputes), `notification-*`, `pending-*`. these are agent outputs by construction.
+
+the §9.2 edit-hardness defaults describe the steady-state (phase 2+) tiers. phase 1 overrides them for the kinds listed above by setting their effective tier to `locked` against any agent write. the runtime rejects such writes pre-check; no reputation is consumed and no partial state is written. rejection emits `finding-phase-1-lockdown-violation-{target-slug}`.
+
+#### 1.6.2 phase 2 — population maturity (future)
+
+phase 2 unlocks structural edits, but only via the meta-rule quorum (§9.4). agents may then:
+
+- propose new lenses, domains, policies, guidelines, essays via the relevant lifecycle / promotion paths.
+- propose new agent manifests via `lifecycle-agent-create` (§16.3.1).
+- propose amendments to this specification.
+
+every structural edit still requires either (a) 3 agents at reputation ≥ 80 voting independently within a 7-day window, or (b) a human reviewer. the difference from phase 1 is that the agent-quorum path now exists — humans are no longer the sole route.
+
+#### 1.6.3 phase 3 — full autonomy (design end-state)
+
+phase 3 begins when the meta-rule quorum has demonstrated stable, beneficial structural evolution over a measurement window (per `policy-thesis-eval`). at phase 3:
+
+- humans no longer participate in quorum.
+- the human's role narrows to two acts: directing material in (curating sources for ingestion) and consuming output (retrieval).
+- structural edits proceed entirely through the agent quorum.
+
+phase 3 is the design end-state. phase 1 and 2 are scaffolding.
+
+#### 1.6.4 phase transition criteria
+
+transitions are explicit. they are themselves meta-rule actions amending `policy-phase`.
+
+| from    | to      | criteria                                                                                                                                                                                                                                |
+| ------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| phase 1 | phase 2 | population has ≥3 active editor agents at reputation ≥30; thesis-eval shows positive variance reduction sustained over 4 weeks; no open `severity: blocking` findings against runtime or seed policies; human reviewer ratifies.        |
+| phase 2 | phase 3 | meta-rule quorum has resolved ≥10 structural amendments without human override; thesis-eval variance reduction has improved over phase-1 baseline by a target margin set in `policy-thesis-eval`; meta-rule quorum ratifies.            |
+
+a transition does not roll back automatically. demotion (phase 2 → phase 1) is a meta-rule action with the same machinery, triggered by a quorum decision that the previous phase was unstable.
+
+### 1.7 the three pillars
+
+the vault has three pillars. every section of this specification belongs to exactly one. the table is the navigation aid for the rest of the document.
+
+| pillar                  | what it defines                                                                                | sections                                                                                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **wiki structure**      | what entries exist, how they are shaped, how they are organized                                | §2 layout · §3 entry kinds · §4 frontmatter · §5 body · §6 slugs · §7 lenses · §8 notability · §11 structure notes · §12 domains                      |
+| **wiki governance**     | the rules that bind agent behavior, how those rules are enforced and amended                   | §9 edit-hardness · §13 policy/guideline/essay · §14 high-stakes · §15 contentious · §19 merge · §20 lint · §21 findings · §22 discussions · §23 noticeboards · §31 spec governance |
+| **agentic structure**   | who acts, what they may act on, how they are created, retired, scored                          | §10 claims/relations/questions · §16 agents · §17–18 ingestion · §24 agent tests · §25 runs · §26 operations · §27 retrieval · §28 assessment         |
+
+phase 1 freezes the entirety of "wiki structure" and "wiki governance" against agent edits, plus the agent manifests that define "agentic structure" itself. only the work agents do — content edits, run records, findings, content discussions, pending proposals — is agent-driven in phase 1.
+
 ---
 
 ## 2. vault layout
@@ -916,6 +984,8 @@ defaults are floors. an entry's `edit_hardness` may be raised by:
 
 an entry's `edit_hardness` is never lowered by ordinary edits. demotion requires `policy-edit-hardness-demote` and a meta-rule quorum.
 
+the table above describes steady-state (phase 2+) defaults. **in phase 1 (§1.6.1), `lens`, `policy`, `guideline`, `essay`, `domain`, and `agent` entries are effectively `locked` against any agent write regardless of these defaults.** the §9 machinery applies to content kinds normally; structural kinds are out of reach until phase 2.
+
 ### 9.3 the pending state
 
 below `open` sits a parallel state: `pending`. writes from agents below the `confirmed` reputation threshold do not land directly. they accumulate as `pending-{run-id}` proposal entries (§4.3.21) attached to the target entry.
@@ -1369,6 +1439,10 @@ a rule entry is retired (not deleted) when its content is fully subsumed by anot
 
 essays sit at the boundary of "vault content" and "vault rules." they are content (free-form prose, edited by anyone, no enforcement) but they speak about how the vault should work. this is intentional: essays are how the population proposes new rules to itself. lint does not enforce essays; readers do.
 
+### 13.6 phase-1 lockdown applies to all three tiers
+
+despite their nominally different `edit_hardness` defaults (§9.2), in phase 1 (§1.6.1) all three tiers — `policy`, `guideline`, and `essay` — are locked against agent writes. essays are locked because authoring an essay is a structural act of proposing a future rule. only the human bootstrap (§30) and human-initiated `run-spec-amend-*` may write rule entries in phase 1. promotion paths (§13.4) are inert until phase 2.
+
 ---
 
 ## 14. high-stakes claims
@@ -1474,13 +1548,38 @@ flipping `contentious: true → false` does **not** retroactively lower `edit_ha
 
 ## 16. agents
 
-### 16.1 the three kinds in v0
+### 16.1 agent kinds — the v0 population catalog
 
-| kind      | role                                       | reads                                  | writes                                                           |
-| --------- | ------------------------------------------ | -------------------------------------- | ---------------------------------------------------------------- |
-| `editor`  | reads sources, writes content entries      | sources, existing entries              | content entries within `slice.write_domains`                     |
-| `persona` | introspection / self-assessment of a slice | entries within `slice.read_domains`    | does not write content; produces findings and discussion entries |
-| `lint`    | runs policy-driven checks                  | every entry under its `policy_targets` | findings and notifications                                       |
+every agent is an entry under `wiki/entries/agent-*.md`. its frontmatter (§4.3.15) declares its kind, slice, prompt reference, lifecycle stage, and reputation. its body declares voice, prompt strategy, and behavioral notes. the runtime (`runner/`, §26.6) executes agents per their manifests.
+
+#### 16.1.1 the three kinds
+
+| `agent_kind` | what it does                                                                                                                                          | reads                                  | writes (direct)                                                                | produces                                                                                              |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `editor`     | reads sources, writes content entries during ingestion. takes specific role (ingestion / reviewer / assessor / archiver / etc.) via `slice.role`.     | per `slice.read_domains`               | content entries within `slice.write_domains`, subject to edit-hardness gates  | `run-edit-*`, `run-merge-*`, `run-review-*`, `run-assess-*`, `run-archival-*`, `pending-*`, `finding-*` |
+| `persona`    | answers queries against a declared slice; surfaces gaps; participates in content discussions                                                          | per `slice.read_domains`               | nothing direct — does not author content                                       | `run-persona-*`, `finding-persona-test-fail-*`, `discussion-*` participation, `notification-*`        |
+| `lint`       | mechanical rule enforcement — runs continuously on writes and on schedule                                                                             | every entry under `policy_targets`     | nothing direct — emits findings                                                | `run-lint-*`, `finding-*`, `notification-*`                                                           |
+
+a single agent is exactly one kind. a deployment may instantiate multiple agents per kind (e.g., one editor per source domain). there is no global "supervisor" agent in v0.
+
+#### 16.1.2 editor sub-roles via `slice.role`
+
+an editor's specific work pattern is declared in its manifest's `slice.role`:
+
+| role                          | does                                                                  | minimum reputation tier                              |
+| ----------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------- |
+| `ingestion`                   | runs phases 0–4 of the ingestion pipeline (§17). default for a domain editor. | `open` (writes land as pending below `confirmed`)    |
+| `reviewer`                    | processes `pending-*` proposals (§9.5.3); accepts or rejects.         | `confirmed`                                          |
+| `assessor`                    | runs assessment passes (§28); updates dashboards.                     | `confirmed`                                          |
+| `archiver`                    | rolls up old runs, moves cold infrastructure to archive (§25.7, §26.3). | `confirmed`                                        |
+| `structure-note-enrichment`   | updates structure notes during phase 4 (§17.6.1.3) without authoring fresh content. | `confirmed`                                          |
+| `disambiguation-resolver`     | handles slug collisions per §6.4 in a dedicated review pass.          | `confirmed`                                          |
+
+a single editor agent declares exactly one role per manifest. multi-role behavior requires multiple agent entries.
+
+#### 16.1.3 humans are not agents
+
+the human reviewer is a stand-in for `confirmed`-tier review during phase 1. they accept pending proposals, ratify quorum actions, approve agent promotions. their actions are recorded as `notification-approval-*` linked from the relevant runs. they have no agent manifest. once phase 2 begins, their role narrows to participation in quorum alongside agents (§1.6.2). in phase 3, the human reviewer step is removed entirely from the operational loop; humans still curate sources in and read retrieval out.
 
 ### 16.2 the agent manifest
 
@@ -1522,6 +1621,12 @@ every agent is described by an `agent-{slug}.md` entry. the manifest is the entr
 ```
 
 ### 16.3 lifecycle protocols
+
+#### 16.3.0 phase 1 freeze
+
+in phase 1 (§1.6.1), all three lifecycle protocols below are inert. agents are bootstrapped exclusively by humans (§29.6, §30). a runtime attempt to invoke any lifecycle protocol from an agent in phase 1 is rejected with `finding-phase-1-lockdown-violation-agent-{slug}`. the protocols are described here so the machinery is in place for phase 2; they execute only once `policy-phase` declares phase 2 active.
+
+in phase 1, the only paths that mutate an `agent-*` entry are: (a) initial bootstrap by direct human authorship (§30); (b) a `run-spec-amend-*` that revises a manifest as part of a structural correction; (c) a human edit setting `lifecycle_stage: retired` on an agent that must be taken offline.
 
 #### 16.3.1 `lifecycle-agent-create`
 
@@ -1583,6 +1688,80 @@ a lint agent's only output is `finding-*` entries and `notification-*` entries.
 ### 16.7 agent reputation interaction with edit-hardness
 
 the runtime checks reputation at write time, not in advance. an editor agent attempting to write to an `extended-confirmed` entry must satisfy reputation ≥ 60 **and** declared scope in one of the entry's domains. if either check fails, the write becomes a pending proposal.
+
+### 16.8 where agents discuss
+
+agents discuss via `discussion-*` entries (§22). discussions are the only sanctioned channel for agent-to-agent disagreement; ad-hoc conversation outside discussion entries is not part of the model.
+
+#### 16.8.1 when a discussion opens
+
+per §22.1, a discussion opens when:
+
+- two agents disagree on the content of an entry.
+- a contradiction is raised between two claims and authors disagree on resolution.
+- a classification is contested (one agent argues a different lens should have ruled).
+- a promotion is proposed (essay → guideline → policy).
+- a wontfix justification is challenged.
+- an agent retirement is proposed.
+
+opening a discussion is the write of a new `wiki/entries/discussion-{disputed-slug}-{disambiguator}.md`. the opening agent populates the disputed object, the participants, and the first round.
+
+#### 16.8.2 how an agent participates
+
+once a discussion exists, any active agent (subject to its `slice`) may add a round. each round is one statement per participant. discussions are bounded at 5 rounds (3 in contentious domains, §22.3). termination is decided by the protocol named in the discussion's frontmatter (`content-quorum`, `meta-rule-quorum`, or `human-escalation`, §22.4).
+
+#### 16.8.3 phase 1 — discussions about structural objects are advisory
+
+a discussion whose `disputed_object` is a structural entry (a `lens-*`, `policy-*`, `guideline-*`, `essay-*`, `domain`, `agent-*`, or this spec) may run in phase 1, but its termination is **advisory only**. the disputed object is not modified by the discussion's outcome until phase 2 ratifies the termination via meta-rule quorum.
+
+advisory terminations produce `finding-deferred-structural-discussion-{slug}` for human review. the human reviewer (during phase 1) or the meta-rule quorum (in phase 2) decides whether to apply the discussion's outcome.
+
+discussions whose `disputed_object` is a content entry (concept, claim, relation, illustration, application, insight, process, entity, structure-note, disambiguation, question) terminate normally in phase 1.
+
+### 16.9 phase-1 lockdown — what agents cannot edit
+
+in phase 1 (§1.6.1), agent writes to entries of the following kinds are rejected by the runtime regardless of reputation. this overrides the §9.2 default tiers for these kinds.
+
+| entry kind                            | rationale                                                                                            |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `lens`                                | classification rules. changing them changes how every later entry is classified.                     |
+| `policy`, `guideline`, `essay`        | rule entries at every tier. changing a policy changes lint enforcement; authoring an essay is a structural act of proposing a future rule. |
+| `domain`                              | the subject axes. adding or removing one reshapes coverage and indexes.                              |
+| `agent`                               | the population manifest. creating or mutating an agent redefines who acts.                           |
+| this specification                    | the master rule.                                                                                     |
+
+rejected writes produce `finding-phase-1-lockdown-violation-{target-slug}` with `severity: blocking`. the rejecting check is pre-write — no reputation is consumed and no partial state is written.
+
+agents may **read** all locked entries. agents may **discuss** locked entries (§16.8.3) — but discussion termination is advisory until phase 2.
+
+phase 2 unlocks every kind in this table. the unlock is itself a `policy-phase` amendment requiring meta-rule quorum.
+
+### 16.10 actions × entities matrix (phase 1)
+
+the complete map of read / write / produce permissions for each agent kind in phase 1. this is the canonical answer to "what can each agent do."
+
+legend:
+- ✅ — direct write allowed, gated by per-entry `edit_hardness` and agent reputation per §9.
+- 🅿️ — write allowed but converted to `pending-*` proposal when agent reputation < `confirmed` (per §9.5).
+- 🅿️→✅ — same write, but accepted via reviewer flow (§9.5.3).
+- 🟡 — read-only.
+- 🚫 — phase-1 lockdown; runtime rejects writes pre-check (§16.9).
+
+| entry kind                                                              | `editor` (ingestion)                              | `editor` (reviewer)               | `persona`                       | `lint`                          |
+| ----------------------------------------------------------------------- | ------------------------------------------------- | --------------------------------- | ------------------------------- | ------------------------------- |
+| concept, illustration, application, entity, process, insight            | ✅ / 🅿️                                          | 🅿️→✅                            | 🟡                              | 🟡                              |
+| claim, relation                                                         | ✅ / 🅿️                                          | 🅿️→✅                            | 🟡                              | 🟡                              |
+| structure-note                                                          | ✅ / 🅿️ (≥ `confirmed` default)                 | 🅿️→✅                            | 🟡                              | 🟡                              |
+| source (summary, key ideas, connections only — body text is immutable)  | ✅ / 🅿️                                          | 🅿️→✅                            | 🟡                              | 🟡                              |
+| disambiguation, question                                                | ✅ / 🅿️                                          | 🅿️→✅                            | 🟡                              | 🟡                              |
+| lens, policy, guideline, essay, domain, agent, this spec                | 🚫                                                | 🚫                                | 🚫                              | 🚫                              |
+| run                                                                     | ✅ (own only; immutable after write)              | ✅ (own)                          | ✅ (own)                        | ✅ (own)                        |
+| finding                                                                 | ✅ (raise)                                        | ✅ (resolve / wontfix)            | ✅ (raise)                      | ✅ (raise)                      |
+| discussion                                                              | ✅ (open + rounds, content disputes)              | ✅ (terminate)                    | ✅ (open + rounds, content)     | ✅ (open + rounds, lint disputes) |
+| notification                                                            | ✅ (send)                                         | ✅ (send + mark acted)            | ✅ (send)                       | ✅ (send)                       |
+| pending                                                                 | ✅ (propose own)                                  | ✅ (accept / reject / supersede)  | n/a                             | n/a                             |
+
+phase 2 transforms every 🚫 cell into 🅿️→✅ via the meta-rule quorum (§9.4). no other change to this matrix.
 
 ---
 
@@ -2740,6 +2919,8 @@ the criteria that define each signal — what counts as a closure, what threshol
 
 ### 29.1 seed scope
 
+the seed is the phase-1 starting state (§1.6.1). everything in this section is **human-authored**: agents do not write any structural entry, in any tier, during seed. once seed is complete, agents begin operating against the bootstrapped scaffold per §30.3.
+
 at v0 startup, the vault must contain at minimum:
 
 - a base policy set.
@@ -2748,6 +2929,7 @@ at v0 startup, the vault must contain at minimum:
 - one domain entry per active subject area.
 - one editor agent per seed domain, manifest authored by hand, starting reputation = 5.0.
 - one persona agent with human-authored seed tests.
+- a `policy-phase` entry declaring the operative phase as `phase-1`.
 - a thesis-eval panel with recorded unaided baseline.
 - a small runtime under `runner/` capable of executing agents per the per-entry lock model.
 
@@ -2777,6 +2959,7 @@ at v0 startup, the vault must contain at minimum:
 | `policy-edit-hardness`        | tier definitions, gating rules (§9)                                                    | policy |
 | `policy-discussions`          | round bound, termination protocols (§22)                                               | policy |
 | `policy-reingestion`          | reingestion procedure (§18)                                                            | policy |
+| `policy-phase`                | operative phase (phase-1 / phase-2 / phase-3) and transition criteria (§1.6)           | policy |
 
 ### 29.3 seed guidelines and essays
 
@@ -2866,18 +3049,19 @@ it does not implement: rich UIs, multi-tenant orchestration, real-time discussio
 
 ### 30.1 the bootstrap order
 
-at first run, the vault is empty. bootstrap order:
+at first run, the vault is empty. bootstrap is **entirely human-authored** — agents do not exist yet, and even after their manifests are written, they have no permission to write structural entries (§1.6.1). the bootstrap order:
 
 1. **write `lens-lens` first.** without it, no other lens can be classified.
 2. **write the other 13 decision-tree lenses** in priority order.
 3. **write the 6 annotation lenses.**
 4. **write the 6 seed domain entries.**
 5. **write the seed policies** (§29.2). order:
-   - `policy-runtime` first (the runtime needs to know its boundaries).
+   - `policy-phase` first, declaring the operative phase as `phase-1` (the runtime reads this to enforce §1.6.1 lockdown on every subsequent write).
+   - `policy-runtime` next (the runtime needs to know its boundaries).
    - `policy-classification`, `policy-entry-layout`, `policy-claim-segmentation`, `policy-edit-hardness` next (they shape every subsequent write).
    - `policy-ingestion`, `policy-merge`, `policy-lint`, `policy-assessment`, `policy-archival`, `policy-reputation-weighting`, `policy-thesis-eval`.
    - `policy-notability`, `policy-structure-notes`, `policy-high-stakes`, `policy-contentious-domain`, `policy-pending-changes`, `policy-rule-promotion`, `policy-discussions`, `policy-reingestion`, `policy-content-quality`.
-   - `policy-agent-lifecycle` last (it depends on most of the others).
+   - `policy-agent-lifecycle` last (it depends on most of the others; inert in phase 1 per §16.3.0).
 6. **write the seed guidelines and essays** (§29.3).
 7. **write the seed agent entries** (§29.6) with `lifecycle_stage: proposed`.
 8. **write the seed agent-test entries** (§29.7), `authoritative: true`.
