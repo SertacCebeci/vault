@@ -18,6 +18,11 @@ lens_criteria:
   - "The entry describes a single mechanism, principle, phenomenon, or cognitive process."
   - "It can be explained without citing 'the book' or 'Chapter N' — prose is source-independent."
   - "It passes no more specific lens (source, illustration, application, entity, process, insight)."
+notability_status: n/a
+edit_hardness: restricted
+high_stakes_class: none
+quality: c
+produced_by: lifecycle-bootstrap
 ---
 
 # Lens — Concept

@@ -15,6 +15,10 @@ source: "[[small-teaching]]"
 illustrates: [testing-effect, recall-as-learning]
 chapter: "2"
 pages: "pp. 41-42"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # The Barista Who Learned an Order in One Trial

@@ -12,6 +12,10 @@ updated: 2026-04-21
 confidence: high
 status: complete
 applies: [active-learning-declarative, brain-breaks, recall-as-learning, consolidation]
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Think-Pair-Share

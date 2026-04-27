@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [interleaving, spaced-repetition, varied-practice, reflection-as-retrieval]
 chapter: "3"
 pages: "pp. 60-63"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Coach Dooley's Football Training Cycle

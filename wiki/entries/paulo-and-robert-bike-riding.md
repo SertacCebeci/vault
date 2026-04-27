@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [biologically-primary-and-secondary-knowledge, race-car-and-hiker-brains]
 chapter: "5"
 pages: "pp. 96-97"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Paulo and Robert Learn to Ride a Bike

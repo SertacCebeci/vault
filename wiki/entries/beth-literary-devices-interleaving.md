@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [interleaving, procedural-learning-system]
 chapter: "6"
 pages: "pp. 145-146"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Beth's Literary Devices Scavenger Hunt

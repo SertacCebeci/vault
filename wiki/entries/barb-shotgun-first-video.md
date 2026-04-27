@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [instructor-presence, procedural-learning-system]
 chapter: "9"
 pages: "pp. 201, 216-218"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Barb's First Online Videos

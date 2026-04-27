@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [race-car-and-hiker-brains, working-memory]
 chapter: "2"
 pages: "pp. 27-29"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Cajal as the Archetypal Hiker Learner

@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [social-buffering, collaborative-learning]
 chapter: "8"
 pages: "pp. 189"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Terry's High School Science Club

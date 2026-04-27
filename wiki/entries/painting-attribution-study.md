@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [interleaving, discrimination-learning, massed-practice]
 chapter: "3"
 pages: "pp. 53-54"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # The Painting Attribution Interleaving Study

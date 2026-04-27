@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [testing-effect, low-stakes-classroom-quizzing]
 chapter: "2"
 pages: "pp. 37-39"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Sobel's Quiz Evolution

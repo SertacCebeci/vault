@@ -12,6 +12,10 @@ updated: 2026-04-21
 confidence: high
 status: complete
 applies: [reflection-as-retrieval, generation-effect, elaboration, retrieval-cues]
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Write to Learn

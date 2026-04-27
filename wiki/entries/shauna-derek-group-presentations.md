@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [eustress-and-learning, collaborative-learning]
 chapter: "8"
 pages: "pp. 184"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Shauna and Derek's Group Presentations

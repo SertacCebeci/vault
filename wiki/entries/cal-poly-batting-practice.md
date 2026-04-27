@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [desirable-difficulty, interleaving, massed-practice, discrimination-learning, illusions-of-competence]
 chapter: "4"
 pages: "pp. 79-82"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Cal Poly Batting Practice Experiment

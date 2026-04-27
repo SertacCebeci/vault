@@ -12,6 +12,10 @@ updated: 2026-04-21
 confidence: high
 status: complete
 applies: [procedural-learning-system, direct-instruction, dopamine-and-learning]
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Classroom Procedures

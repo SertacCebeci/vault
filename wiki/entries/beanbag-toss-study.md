@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [varied-practice, desirable-difficulty, transfer]
 chapter: "3"
 pages: "pp. 46, 51-52"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # The Beanbag Toss Study

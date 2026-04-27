@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [spaced-repetition, massed-practice, desirable-difficulty]
 chapter: "3"
 pages: "pp. 48-49"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Surgical Residents Microsurgery Spacing Study

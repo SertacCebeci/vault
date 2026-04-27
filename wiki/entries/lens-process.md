@@ -19,6 +19,11 @@ lens_criteria:
   - "Understanding the whole requires knowing the transitions, not just the parts."
   - "Frontmatter declares `stages` (ordered list of stage slugs)."
   - "Body addresses triggers, dependencies, and failure modes — what moves the system between stages and where it can break."
+notability_status: n/a
+edit_hardness: restricted
+high_stakes_class: none
+quality: c
+produced_by: lifecycle-bootstrap
 ---
 
 # Lens — Process

@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [structure-building, rule-learning, dynamic-testing, mental-models]
 chapter: "6"
 pages: "pp. 131-139, 152, 158-161"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Bruce Hendry's Winding Stair

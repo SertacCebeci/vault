@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [errorless-learning-myth, desirable-difficulty, working-memory]
 chapter: "4"
 pages: "pp. 91-92"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # French Sixth Graders and the Value of Errors

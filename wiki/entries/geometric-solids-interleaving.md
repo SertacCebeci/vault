@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [interleaving, massed-practice, desirable-difficulty, discrimination-learning]
 chapter: "3"
 pages: "pp. 49-50"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # The Geometric Solids Interleaving Study

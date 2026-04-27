@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [recall-as-learning, testing-effect]
 chapter: "2 (Small Teaching); 1 (Make It Stick)"
 pages: "pp. 44-46 (Small Teaching); p. 20, 35 (Make It Stick)"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Columbia, IL Middle School Science Class

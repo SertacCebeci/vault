@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [intermediate-task-scaffolding, procrastination]
 chapter: "4"
 pages: "pp. 87-93"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # WWII Essay Intermediate-Task Schedule

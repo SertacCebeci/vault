@@ -12,6 +12,10 @@ updated: 2026-04-21
 confidence: high
 status: complete
 applies: [desirable-difficulty, testing-effect, calibration, growth-mindset]
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # High-Structure Teaching

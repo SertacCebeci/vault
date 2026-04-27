@@ -12,6 +12,10 @@ updated: 2026-04-21
 confidence: high
 status: complete
 applies: [race-car-and-hiker-brains, working-memory, expertise-reversal-effect, direct-instruction, biologically-primary-and-secondary-knowledge]
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Scaffolded Instruction

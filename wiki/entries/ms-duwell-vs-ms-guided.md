@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [classroom-procedures, procedural-learning-system]
 chapter: "7"
 pages: "pp. 164-165"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Ms. Duwell vs. Ms. Guided

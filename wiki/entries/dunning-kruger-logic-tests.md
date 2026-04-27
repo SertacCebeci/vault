@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [dunning-kruger-effect, metacognition, calibration]
 chapter: "5"
 pages: "pp. 121-123"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Dunning-Kruger Logic Tests

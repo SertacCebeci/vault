@@ -19,6 +19,11 @@ lens_criteria:
   - "Someone reading it could implement it: there are steps, timings, formats, or decision rules."
   - "Its purpose is 'how to do this', not 'why this works' or 'what this is'."
   - "Slug names the practice (e.g., `leitner-box`, `pomodoro-technique`), not the underlying idea."
+notability_status: n/a
+edit_hardness: restricted
+high_stakes_class: none
+quality: c
+produced_by: lifecycle-bootstrap
 ---
 
 # Lens — Application

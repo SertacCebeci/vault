@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [procrastination, consolidation, learn-it-link-it]
 chapter: "4"
 pages: "pp. 76-77"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Sam's Last-Minute Cramming

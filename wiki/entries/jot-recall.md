@@ -12,6 +12,10 @@ updated: 2026-04-21
 confidence: high
 status: complete
 applies: [recall-as-learning, testing-effect, working-memory, spaced-repetition, learn-it-link-it]
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Jot Recall

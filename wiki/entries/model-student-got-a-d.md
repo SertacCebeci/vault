@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [illusions-of-competence, elaboration]
 chapter: "1"
 pages: "pp. 16-17"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # The Model Student Who Got a D

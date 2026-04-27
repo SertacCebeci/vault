@@ -19,6 +19,11 @@ lens_criteria:
   - "Frontmatter declares a non-empty `lens_question`."
   - "Frontmatter declares a non-empty `lens_covers_category`."
   - "Body describes how to apply the question, including at least one worked match and one worked non-match."
+notability_status: n/a
+edit_hardness: restricted
+high_stakes_class: none
+quality: c
+produced_by: lifecycle-bootstrap
 ---
 
 # Lens — Lens (meta)

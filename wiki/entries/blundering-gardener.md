@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [generation-effect, priming-for-learning, reflection-as-retrieval, elaboration]
 chapter: "4"
 pages: "pp. 94-98"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Bonnie Blodgett: The Blundering Gardener

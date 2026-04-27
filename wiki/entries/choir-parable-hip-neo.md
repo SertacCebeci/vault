@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [declarative-learning-system, hippocampus-as-index, consolidation, brain-breaks]
 chapter: "3"
 pages: "pp. 53-60"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # The Choir Parable: Hip, Neo, and the Conductor

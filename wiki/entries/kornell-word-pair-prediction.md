@@ -15,6 +15,10 @@ source: "[[small-teaching]]"
 illustrates: [prediction-as-learning, generation-effect]
 chapter: "1"
 pages: "pp. 21-22"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Kornell Word-Pair Prediction Study

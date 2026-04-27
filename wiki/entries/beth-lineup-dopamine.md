@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [dopamine-and-learning, classroom-procedures, procedural-learning-system]
 chapter: "7"
 pages: "pp. 177-179"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Beth's Lineup Procedure — Dopamine Contrast

@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [memory-techniques, retrieval-cues]
 chapter: "7"
 pages: "pp. 190-194"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Marlys's Memory Palace

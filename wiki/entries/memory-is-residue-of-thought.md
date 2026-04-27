@@ -12,6 +12,10 @@ updated: 2026-04-21
 confidence: high
 status: complete
 connects: [testing-effect, working-memory, long-term-memory]
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Memory Is the Residue of Thought

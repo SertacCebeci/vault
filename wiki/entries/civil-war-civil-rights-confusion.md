@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [active-learning-declarative, recall-as-learning, illusions-of-competence]
 chapter: "3"
 pages: "pp. 49-50"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Civil War / Civil Rights Confusion

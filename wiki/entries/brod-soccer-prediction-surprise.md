@@ -15,6 +15,10 @@ source: "[[small-teaching]]"
 illustrates: [prediction-as-learning]
 chapter: "1"
 pages: "pp. 38-39"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Brod Soccer Prediction and Surprise Study

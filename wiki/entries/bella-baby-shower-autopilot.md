@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [procedural-learning-system, procedural-front-and-back-door]
 chapter: "6"
 pages: "pp. 120-121"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Bella's Baby Shower and the Autopilot Drive Home

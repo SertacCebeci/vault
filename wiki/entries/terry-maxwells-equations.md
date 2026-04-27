@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [procedural-learning-system, declarative-procedural-seesaw]
 chapter: "6"
 pages: "pp. 128-129"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Terry and Maxwell's Equations

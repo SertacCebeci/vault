@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [memory-distortion, narrative-bias]
 chapter: "5"
 pages: "pp. 113-114"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Loftus Car Crash Study

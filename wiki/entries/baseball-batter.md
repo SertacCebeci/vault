@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [mental-models, chunking]
 chapter: "1"
 pages: "pp. 6-7"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # The Baseball Batter

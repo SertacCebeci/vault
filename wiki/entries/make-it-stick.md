@@ -14,6 +14,10 @@ status: complete
 author: "Peter C. Brown, Henry L. Roediger III, Mark A. McDaniel"
 year: 2014
 date_ingested: 2026-04-15
+notability_status: passes
+edit_hardness: confirmed
+high_stakes_class: none
+quality: c
 ---
 
 # Make It Stick: The Science of Successful Learning

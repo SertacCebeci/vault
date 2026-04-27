@@ -19,6 +19,11 @@ lens_criteria:
   - "The note is about the entity itself — who or what it is and why it matters — not about the ideas it produced."
   - "Body is reference-card shaped: brief description, key contributions, mentions, pointers to concept notes."
   - "Frontmatter declares `entity_kind`."
+notability_status: n/a
+edit_hardness: restricted
+high_stakes_class: none
+quality: c
+produced_by: lifecycle-bootstrap
 ---
 
 # Lens — Entity

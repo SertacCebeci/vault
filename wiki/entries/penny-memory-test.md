@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [illusions-of-competence]
 chapter: "1"
 pages: "pp. 12-13"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # The Penny Memory Test

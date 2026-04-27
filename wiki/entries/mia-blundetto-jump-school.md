@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [desirable-difficulty, encoding, consolidation, reconsolidation, interleaving, varied-practice, spaced-repetition]
 chapter: "4"
 pages: "pp. 67-72"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Mia Blundetto's Jump School Training

@@ -15,6 +15,10 @@ source: "[[small-teaching]]"
 illustrates: [testing-effect, memory-is-residue-of-thought]
 chapter: "2"
 pages: "pp. 46-47"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Roediger & Butler Art-History Retrieval Study

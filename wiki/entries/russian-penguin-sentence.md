@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [chunking, long-term-memory-boosts-working-memory, working-memory]
 chapter: "2"
 pages: "pp. 34-35"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # The Russian Penguin Sentence

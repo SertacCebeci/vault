@@ -14,6 +14,10 @@ status: complete
 author: "James M. Lang"
 year: 2021
 date_ingested: 2026-04-17
+notability_status: passes
+edit_hardness: confirmed
+high_stakes_class: none
+quality: c
 ---
 
 # Small Teaching: Everyday Lessons from the Science of Learning

@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [recall-as-learning, spaced-repetition, interleaving, generation-effect, elaboration]
 chapter: "8"
 pages: "pp. 217-220"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Fuller's Line-Learning Process

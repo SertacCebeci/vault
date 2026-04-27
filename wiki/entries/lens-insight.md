@@ -19,6 +19,11 @@ lens_criteria:
   - "It is an observation *about* the relationships between, implications of, or results achieved by those concepts — not a mechanism in its own right."
   - "It is the wiki's own synthesis, not a source's thesis restated."
   - "Frontmatter declares `connects: [concept-slug, …]` listing the concepts being tied together."
+notability_status: n/a
+edit_hardness: restricted
+high_stakes_class: none
+quality: c
+produced_by: lifecycle-bootstrap
 ---
 
 # Lens — Insight

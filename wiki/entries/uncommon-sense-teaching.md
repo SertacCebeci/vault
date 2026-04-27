@@ -14,6 +14,10 @@ status: complete
 author: "Barbara Oakley, Beth Rogowsky, Terrence J. Sejnowski"
 year: 2021
 date_ingested: 2026-04-15
+notability_status: passes
+edit_hardness: confirmed
+high_stakes_class: none
+quality: c
 ---
 
 # Uncommon Sense Teaching

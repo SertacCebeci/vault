@@ -11,6 +11,10 @@ created: 2026-04-17
 updated: 2026-04-21
 confidence: high
 status: complete
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Prediction as Learning

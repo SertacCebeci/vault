@@ -18,6 +18,11 @@ lens_criteria:
   - "The entry is a synthesized literature note summarizing one raw source document (book, paper, transcript, MOOC, etc.)."
   - "Frontmatter declares `author`, `year`, `source_file`, and `date_ingested`."
   - "Body has sections along the lines of Summary, Key ideas, Notable claims, Questions raised, Connections."
+notability_status: n/a
+edit_hardness: restricted
+high_stakes_class: none
+quality: c
+produced_by: lifecycle-bootstrap
 ---
 
 # Lens — Source

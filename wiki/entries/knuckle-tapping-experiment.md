@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [curse-of-knowledge, metacognition]
 chapter: "5"
 pages: "pp. 119-120"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Knuckle-Tapping Experiment

@@ -12,6 +12,10 @@ updated: 2026-04-21
 confidence: high
 status: complete
 applies: [testing-effect, recall-as-learning, desirable-difficulty, forgetting-curve]
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Low-Stakes Classroom Quizzing

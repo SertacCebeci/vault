@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [calibration, mental-models]
 chapter: "5"
 pages: "pp. 129-130"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Police Gun Handback

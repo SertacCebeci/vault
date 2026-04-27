@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [collaborative-learning, socioemotional-learning]
 chapter: "8"
 pages: "pp. 188"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Veronique Mintz on Collaborative Learning Dysfunction

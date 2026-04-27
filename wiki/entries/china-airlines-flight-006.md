@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [system-1-and-system-2, metacognition, illusions-of-competence]
 chapter: "5"
 pages: "pp. 106-109"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # China Airlines Flight 006

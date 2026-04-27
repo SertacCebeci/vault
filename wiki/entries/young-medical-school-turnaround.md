@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [recall-as-learning, elaboration, spaced-repetition, desirable-difficulty]
 chapter: "8"
 pages: "pp. 211-216"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Young's Medical School Turnaround

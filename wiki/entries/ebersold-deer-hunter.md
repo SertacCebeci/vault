@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [reflection-as-retrieval, mental-models, testing-effect]
 chapter: "2"
 pages: "pp. 23-28"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Ebersold's Deer Hunter Surgery

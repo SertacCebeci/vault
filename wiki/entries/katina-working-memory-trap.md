@@ -15,6 +15,10 @@ source: "[[uncommon-sense-teaching]]"
 illustrates: [illusions-of-competence, working-memory, learn-it-link-it, recall-as-learning, worked-example-effect]
 chapter: "1"
 pages: "pp. 12-13, 21-23"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Katina's Working Memory Trap

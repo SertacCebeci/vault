@@ -14,6 +14,10 @@ status: complete
 author: "Dr. Barbara Oakley, Dr. Terrence Sejnowski"
 year: 2015
 date_ingested: 2026-04-15
+notability_status: passes
+edit_hardness: confirmed
+high_stakes_class: none
+quality: c
 ---
 
 # Learning How to Learn: A Coursera MOOC

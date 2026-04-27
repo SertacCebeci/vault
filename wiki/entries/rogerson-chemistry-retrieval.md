@@ -15,6 +15,10 @@ source: "[[small-teaching]]"
 illustrates: [testing-effect, closing-questions]
 chapter: "2"
 pages: "pp. 47-49"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Rogerson's End-of-Class Chemistry Questions

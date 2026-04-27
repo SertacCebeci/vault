@@ -19,6 +19,11 @@ lens_criteria:
   - "The entry has a setting (a place, a time, a specific study context)."
   - "The entry has an action or intervention, and a concrete outcome."
   - "It reads as a narrative: 'X happened to Y in context Z, and the result was W.'"
+notability_status: n/a
+edit_hardness: restricted
+high_stakes_class: none
+quality: c
+produced_by: lifecycle-bootstrap
 ---
 
 # Lens — Illustration

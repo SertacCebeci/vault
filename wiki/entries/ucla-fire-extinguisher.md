@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [illusions-of-competence]
 chapter: "1"
 pages: "p. 13"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # The UCLA Fire Extinguisher

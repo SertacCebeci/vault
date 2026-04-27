@@ -12,6 +12,10 @@ updated: 2026-04-21
 confidence: high
 status: complete
 connects: [testing-effect, transfer, roediger-butler-art-history]
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Practice-Assessment Alignment

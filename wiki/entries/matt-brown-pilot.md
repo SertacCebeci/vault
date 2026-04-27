@@ -15,6 +15,10 @@ source: "[[make-it-stick]]"
 illustrates: [mental-models, recall-as-learning, desirable-difficulty]
 chapter: "1"
 pages: "pp. 1-2, 10-12"
+notability_status: passes
+edit_hardness: open
+high_stakes_class: none
+quality: c
 ---
 
 # Matt Brown, the Pilot
