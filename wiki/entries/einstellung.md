@@ -19,6 +19,8 @@ quality: c
 
 # Einstellung
 
+## Lead
+
 Einstellung (German for "mindset" or "installation") is the phenomenon where an initial thought, an existing idea, or a well-developed neural pattern prevents you from finding a better solution. In the pinball analogy of [[focused-and-diffuse-modes]], the initial ball of thought goes to the upper part of the brain (familiar territory), but the solution lives in the lower part — and the crowded bumpers of the focused mode create a rut that prevents the ball from reaching the new place.
 
 ## Elaboration

@@ -19,6 +19,8 @@ quality: c
 
 # Interleaving
 
+## Lead
+
 Interleaving is the practice of mixing different problem types, approaches, or concepts during practice rather than repeating the same thing in blocks. While [[chunking]] builds individual pieces of knowledge, interleaving builds the flexibility to know *when* to use each chunk — which is equally important. It is one of the most powerful methods for developing [[procedural-learning-system|procedural knowledge]] and building [[schemas]].
 
 ## Elaboration

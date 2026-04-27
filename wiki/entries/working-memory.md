@@ -19,6 +19,8 @@ quality: c
 
 # Working Memory
 
+## Lead
+
 Working memory is the brain's system for temporarily holding and manipulating a small number of items — typically about four — while you actively think with them. Rather than a stable storage system, it operates like an octopus tossing balls over and over from the front to the back of the brain. An average working memory can hold about **four "balls"** (the "quadropus") before ideas begin slipping. Whenever the octopus gets distracted — by a noise, an emotion, an attempt to hold too many items — the balls can vanish.
 
 ## Elaboration

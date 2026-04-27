@@ -19,6 +19,8 @@ quality: c
 
 # Procedural Learning System
 
+## Lead
+
 The procedural learning system is the brain's second major pathway for storing information in [[long-term-memory]], operating largely outside conscious awareness through the basal ganglia and their associated structures. Where the [[declarative-learning-system]] routes information through [[working-memory]] and the [[hippocampus-as-index|hippocampus]], the procedural system sifts and shifts information from sensory input directly through the basal ganglia to the neocortex, forming neural links without conscious effort.
 
 ## Elaboration

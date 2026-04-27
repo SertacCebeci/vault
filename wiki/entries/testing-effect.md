@@ -19,6 +19,8 @@ quality: c
 
 # Testing Effect
 
+## Lead
+
 The testing effect — also called the **retrieval effect** or **retrieval-practice effect** — is the robust finding that actively pulling information out of memory strengthens that knowledge and makes it more durable than additional study does. Testing is not merely a dipstick for measuring learning — it is itself one of the most powerful learning events available. The name *testing effect* is pedagogically unfortunate: it conjures anxious multiple-choice exams, when in fact the effect is triggered by any activity that forces a learner to recall, including a five-minute oral quiz, a short-answer question, or even silently thinking about a map from memory.
 
 ## Elaboration

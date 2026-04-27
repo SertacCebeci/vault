@@ -19,6 +19,8 @@ quality: c
 
 # Biologically Primary and Secondary Knowledge
 
+## Lead
+
 Some knowledge is easy for human brains to acquire because evolution has pre-wired the neural architecture to absorb it. Recognizing faces, learning a first language, basic social interaction — these are *biologically primary* abilities. Other knowledge — reading, writing, mathematics, formal reasoning — requires the brain to repurpose circuits that evolved for different purposes. This culturally transmitted material is *biologically secondary* and demands deliberate instruction to learn.
 
 ## Elaboration

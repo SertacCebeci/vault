@@ -19,6 +19,8 @@ quality: c
 
 # Declarative Learning System
 
+## Lead
+
 The declarative learning system is the neural architecture through which the brain consciously learns facts and events. It consists of three interconnected structures: [[working-memory]] (the conductor), the [[hippocampus-as-index|hippocampus]] (the fast but superficial indexer), and the neocortex (the vast but slow permanent store). Together, these components form a pathway for declarative memory — knowledge you can consciously recall and "declare."
 
 ## Elaboration

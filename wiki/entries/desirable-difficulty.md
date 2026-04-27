@@ -19,6 +19,8 @@ quality: c
 
 # Desirable Difficulty
 
+## Lead
+
 Learning is deeper and more durable when it requires effort. Strategies that feel easy and productive — re-reading, massed practice, cramming — create a feeling of fluency that masquerades as mastery but fades quickly. Conversely, strategies that feel slow, difficult, and frustrating — spacing, interleaving, retrieval practice, generation — produce stronger and longer-lasting learning. The difficulty is "desirable" because the extra cognitive effort during encoding and retrieval strengthens the memory traces and builds more robust neural links.
 
 ## Elaboration

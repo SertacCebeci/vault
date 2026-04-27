@@ -19,6 +19,8 @@ quality: c
 
 # Spaced Repetition
 
+## Lead
+
 Spaced repetition is the practice of reviewing material at increasing intervals over time rather than cramming it all at once. It works because each retrieval and reconsolidation cycle strengthens the synaptic connections in [[long-term-memory]], and the time gaps between sessions allow the brain's connections to rearrange themselves into simpler, better, deeper, stronger configurations — just as you must let each layer of a brick wall set before adding the next.
 
 ## Elaboration

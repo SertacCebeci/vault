@@ -19,6 +19,8 @@ quality: c
 
 # Declarative-Procedural Seesaw
 
+## Lead
+
 The [[declarative-learning-system]] and [[procedural-learning-system]] operate like a seesaw: when one system is actively engaged in learning, the other is relatively de-emphasized. But once both systems have learned the same material, the resulting knowledge is complementary — each way of knowing enhances overall understanding and flexibility with the material.
 
 ## Elaboration
