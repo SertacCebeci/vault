@@ -1,3 +1,7 @@
+notes:
+- since the impl details are removed wikilinks are also removed from the document. this is correct infact wikilink themselves are if you think about ambigous even in the case of employing implementation via md files. think aboıt where we oplace wikilinks arwe we putting them at the end at thea start are they ctreated between the lines do we link reccurent instances of tegh creationds etc. the impl can change but the main issue should be about information and ther relations in between.
+- remove phase related wording and stability, the final document in the eyes of agent will be absolute. the implementation should not crea about future, or past. spec describes a state and a state only. 
+
 # vault specification
 
 > this is the vault's operational specification. it describes — in extreme detail — what the end product is, in entity-architecture terms only. it is the source from which an implementation is generated under a clean-room schema; it is itself not the implementation. anything still under discussion is collected in §35 (open issues / deferred decisions); everything else is binding within the spec.
