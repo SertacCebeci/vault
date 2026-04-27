@@ -1,13 +1,13 @@
 # vault specification
 
-> this is the vault's operational specification. it describes — in extreme detail — what the end product is: every process, every entry kind, every frontmatter field, every gate, every lifecycle is named and given concrete rules. it is the source from which working documents are generated under a clean-room implementation schema; it is itself not a working document. anything still under discussion is collected in §35 (open issues / deferred decisions); everything else is binding within the spec.
+> this is the vault's operational specification. it describes — in extreme detail — what the end product is, in entity-architecture terms only. it is the source from which an implementation is generated under a clean-room schema; it is itself not the implementation. anything still under discussion is collected in §35 (open issues / deferred decisions); everything else is binding within the spec.
 
 ## table of contents
 
 1. [document scope and conventions](#1-document-scope-and-conventions)
-2. [vault layout](#2-vault-layout)
+2. [storage scopes](#2-storage-scopes)
 3. [entry kinds — the complete catalog](#3-entry-kinds--the-complete-catalog)
-4. [canonical frontmatter schema](#4-canonical-frontmatter-schema)
+4. [canonical header schema](#4-canonical-header-schema)
 5. [body structure and the lead convention](#5-body-structure-and-the-lead-convention)
 6. [slugs and disambiguation](#6-slugs-and-disambiguation)
 7. [the lens system](#7-the-lens-system)
@@ -48,25 +48,29 @@
 
 this document describes — in extreme, unambiguous detail — what the end product is. its purpose is to serve as the blueprint from which the end product is produced under a clean-room implementation schema: the blueprint is read once, the end product is realized from it, and the result thereafter stands on its own. the spec itself is a blueprint, not part of what it describes.
 
-### 1.2 translation to working documents
+### 1.2 what this document specifies
 
-the spec follows a clean-room implementation schema. it is consulted to produce working documents — the runtime under `runner/`, the seed entries under `wiki/entries/`, the policy/guideline/essay corpus, the build scripts and lint runners. once a working document is produced, it stands on its own and is governed by its own rules. working documents do not contain references back to this spec; the relationship is one-way and one-time. the spec is a high-fidelity blueprint, not a runtime reference.
+this spec describes architecture only. it names what entities exist, what information each entity carries, why each entity is needed, what processes operate on those entities, and how entities interact. those are its sole concerns.
+
+it does not describe how any of this is realized. whether an entity is a file, a database row, or some other artifact; whether a process is a script, a runtime module, or instructions an agent follows; what anything is called in storage; how artifacts are laid out — all out of scope. in particular: no folder names, no file names, no file extensions, no script names, no command names, no programming languages, no database engines, no runtime topologies, no syntax formats appear in this document. if any do, the spec is wrong on that point and is to be amended.
+
+this rule binds the entire spec: every section, every example, every table, every code block, every reference.
 
 ### 1.3 authority
 
-this spec is the highest-authority document at the moment working documents are produced from it: nothing else outranks it for that purpose. it confers no ongoing authority against working documents that already exist. once a working document is produced — a policy entry, a runtime module, a lens entry, a configuration — it carries its own authority and is governed by its own rules. divergence between a working document and this spec is not a conflict to be resolved against the spec: the working document is the authority on its own behavior; the spec, at most, is a record of the original blueprint.
+this spec is the highest-authority document at the moment a system is produced from it: nothing else outranks it for that purpose. it confers no ongoing authority against an implementation that already exists. once an implementation is produced, it carries its own authority and is governed by its own rules. divergence between an implementation and this spec is not a conflict to be resolved against the spec: the implementation is the authority on its own behavior; the spec, at most, is a record of the original blueprint.
 
 ### 1.4 notation
 
-- `slug` — bare entry identifier, lowercase, hyphenated. always equal to the filename without `.md`.
-- `[[slug]]` — wikilink to the entry whose filename is `{slug}.md`. obsidian-compatible.
-- `policy-*`, `lens-*`, etc. — entry-slug pattern. the `*` is a placeholder.
-- `frontmatter:field` — the named field in an entry's yaml frontmatter.
-- `kind` — the value of the `category` frontmatter field. (the term "category" is retained from the existing schema; see [open issue 35.1](#351-the-category-vocabulary-clash) for the planned rename to `kind`.)
+- `slug` — the unique identifier of an entry, lowercase, hyphenated.
+- `[[slug]]` — a reference to the entry with that identifier. used as the citation form throughout the spec.
+- `policy-*`, `lens-*`, etc. — identifier pattern: every entry of that kind carries an identifier with the given prefix. `*` is a placeholder.
+- `header:field` — a named field in an entry's header (the metadata each entry carries; see §4).
+- `kind` — the value of an entry's `category` header field. (the term "category" is retained from the existing schema; see [open issue 35.1](#351-the-category-vocabulary-clash) for the planned rename to `kind`.)
 - `confirmed`, `extended-confirmed`, etc. — edit-hardness tiers (§9).
 - `passes`, `borderline`, `fails` — notability stamps (§8).
 - `A`, `B`, `C`, `D` — evidence grades (§10).
-- timestamps and dates — `YYYY-MM-DD` always.
+- dates are written `YYYY-MM-DD`; timestamps include time-of-day with timezone.
 - counts are integers; thresholds are integers unless explicitly fractional.
 - prose is lowercase.
 
@@ -136,7 +140,7 @@ the vault has three pillars. every section of this specification belongs to exac
 
 | pillar                  | what it defines                                                                                | sections                                                                                                                                              |
 | ----------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **wiki structure**      | what entries exist, how they are shaped, how they are organized                                | §2 layout · §3 entry kinds · §4 frontmatter · §5 body · §6 slugs · §7 lenses · §8 notability · §11 structure notes · §12 domains                      |
+| **wiki structure**      | what entries exist, how they are shaped, how they are organized                                | §2 scopes · §3 entry kinds · §4 header · §5 body · §6 slugs · §7 lenses · §8 notability · §11 structure notes · §12 domains                           |
 | **wiki governance**     | the rules that bind agent behavior, how those rules are enforced and amended                   | §9 edit-hardness · §13 policy/guideline/essay · §14 high-stakes · §15 contentious · §19 merge · §20 lint · §21 findings · §22 discussions · §23 noticeboards · §31 spec governance |
 | **agentic structure**   | who acts, what they may act on, how they are created, retired, scored                          | §10 claims/relations/questions · §16 agents · §17–18 ingestion · §24 agent tests · §25 runs · §26 operations · §27 retrieval · §28 assessment         |
 
@@ -144,59 +148,38 @@ phase 1 freezes the entirety of "wiki structure" and "wiki governance" against a
 
 ---
 
-## 2. vault layout
+## 2. storage scopes
 
-### 2.1 top-level directory structure
+### 2.1 the five scopes
 
-```
-.
-├── docs/
-│   └── spec/
-│       └── specification.md       # this document
-├── raw/
-│   └── {source-slug}/
-│       ├── {source-slug}.md       # the source document, immutable
-│       ├── {source-slug}-process-trace.md
-│       └── assets/                # optional supporting media
-├── temp/                          # ephemeral per-chapter staging; cleared between chapters
-├── wiki/
-│   ├── entries/                   # every entry, flat
-│   └── _meta/
-│       ├── index.md               # main index
-│       ├── indexes/
-│       │   └── {domain}.md        # per-domain index, one per active domain
-│       └── noticeboards/
-│           └── {kind}.md          # per-finding-kind projection
-└── runner/                        # the runtime that executes agents
-    └── …                          # outside the vault; small, versioned
-```
+the vault has five logical scopes. they differ in what each holds, who may modify it, and how it relates to the entries that are the substance of the vault.
 
-### 2.2 directory rules
+| scope                | what it holds                                                                                                                | mutability                                                                                                  | retrieval visibility                                                                          |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| source intake        | raw documents being ingested, their per-source ingestion progress records, and supporting media                              | each raw document is immutable after intake; its progress record evolves while ingestion is active          | not retrievable                                                                               |
+| ephemeral staging    | per-chapter draft work produced during ingestion                                                                             | cleared at the start of each chapter; otherwise mutable within the chapter                                  | not retrievable                                                                               |
+| the entries pile     | every entry — content and infrastructure alike — as a single flat collection, one identifier per entry                       | governed by the edit-hardness and notability rules of each entry's kind                                     | the canonical retrieval surface                                                               |
+| meta projections     | rebuilt views over the entries pile — domain indexes, kind-projected noticeboards, dashboards — plus cold archives           | reproducible from the entries pile or recoverable from durable history; never source-of-truth               | not retrievable; consumed by agents that subscribe to specific projections                    |
+| runtime              | the population of agents, lints, and gates that act on entries                                                               | external to the entries pile; described in `policy-runtime`                                                 | not part of the entry collection                                                              |
 
-- **`raw/`**. one folder per source. the source document under `raw/{source-slug}/{source-slug}.md` is **immutable** — never modified after intake. process trace under the same folder records ingestion progress. assets (images, attachments) under the source's `assets/` subfolder.
-- **`temp/`**. ephemeral. cleared between chapters as part of phase 0 setup. flat layout (no nesting). underscore-prefixed files (e.g., `_staging-index.md`) are reserved for staging metadata and never collide with entry slugs.
-- **`wiki/entries/`**. the only flat pile of entries. every entry is a single markdown file named `{slug}.md`. nesting is forbidden. directory listing alone must reveal every entry the vault holds.
-- **`wiki/_meta/`**. structural files _about_ the vault — never entries _in_ the vault. contents are either cached projections (the main index, the per-domain indexes, the noticeboards, the assessment dashboard) rebuilt mechanically from `wiki/entries/`, or cold archives (older runs, resolved findings, closed discussions, retired notifications) moved here per `policy-archival` (§26.3). nothing in `_meta/` is hand-authored, and nothing here is the source of truth for anything: projections are reproducible by rebuild; archives are recoverable from git. this is deliberate. hand-authored cross-vault narrative belongs in structure-note entries (§11), not in `_meta/`; chronological activity belongs in `run-*` entries and git history, not in a synthesized log file.
-- **`wiki/_meta/indexes/`**. one file per active domain. generated by `pnpm build:vault-indexes`. the domain entry under `wiki/entries/{domain-slug}.md` is the source of truth; the file under `_meta/indexes/{domain-slug}.md` is its rendered projection.
-- **`wiki/_meta/noticeboards/`**. one file per finding kind. rebuilt by the same projection rule as indexes (§23). subscribed agents read these instead of scanning `wiki/entries/finding-*.md`.
-- **`runner/`**. outside the vault. the only enforcer of write-scope, reputation gates, and edit-hardness; described in `policy-runtime` once that policy lands.
+### 2.2 scope rules
 
-### 2.3 indexing globs
+- **source intake.** one logical container per source. the source document is fixed at intake and never modified thereafter. the per-source ingestion progress record co-locates with the source. supporting media (images, attachments) co-locates with the source.
+- **ephemeral staging.** flat. cleared at the start of each chapter as part of ingestion phase 0 (§17). draft entries use the same identifiers they would carry in the entries pile, so the merge step (§17, §19) can match by identifier alone. staging metadata is namespaced from entry identifiers so the two never collide.
+- **the entries pile.** the only flat pile of entries. no nesting, no grouping, no hierarchy. enumerating the pile must reveal every entry the vault holds; nothing about the pile depends on traversal order.
+- **meta projections.** entirely synthetic. rebuilt mechanically from the entries pile (per-domain indexes, kind-projected noticeboards, the assessment dashboard) or moved here as cold archives (older runs, resolved findings, closed discussions, retired notifications) per `policy-archival` (§26.3). nothing in the meta projections is hand-authored, and nothing here is source of truth: projections are reproducible by rebuild; archives are recoverable from durable history. hand-authored cross-vault narrative belongs in structure-note entries (§11), not in projections; chronological activity belongs in `run-*` entries and durable history, not in a synthesized log.
+- **runtime.** external to the entries pile. the only enforcer of write-scope, reputation gates, and edit-hardness; described in `policy-runtime` once that policy lands.
 
-| consumer                  | glob                | excludes                                          |
-| ------------------------- | ------------------- | ------------------------------------------------- |
-| qmd vault collection      | `wiki/**/*.md`      | `raw/**`, `temp/**`, `docs/**`, `node_modules/**` |
-| index/noticeboard rebuild | `wiki/entries/*.md` | none                                              |
-| lint full pass            | `wiki/entries/*.md` | none                                              |
+### 2.3 retrieval surface
 
-`raw/`, `temp/`, `docs/`, and `runner/` are never indexed for retrieval.
+retrieval reads the entries pile only. source intake, ephemeral staging, meta projections, and runtime are never visible to retrieval. archives moved out of the entries pile cease to be retrievable until promoted back.
 
-### 2.4 path forbiddens
+### 2.4 identifier rules
 
-- no `wiki/entries/` subdirectories. ever.
-- no entry filenames containing `/`, `\`, spaces, or characters outside `[a-z0-9-]`.
-- no entry filename starting with `_`. underscore is reserved for staging metadata in `temp/` and structural files in `wiki/_meta/`.
-- no two entries with the same slug. uniqueness is enforced by the filesystem and re-checked by lint.
+- entry identifiers are lowercase, hyphenated, drawn from `[a-z0-9-]`.
+- identifiers do not contain whitespace, separators, or any character outside that set.
+- identifiers do not begin with `_`. that prefix is reserved for staging metadata.
+- no two entries share an identifier. uniqueness is enforced by the runtime and re-checked by lint.
 
 ---
 
@@ -204,23 +187,23 @@ phase 1 freezes the entirety of "wiki structure" and "wiki governance" against a
 
 ### 3.1 the two-tier split
 
-entries split into **content** (the substance of the vault) and **infrastructure** (the vault's own state). they share the flat layout and frontmatter schema; they differ in classification path, retention, and write rate.
+entries split into **content** (the substance of the vault) and **infrastructure** (the vault's own state). they share the flat layout and header schema; they differ in classification path, retention, and write rate.
 
-| tier           | classified via                                                      | retention                     | typical write rate          |
-| -------------- | ------------------------------------------------------------------- | ----------------------------- | --------------------------- |
-| content        | the lens decision tree (§7)                                         | persistent                    | one per knowledge unit      |
-| infrastructure | a named lifecycle protocol; `produced_by` frontmatter records which | aggressively archived (§26.3) | a `run` per agent execution |
+| tier           | classified via                                                          | retention                     | typical write rate          |
+| -------------- | ----------------------------------------------------------------------- | ----------------------------- | --------------------------- |
+| content        | the lens decision tree (§7)                                             | persistent                    | one per knowledge unit      |
+| infrastructure | a named lifecycle protocol; the `produced_by` header field records which | aggressively archived (§26.3) | a `run` per agent execution |
 
 ### 3.2 content kinds
 
 | slug prefix       | kind             | what it carries                                                                                                           | notes                                                              |
 | ----------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
 | (free slug)       | `concept`        | one idea, explained on its own terms. the catch-all when no narrower kind applies.                                        | richest body. always has a lead if above threshold.                |
-| (free slug)       | `source`         | literature note for one raw document — book, article, transcript. cites; does not synthesize.                             | always has a lead. one source entry per `raw/{source-slug}/`.      |
+| (free slug)       | `source`         | literature note for one raw document — book, article, transcript. cites; does not synthesize.                             | always has a lead. one source entry per source-intake container.   |
 | (free slug)       | `illustration`   | a story with protagonist, setting, outcome. retells a source narrative to anchor a concept.                               | only kind allowed to retell source prose closely.                  |
 | (free slug)       | `application`    | a practitioner-followable instruction set.                                                                                | written as steps a reader can execute.                             |
-| (free slug)       | `entity`         | a proper-noun subject — person, institution, theory, framework, method.                                                   | `entity_kind` frontmatter required.                                |
-| (free slug)       | `process`        | multi-stage sequence with named transitions.                                                                              | `stages` frontmatter is ordered.                                   |
+| (free slug)       | `entity`         | a proper-noun subject — person, institution, theory, framework, method.                                                   | `entity_kind` header field required.                               |
+| (free slug)       | `process`        | multi-stage sequence with named transitions.                                                                              | `stages` header field is ordered.                                  |
 | (free slug)       | `insight`        | a connection between 2+ existing concepts that names a non-trivial relationship.                                          | always references at least 2 concepts in `connects`.               |
 | `claim-`          | `claim`          | one atomic assertion with evidence and grade. the smallest content unit.                                                  | atomicity policed by `policy-claim-segmentation`.                  |
 | `relation-`       | `relation`       | a typed, directed edge between entries. predicates: `supports`, `contradicts`, `instance-of`, `supersedes`, `depends-on`. | carries its own evidence grade.                                    |
@@ -237,8 +220,8 @@ entries split into **content** (the substance of the vault) and **infrastructure
 | `policy-`                      | `policy`             | a binding rule. lint enforces; meta-rule edits required.                                                                                                                 | highest of the three rule tiers (§13).                |
 | `guideline-`                   | `guideline`          | a best-practice norm. violations produce advisory findings.                                                                                                              | middle tier.                                          |
 | `essay-`                       | `essay`              | an under-development take. binds nothing.                                                                                                                                | lowest tier; promotion path leads upward.             |
-| `agent-`                       | `agent`              | the manifest of an active process — editor, persona, or lint. slice + bindings + lifecycle + reputation.                                                                 | `kind` frontmatter is `editor`, `persona`, or `lint`. |
-| `run-`                         | `run`                | one agent execution. records reads, writes, findings, active policy/lens versions, identity.                                                                             | dominates file count; archived to rollups (§26.3).    |
+| `agent-`                       | `agent`              | the manifest of an active process — editor, persona, or lint. slice + bindings + lifecycle + reputation.                                                                 | `agent_kind` header field is `editor`, `persona`, or `lint`. |
+| `run-`                         | `run`                | one agent execution. records reads, writes, findings, active policy/lens versions, identity.                                                                             | dominates entry count by volume; archived to rollups (§26.3). |
 | `finding-`                     | `finding`            | a problem the vault has noticed about itself. open/resolved/wontfix.                                                                                                     | links to the rule that fired.                         |
 | `agent-test-`                  | `agent-test`         | a query with an expected answer shape, attached to an agent. run as regression.                                                                                          | failure becomes a finding.                            |
 | `discussion-`                  | `discussion`         | a recorded exchange between agents disputing an entry.                                                                                                                   | round-bounded (§22).                                  |
@@ -247,57 +230,35 @@ entries split into **content** (the substance of the vault) and **infrastructure
 
 ### 3.4 forbidden combinations
 
-- a content entry must not have `produced_by` frontmatter. `produced_by` is the marker of infrastructure-protocol authorship.
+- a content entry must not have a `produced_by` header field. `produced_by` is the marker of infrastructure-protocol authorship.
 - an infrastructure entry must not be classified by a lens. its category is set by the lifecycle protocol that produced it. lint check `infrastructure-classified-by-lens` enforces this.
 - a lens entry must classify itself via `lens-lens`. lint check `lens-self-classification` enforces this.
 
 ---
 
-## 4. canonical frontmatter schema
+## 4. canonical header schema
 
-### 4.1 the common head
+### 4.1 the common header
 
-every entry — content or infrastructure — carries this frontmatter at the top of the file, between `---` fences:
-
-```yaml
----
-id: { slug } # must equal filename without .md
-title: '{Title Case Title}'
-category: { kind } # one of the kinds in §3
-classified_by: { lens-slug } # for content entries
-produced_by: { protocol-name } # for infrastructure entries
-domains: [{ domain-slug }, ...] # 1..N; never empty
-tags: [{ tag }, ...] # free-form, lowercase, hyphenated
-sources: [{ source-slug }, ...] # bare slugs of source-kind entries
-aliases: [] # optional search aliases
-created: { YYYY-MM-DD }
-updated: { YYYY-MM-DD }
-confidence: high # high | medium | low | contested
-status: complete # draft | stub | complete
-notability_status: passes # passes | borderline | fails | n/a (n/a for infrastructure)
-edit_hardness: open # open | confirmed | extended-confirmed | restricted | locked
-high_stakes_class: none # none | medical | legal | safety | identifiable-individual
-quality: c # stub | start | c | b | a | featured  (cf. wikipedia GA/FA)
----
-```
+every entry — content or infrastructure — carries a header of named fields. the common fields below are present on every entry; per-kind extensions appear in §4.3.
 
 ### 4.2 field-by-field rules
 
 | field               | type   | required?                         | rule                                                                                                                                                        |
 | ------------------- | ------ | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                | string | yes                               | exactly equal to filename without `.md`. lint `id-filename-mismatch`.                                                                                       |
-| `title`             | string | yes                               | title case, quoted. one entry, one canonical title.                                                                                                         |
+| `id`                | string | yes                               | exactly equal to the entry's identifier. lint `id-mismatch`.                                                                                                |
+| `title`             | string | yes                               | title case. one entry, one canonical title.                                                                                                                 |
 | `category`          | enum   | yes                               | one of the kinds in §3.2 or §3.3. lint `unknown-category`.                                                                                                  |
-| `classified_by`     | string | content only                      | the slug of the lens that ruled. its `lens_covers_category` must equal this entry's `category`. lint `classification-consistency`.                          |
+| `classified_by`     | string | content only                      | identifier of the lens that ruled. its `lens_covers_category` must equal this entry's `category`. lint `classification-consistency`.                        |
 | `produced_by`       | string | infrastructure only               | name of the lifecycle protocol that produced this entry, e.g., `pipeline-unpack`, `lifecycle-agent-create`. lint `infrastructure-without-produced-by`.      |
 | `domains`           | list   | yes                               | non-empty. every value must equal an existing domain entry's `id`. lint `unknown-domain`, `entry-without-domain`.                                           |
 | `tags`              | list   | optional                          | lowercase, hyphenated. tags reducing to a domain name must instead live in `domains`. lint `tag-shadowing-domain`.                                          |
-| `sources`           | list   | optional                          | bare slugs of source-kind entries. machine-readable shorthand; the body's `## Sources` section is the rich attribution. lint `source-frontmatter-mismatch`. |
+| `sources`           | list   | optional                          | identifiers of source-kind entries. machine-readable shorthand; the body's sources section is the rich attribution. lint `source-attribution-mismatch`.      |
 | `aliases`           | list   | optional                          | alternative titles a search query might use.                                                                                                                |
 | `created`           | date   | yes                               | first-write date. never modified after creation.                                                                                                            |
-| `updated`           | date   | yes                               | most recent modification date. updated by every write. lint `updated-not-current` after any edit.                                                           |
+| `updated`           | date   | yes                               | most-recent modification date. updated by every write. lint `updated-not-current` after any edit.                                                           |
 | `confidence`        | enum   | yes                               | `high` (multiple sources converge), `medium` (one source or weak convergence), `low` (single weak source), `contested` (sources actively disagree).         |
-| `status`            | enum   | yes                               | `draft` (work in progress, do not retrieve), `stub` (thin but published), `complete` (ratified).                                                            |
+| `status`            | enum   | yes                               | `draft` (work in progress, not retrievable), `stub` (thin but published), `complete` (ratified).                                                            |
 | `notability_status` | enum   | content yes; infrastructure `n/a` | set by `lens-notability` at unpack. transitions per §8.                                                                                                     |
 | `edit_hardness`     | enum   | yes                               | one of the five tiers (§9.1). set by the classifying lens or the producing protocol; raised by domain inheritance; never lowered.                           |
 | `high_stakes_class` | enum   | yes                               | `none` is the default. non-`none` triggers asymmetric removal regime when evidence is below floor (§14).                                                    |
@@ -305,241 +266,181 @@ quality: c # stub | start | c | b | a | featured  (cf. wikipedia GA/FA)
 
 ### 4.3 per-kind extensions
 
-each kind may carry additional fields beyond the common head. enumerated below; lint `category-fields-presence` enforces required fields per kind.
+each kind may carry additional fields beyond the common header. enumerated below; lint `kind-fields-presence` enforces required fields per kind.
 
 #### 4.3.1 lens
 
-```yaml
-lens_question: '...' # non-empty string, the yes/no question the lens asks
-lens_priority: 0 # integer; lower = earlier in decision-tree order
-lens_covers_category: lens # the kind this lens ranges over
-lens_criteria: # ordered list of checklist items
-  - 'criterion 1'
-  - 'criterion 2'
-lens_kind: decision-tree # decision-tree | annotation
-```
+- `lens_question` (string, required) — the yes/no question the lens asks.
+- `lens_priority` (integer, required) — lower values run earlier in decision-tree order.
+- `lens_covers_category` (kind, required) — the kind this lens ranges over.
+- `lens_criteria` (ordered list of strings, required) — checklist items the lens applies in order.
+- `lens_kind` (enum, required) — `decision-tree` or `annotation`.
 
 #### 4.3.2 source
 
-```yaml
-author: '{Author Name}'
-year: 2019
-source_file: 'raw/{source-slug}/{source-slug}.md'
-date_ingested: 2026-04-21
-```
+- `author` (string, required).
+- `year` (integer, required).
+- `intake_ref` (identifier, required) — identifier of the source's intake container in source intake (§2.1).
+- `date_ingested` (date, required).
 
 #### 4.3.3 entity
 
-```yaml
-entity_kind: person # person | institution | theory | framework | method
-```
+- `entity_kind` (enum, required) — `person`, `institution`, `theory`, `framework`, or `method`.
 
 #### 4.3.4 illustration
 
-```yaml
-source: '[[{source-slug}]]' # quoted wikilink, single source
-illustrates: [{ concept-slug }, ...]
-chapter: 'Chapter 4' # if known; mark "unknown" otherwise
-pages: '120–135' # if known
-```
+- `source` (reference to one source-kind entry, required).
+- `illustrates` (list of concept identifiers, required).
+- `chapter` (string, optional) — known chapter label, or marked unknown.
+- `pages` (string, optional) — known page range.
 
 #### 4.3.5 application
 
-```yaml
-applies: [{ concept-slug }, ...]
-prerequisites: [{ slug }, ...] # optional
-```
+- `applies` (list of concept identifiers, required).
+- `prerequisites` (list of identifiers, optional).
 
 #### 4.3.6 process
 
-```yaml
-stages: [{ stage-slug }, ...] # ordered; the order is meaningful
-preconditions: [{ slug }, ...] # optional
-postconditions: [{ slug }, ...] # optional
-```
+- `stages` (ordered list of stage identifiers, required) — order is meaningful.
+- `preconditions` (list of identifiers, optional).
+- `postconditions` (list of identifiers, optional).
 
 #### 4.3.7 insight
 
-```yaml
-connects: [{ slug }, ...] # at least 2 entries
-```
+- `connects` (list of identifiers, required) — at least 2 entries.
 
 #### 4.3.8 claim
 
-```yaml
-claim_text: '...' # the assertion as a single declarative sentence
-evidence_grade: A # A | B | C | D — see §10.2
-evidence_pointers:
-  - source: '[[{source-slug}]]'
-    pages: '...'
-    quote: '...' # optional
-asserts_about: [{ slug }, ...] # entries the claim is about
-verifiable: true # boolean — is the claim, in principle, verifiable?
-```
+- `claim_text` (string, required) — the assertion as a single declarative sentence.
+- `evidence_grade` (enum, required) — `A` | `B` | `C` | `D` (§10.2).
+- `evidence_pointers` (list, required) — each pointer carries a source reference, a page locator, and optionally a quoted excerpt.
+- `asserts_about` (list of identifiers, required) — entries the claim is about.
+- `verifiable` (boolean, required) — whether the claim is, in principle, verifiable.
 
 #### 4.3.9 relation
 
-```yaml
-predicate: supports # supports | contradicts | instance-of | supersedes | depends-on
-from: '[[{slug}]]'
-to: '[[{slug}]]'
-evidence_grade: B
-evidence_pointers: [...]
-```
+- `predicate` (enum, required) — `supports` | `contradicts` | `instance-of` | `supersedes` | `depends-on`.
+- `from` (reference, required).
+- `to` (reference, required).
+- `evidence_grade` (enum, required) — `A`–`D`.
+- `evidence_pointers` (list, required).
 
 #### 4.3.10 structure-note
 
-```yaml
-organizes: [{ slug }, ...] # entries the note holds together; usually >5
-domain_frame: learning-theory # the frame from which this note organizes the cluster; one of the entry's domains
-```
+- `organizes` (list of identifiers, required) — entries the note holds together; usually >5.
+- `domain_frame` (domain identifier, required) — the frame from which this note organizes the cluster; must be one of the entry's domains.
 
 #### 4.3.11 disambiguation
 
-```yaml
-variants:
-  - slug: '{variant-slug-1}'
-    distinguisher: '{one-line distinguisher}'
-  - slug: '{variant-slug-2}'
-    distinguisher: '...'
-```
+- `variants` (list, required) — each item carries the identifier of a variant entry and a one-line distinguisher.
 
 #### 4.3.12 question
 
-```yaml
-asks_about: [{ slug }, ...]
-priority: medium # low | medium | high
-opened_by: '[[{run-or-finding-slug}]]'
-closes_when: '...' # human-readable success criterion
-```
+- `asks_about` (list of identifiers, required).
+- `priority` (enum, required) — `low` | `medium` | `high`.
+- `opened_by` (reference to a run or finding, required).
+- `closes_when` (string, required) — human-readable success criterion.
 
 #### 4.3.13 domain
 
-```yaml
-scope: '...' # what the domain covers
-out_of_scope: '...' # what it explicitly excludes
-canonical_questions: [{ question-slug }, ...]
-contentious: false # boolean; raises floors when true
-evidence_grade_floor: D # minimum evidence grade for new claims; D = no floor
-edit_hardness_floor: open # tier; raises per-entry default by one tier when above open
-subscribed_agents: [{ agent-slug }, ...]
-load_bearing_structure_notes: [{ slug }, ...]
-```
+- `scope` (string, required) — what the domain covers.
+- `out_of_scope` (string, required) — what it explicitly excludes.
+- `canonical_questions` (list of question identifiers, required).
+- `contentious` (boolean, required) — raises floors when true.
+- `evidence_grade_floor` (enum, required) — minimum evidence grade for new claims; `D` means no floor.
+- `edit_hardness_floor` (enum, required) — raises per-entry default by one tier when above `open`.
+- `subscribed_agents` (list of agent identifiers, required).
+- `load_bearing_structure_notes` (list of identifiers, required).
 
 #### 4.3.14 policy / guideline / essay
 
-```yaml
-rule_tier: policy # policy | guideline | essay
-covers: '...' # one-sentence summary of the rule's scope
-linted_by: [{ lint-rule-name }, ...] # for policies; lint rules that enforce it
-promotion_history: # for entries that have been promoted
-  - from: essay
-    to: guideline
-    on: 2026-05-12
-    via: '[[discussion-{slug}]]'
-```
+- `rule_tier` (enum, required) — `policy` | `guideline` | `essay`.
+- `covers` (string, required) — one-sentence summary of the rule's scope.
+- `linted_by` (list of lint-rule names, required for policies) — lint rules that enforce it.
+- `promotion_history` (list, optional) — for entries that have been promoted; each item carries the prior tier, the new tier, the date of promotion, and a reference to the discussion that promoted it.
 
 #### 4.3.15 agent
 
-```yaml
-agent_kind: editor # editor | persona | lint
-prompt_ref: '...' # path or slug to the prompt definition
-slice: # what the agent reads/writes
-  read_domains: [{ domain-slug }, ...]
-  write_domains: [{ domain-slug }, ...]
-  voice_rules: [...] # for persona
-  refusal_rules: [...] # for persona
-  policy_targets: [{ policy-slug }, ...] # for lint
-reputation: 0.0 # current reputation score, 0.0–100.0
-lifecycle_stage: active # proposed | active | retired
-seed_tests: [{ agent-test-slug }, ...]
-created_via: '[[run-{slug}]]'
-```
+- `agent_kind` (enum, required) — `editor` | `persona` | `lint`.
+- `prompt_ref` (string, required) — pointer to the prompt definition.
+- `slice` — what the agent reads and writes:
+  - `read_domains` (list of domain identifiers).
+  - `write_domains` (list of domain identifiers).
+  - `voice_rules` (list, persona only).
+  - `refusal_rules` (list, persona only).
+  - `policy_targets` (list of policy identifiers, lint only).
+- `reputation` (number, required) — current reputation score, 0.0–100.0.
+- `lifecycle_stage` (enum, required) — `proposed` | `active` | `retired`.
+- `seed_tests` (list of agent-test identifiers, required).
+- `created_via` (reference to the run that created the agent, required).
 
 #### 4.3.16 run
 
-```yaml
-run_kind: edit                     # edit | lint | assess | ingest | review
-agent: "[[agent-{slug}]]"
-started: 2026-04-27T10:23:00Z
-finished: 2026-04-27T10:31:00Z
-reads: ["[[slug-1]]", "[[slug-2]]"]
-writes: ["[[slug-3]]", ...]
-findings_raised: ["[[finding-{slug}]]", ...]
-policy_versions:                  # which version of each policy was active
-  policy-ingestion: "v3"
-  policy-classification: "v2"
-lens_versions:
-  lens-concept: "v4"
-  ...
-```
+- `run_kind` (enum, required) — `edit` | `lint` | `assess` | `ingest` | `review`.
+- `agent` (reference, required).
+- `started` (timestamp, required).
+- `finished` (timestamp, required).
+- `reads` (list of references, required) — entries read during the run.
+- `writes` (list of references, required) — entries written during the run.
+- `findings_raised` (list of finding references, required).
+- `policy_versions` (mapping of policy identifier to version label, required) — which version of each policy was active during the run.
+- `lens_versions` (mapping of lens identifier to version label, required).
 
 #### 4.3.17 finding
 
-```yaml
-finding_kind: broken-wikilink # one of the named lint rules in §20
-status: open # open | resolved | wontfix
-fired_by: '[[lint-{rule-slug}]]'
-involves: ['[[slug-1]]', '[[slug-2]]']
-opened: 2026-04-27
-resolved: null # date when status flips to resolved
-resolution_run: null # link to the run that resolved it
-wontfix_justification: null # required when status is wontfix
-severity: blocking # advisory | blocking
-```
+- `finding_kind` (enum, required) — one of the named lint rules in §20.
+- `status` (enum, required) — `open` | `resolved` | `wontfix`.
+- `fired_by` (reference to a lint rule, required).
+- `involves` (list of references, required).
+- `opened` (date, required).
+- `resolved` (date, optional) — set when status flips to `resolved`.
+- `resolution_run` (reference, optional) — the run that resolved it.
+- `wontfix_justification` (string, optional) — required when status is `wontfix`.
+- `severity` (enum, required) — `advisory` | `blocking`.
 
 #### 4.3.18 agent-test
 
-```yaml
-agent: '[[agent-{slug}]]'
-question: '...' # the query
-expected_shape: '...' # what a passing answer looks like
-authoritative: true # human-authored seed test; gates promotion to test list
-last_run: 2026-04-26
-last_result: pass # pass | fail | stale
-```
+- `agent` (reference, required).
+- `question` (string, required) — the query.
+- `expected_shape` (string, required) — what a passing answer looks like.
+- `authoritative` (boolean, required) — human-authored seed test; gates promotion to test list.
+- `last_run` (date, required).
+- `last_result` (enum, required) — `pass` | `fail` | `stale`.
 
 #### 4.3.19 discussion
 
-```yaml
-disputed_object: '[[{slug}]]'
-opened: 2026-04-25
-participants: ['[[agent-{slug}]]', ...]
-rounds: 0 # 0..5
-status: open # open | closed-resolved | closed-wontfix | escalated | stale
-termination_protocol: content-quorum # content-quorum | meta-rule-quorum | human-escalation
-```
+- `disputed_object` (reference, required).
+- `opened` (date, required).
+- `participants` (list of agent references, required).
+- `rounds` (integer, required) — 0..5.
+- `status` (enum, required) — `open` | `closed-resolved` | `closed-wontfix` | `escalated` | `stale`.
+- `termination_protocol` (enum, required) — `content-quorum` | `meta-rule-quorum` | `human-escalation`.
 
 #### 4.3.20 notification
 
-```yaml
-to: '[[agent-{slug}]]'
-from: '[[agent-{slug}]]'
-about: '[[{slug}]]'
-notification_kind: review-request # mention | review-request | escalation
-status: unread # unread | read | acted
-```
+- `to` (agent reference, required).
+- `from` (agent reference, required).
+- `about` (reference, required).
+- `notification_kind` (enum, required) — `mention` | `review-request` | `escalation`.
+- `status` (enum, required) — `unread` | `read` | `acted`.
 
 #### 4.3.21 pending (proposal)
 
-```yaml
-target: '[[{slug}]]' # the entry the proposal would modify or create
-proposal_kind: create # create | modify | retire
-proposed_by: '[[agent-{slug}]]'
-proposed_at: 2026-04-27T11:00:00Z
-diff: '...' # rendered diff or full body for create
-status: pending # pending | accepted | rejected | superseded
-reviewed_by: null # set on accept/reject
-review_run: null # link to the run that reviewed it
-```
+- `target` (reference, required) — the entry the proposal would modify or create.
+- `proposal_kind` (enum, required) — `create` | `modify` | `retire`.
+- `proposed_by` (agent reference, required).
+- `proposed_at` (timestamp, required).
+- `diff` (string, required) — the change as a diff or, for `create`, the full body.
+- `status` (enum, required) — `pending` | `accepted` | `rejected` | `superseded`.
+- `reviewed_by` (agent reference, optional) — set on accept/reject.
+- `review_run` (reference, optional) — the run that reviewed it.
 
-### 4.4 frontmatter parsing rules
+### 4.4 header rules
 
-- the frontmatter block is the first content of the file. anything before it is invalid.
-- yaml strict mode. quotes are required for any string containing `:`, `#`, `[`, `]`, `{`, `}`, or starting with `- `.
-- every list field, when empty, must be `[]`, never absent. lint `missing-required-list`.
+- the header is the first content of the entry. anything preceding it is invalid.
+- list-typed fields, when empty, must be present as empty lists, never absent. lint `missing-required-list`.
 - enum fields are case-sensitive. always lowercase except for `evidence_grade` (capital `A`–`D`).
-- dates are ISO `YYYY-MM-DD`. timestamps are ISO 8601 with `Z` suffix when needed.
+- dates use `YYYY-MM-DD`; timestamps include time-of-day with timezone.
 
 ---
 
@@ -547,87 +448,59 @@ review_run: null # link to the run that reviewed it
 
 ### 5.1 body anatomy
 
-every entry's body follows this structural template, with sections appearing in this order when present:
+every entry's body is composed of named sections, in this order when present:
 
-```markdown
-# {Title}
+1. **lead.** required when body length exceeds the threshold (§5.2). a 1–3 sentence compression of the entry's content.
+2. **kind-specific main section.** the substantive body. its name varies by kind (e.g., `Stages`, `Steps`, `Variants`).
+3. **connections.** optional but recommended for content entries; structured per §5.4.
+4. **sources.** required for any entry citing sources; structured per §5.5.
+5. **mentioned-in.** optional; a hand-curated backlink list with one-line context per inbound entry.
 
-## Lead # required when body length exceeds threshold; see §5.2
-
-{1–3 sentences compressing the entry's content.}
-
-## {Kind-specific main section}
-
-{The substantive body of the entry.}
-
-## Connections # optional but recommended for content entries
-
-- relation-1: [[other-slug]] — annotation
-- relation-2: [[other-slug]] — annotation
-
-## Sources # required for any entry citing sources
-
-- [[{source-slug}]], chapter X, pages Y–Z
-- [[{source-slug}]], pages …
-
-## Mentioned in # optional; backlink list
-
-- [[{slug}]] — context
-```
-
-sections beyond these may appear when meaningful (e.g., `## Examples`, `## Counterexamples`). order is not enforced beyond the constraint that `## Lead` (when present) must be the first heading after the title.
+additional sections may appear when meaningful (e.g., examples, counterexamples). order is not enforced beyond the constraint that the lead, when present, is the first section after the title.
 
 ### 5.2 the lead convention
 
 #### 5.2.1 the threshold rule
 
-an entry must carry a `## Lead` section when its body (everything after the title and frontmatter, excluding the lead itself) exceeds either:
+an entry must carry a lead section when its body (everything after the header, excluding the lead itself) exceeds either:
 
 - **200 words**, or
-- **two paragraphs of prose**, where a paragraph is a block of contiguous lines separated by blank lines and containing more than one sentence.
+- **two paragraphs of prose**, where a paragraph is a contiguous block of more than one sentence.
 
 if the body is below both thresholds, the lead may be omitted; the first sentence of the body acts as the implicit lead.
 
-structure notes (§11) and source entries (§4.3.2) carry a `## Lead` regardless of size, because their leads are load-bearing for retrieval at the cluster and source level respectively.
+structure notes (§11) and source entries (§4.3.2) carry a lead regardless of size, because their leads are load-bearing for retrieval at the cluster and source level respectively.
 
 #### 5.2.2 the lead format
 
 - one to three sentences.
 - written as a self-contained compression of the entry's content, not as an introduction that depends on later prose.
-- no wikilinks in the lead unless removing the wikilink would make the lead ungrammatical. the lead is a retrieval target, and gratuitous links increase token cost without improving compression.
+- no outbound references in the lead unless removing them would make the lead ungrammatical. the lead is a retrieval target, and gratuitous references increase token cost without improving compression.
 - no first-person voice ("we") and no metadata phrasing ("this entry covers"). just claims.
 
 #### 5.2.3 how retrieval uses leads
 
 retrieval (§27) returns leads first; full bodies only when the consumer's budget permits and the lead is insufficient. a lead written sloppily — that mostly restates the title or that hedges where the body is decisive — degrades retrieval quality across every query that lands on the entry. lead quality is therefore lint-checked (§20) and contributes to entry quality grading (§5.7).
 
-### 5.3 wikilinks
+### 5.3 references
 
-#### 5.3.1 syntax and resolution
+#### 5.3.1 reference semantics
 
-- `[[slug]]` — bare slug. resolves to `wiki/entries/{slug}.md`. case-sensitive.
-- `[[slug|display text]]` — bare slug, with custom display text.
-- `[[#anchor]]` — within-entry anchor. valid only inside the same file.
-- `[[slug#anchor]]` — anchored cross-entry link.
+every entry may reference any other entry by identifier. references are first-class: they participate in retrieval, density checks, link-graph analysis, and the connection sections of structure notes. a reference resolves only when the referenced entry exists in the entries pile. references may target an entry as a whole or, where supported, an anchor within that entry.
+
+throughout this spec, a reference is written `[[slug]]`; this is the spec's own citation notation and does not constrain how references are encoded inside entries.
 
 #### 5.3.2 link-density requirement
 
-every content entry must carry at least 2 outbound `[[wikilinks]]` to other content entries. lint `low-link-density` produces an advisory finding for entries below this floor. structure notes carry many more outbound links by their nature; a structure note with fewer than 5 outbound links to entries it claims to organize is a finding (`structure-note-low-link-density`).
+every content entry must carry at least 2 outbound references to other content entries. lint `low-link-density` produces an advisory finding for entries below this floor. structure notes carry many more outbound references by their nature; a structure note with fewer than 5 outbound references to entries it claims to organize is a finding (`structure-note-low-link-density`).
 
-#### 5.3.3 broken links
+#### 5.3.3 broken references
 
-every wikilink must resolve to a file that exists in `wiki/entries/`. lint `broken-wikilink` blocks merges that introduce an unresolved link, except when the link points at a `question-{slug}` that is opened in the same merge.
+every reference must resolve to an existing entry. lint `broken-reference` blocks merges that introduce an unresolved reference, except when the reference points at a `question-{slug}` that is opened in the same merge.
 
 ### 5.4 connections section format
 
-the `## Connections` section uses a controlled list format rather than free prose:
-
-```markdown
-## Connections
-
-- {Predicate}: [[other-slug]] — {annotation}
-- {Predicate}: [[other-slug]] — {annotation}
-```
+the connections section is a structured list, not free prose. each item carries a predicate, a target reference, and a one-line annotation.
 
 predicates that may appear inline (without producing a `relation-*` entry):
 
@@ -639,24 +512,17 @@ predicates that may appear inline (without producing a `relation-*` entry):
 
 predicates that require their own `relation-*` entry (because they are load-bearing):
 
-- `Supports` → produces `[[relation-{from}-supports-{to}]]`
-- `Contradicts` → produces `[[relation-{from}-contradicts-{to}]]`
-- `Instance of` → produces `[[relation-{from}-instance-of-{to}]]`
-- `Supersedes` → produces `[[relation-{from}-supersedes-{to}]]`
-- `Depends on` → produces `[[relation-{from}-depends-on-{to}]]`
+- `Supports` → produces a `relation-{from}-supports-{to}` entry.
+- `Contradicts` → produces a `relation-{from}-contradicts-{to}` entry.
+- `Instance of` → produces a `relation-{from}-instance-of-{to}` entry.
+- `Supersedes` → produces a `relation-{from}-supersedes-{to}` entry.
+- `Depends on` → produces a `relation-{from}-depends-on-{to}` entry.
 
-an inline `Supports:` in connections without a corresponding `relation-*` entry is a finding (`relation-not-formalized`).
+an inline `Supports` predicate in connections without a corresponding `relation-*` entry is a finding (`relation-not-formalized`).
 
 ### 5.5 sources section format
 
-```markdown
-## Sources
-
-- [[{source-slug}]], chapter {N}, pages {start}–{end} — {brief annotation}
-- [[{source-slug}]], pages {start}–{end}
-```
-
-frontmatter `sources:` must include the bare slug of every source-kind entry referenced in this section. lint `source-frontmatter-mismatch` enforces.
+each item in the sources section identifies one source-kind entry by reference and carries a locator within that source (chapter, page range) and a brief annotation. the entry's `sources` header field must include the identifier of every source-kind entry referenced in this section. lint `source-attribution-mismatch` enforces.
 
 ### 5.6 mentioned-in section
 
@@ -690,51 +556,34 @@ quality is reviewed in assessment passes (§28). promotion to `b`, `a`, or `feat
 
 ### 6.2 slug uniqueness
 
-- enforced by the filesystem (one file per filename in a flat directory).
+- enforced by the runtime: only one entry may carry a given identifier at a time.
 - re-checked by lint (`slug-uniqueness`) every full pass.
-- a temp file in `temp/` shares the namespace; staging two different topics under the same slug in the same chapter is a phase 1 error (§17.3).
+- ephemeral staging shares the identifier namespace; staging two different topics under the same identifier in the same chapter is a phase-1 error (§17.3).
 
 ### 6.3 picking a slug for a new entry
 
 procedure (apply in order):
 
-1. start with the title, lowercased and hyphenated. drop articles ("the", "a", "an"), drop trailing punctuation.
-2. check `wiki/entries/` for an existing file with that slug.
-3. check `temp/` for an already-staged file with that slug in this chapter.
-4. if both checks return no match, the slug is `new`.
-5. if `wiki/entries/{slug}.md` exists and is the same subject, mark `merges-with: {existing-slug}`. write into `temp/{slug}.md`.
-6. if `wiki/entries/{slug}.md` exists but is a _different_ subject, this is a collision. proceed to disambiguation (§6.4).
-7. if `temp/{slug}.md` exists from a prior sub-section of this chapter and is the same subject, mark `extends: {temp-slug}` and enrich in place.
-8. if `temp/{slug}.md` exists but is a different subject, halt and resolve manually before continuing the sub-section.
+1. start with the title, lowercased and hyphenated. drop articles ("the", "a", "an"); drop trailing punctuation.
+2. check the entries pile for an existing entry with that identifier.
+3. check ephemeral staging for an entry already staged with that identifier in this chapter.
+4. if both checks return no match, the identifier is `new`.
+5. if the entries pile has an entry under that identifier covering the same subject, mark `merges-with: {existing-slug}` and stage under that identifier.
+6. if the entries pile has an entry under that identifier covering a _different_ subject, this is a collision. proceed to disambiguation (§6.4).
+7. if staging already holds an entry under that identifier from an earlier sub-section of this chapter and the subject matches, mark `extends: {temp-slug}` and enrich in place.
+8. if staging already holds an entry under that identifier but the subject is different, halt and resolve manually before continuing the sub-section.
 
 ### 6.4 disambiguation
 
-when a new entry's natural slug collides with an existing entry of a different subject:
+when a new entry's natural identifier collides with an existing entry of a different subject:
 
 1. choose a **disambiguator suffix** for the new entry that distinguishes it: `{base-slug}-{disambiguator}`. the disambiguator is a noun naming the variant's domain or kind. examples:
    - `transfer-learning` (concept) vs. `transfer-finance` (concept) → both keep the suffix.
    - `mercury-element` vs. `mercury-planet` vs. `mercury-mythology`.
-2. if the existing entry's slug is the bare base slug, it must be renamed to take its own disambiguator suffix. the rename is a phase 4 closeout step, not phase 1; phase 1 just stages the new entry under its disambiguated slug.
-3. create or extend the disambiguation entry at `wiki/entries/disambiguation-{base-slug}.md`. this entry's body lists the variants:
-
-   ```markdown
-   # {Base Term}
-
-   ## Lead
-
-   "{Base Term}" can refer to several distinct subjects in this vault. Pick the variant that matches your context.
-
-   ## Variants
-
-   - [[transfer-learning]] — the educational-psychology concept
-   - [[transfer-finance]] — the financial-services concept
-   ```
-
-4. add inline hatnotes to each variant's body, near the top:
-   ```markdown
-   > For the financial concept, see [[transfer-finance]]. For routing, see [[disambiguation-transfer]].
-   ```
-5. update the disambiguation entry's frontmatter `variants` list (§4.3.11).
+2. if the existing entry's identifier is the bare base term, it must be renamed to take its own disambiguator suffix. the rename is a phase 4 closeout step, not phase 1; phase 1 just stages the new entry under its disambiguated identifier.
+3. create or extend the `disambiguation-{base-slug}` entry. its body's variants section lists each variant by reference with a one-line distinguisher. example: under the entry `disambiguation-transfer`, variants might list `[[transfer-learning]] — the educational-psychology concept` and `[[transfer-finance]] — the financial-services concept`.
+4. add an inline hatnote to each variant's body, near the top, pointing readers to the other variants and to the disambiguation entry.
+5. update the disambiguation entry's `variants` header field (§4.3.11).
 
 ### 6.5 reserved slug prefixes
 
@@ -768,9 +617,9 @@ a content entry of kind `concept`, `source`, `illustration`, `application`, `ent
 ### 7.1 the two flavors
 
 - **decision-tree lenses** decide an entry's `category`. exactly one decision-tree lens rules per entry. priorities define the tree-walk order; first match wins.
-- **annotation lenses** stamp orthogonal frontmatter fields. they run after `category` is set. multiple annotation lenses run on each entry without competing.
+- **annotation lenses** stamp orthogonal header fields. they run after `category` is set. multiple annotation lenses run on each entry without competing.
 
-a lens entry's frontmatter `lens_kind` field declares which flavor it is.
+a lens entry's `lens_kind` header field declares which flavor it is.
 
 ### 7.2 the seed lens set — decision-tree
 
@@ -801,7 +650,7 @@ priority order. lower number runs first. first-match wins.
 
 ### 7.3 the seed lens set — annotation
 
-annotation lenses do not compete. each runs on every relevant entry and stamps its own frontmatter field.
+annotation lenses do not compete. each runs on every relevant entry and stamps its own header field.
 
 | slug                  | stamps field        | values                                                              | applies to                                                                |
 | --------------------- | ------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------- |
@@ -816,49 +665,27 @@ annotation lenses run in a fixed order (the order above). later lenses may read 
 
 ### 7.4 lens entry schema
 
-a lens entry's frontmatter (§4.3.1) declares its question, priority, kind, and the category it covers. its body is structured:
+a lens entry's header (§4.3.1) declares its question, priority, kind, and the category it covers. its body carries the following named sections, in order:
 
-```markdown
-# {Title}
-
-## Lead
-
-{1-2 sentence summary of when this lens applies.}
-
-## Question
-
-{The yes/no question the lens asks, restated for clarity.}
-
-## Criteria
-
-A unit matches this lens when **all** of the following are true:
-
-1. {criterion 1, with worked example or counterexample}
-2. {criterion 2, …}
-
-## Worked examples
-
-- "{Title of an existing entry}" — matches because {…}
-- "{Title of an existing entry}" — does not match because {…}
-
-## Notes
-
-{Any qualifications or known edge cases.}
-```
+1. **lead.** a 1–2 sentence summary of when this lens applies.
+2. **question.** the yes/no question the lens asks, restated for clarity.
+3. **criteria.** the conjunction of criteria a unit must satisfy to match this lens. each criterion may carry a worked example or counterexample.
+4. **worked examples.** existing entries that match (with reason) and existing entries that do not match (with reason).
+5. **notes.** qualifications and known edge cases.
 
 ### 7.5 the classification protocol — how to classify a candidate
 
-input: a draft body and partial frontmatter (everything except `category`, `classified_by`, and the annotation-stamped fields).
+input: a draft body and a partial header (everything except `category`, `classified_by`, and the annotation-stamped fields).
 
 procedure:
 
-1. **notability gate first.** apply `lens-notability` (§8). if the unit fails the notability test, write the unit's content into the parent entry's body and emit `finding-deferred-{parent-slug}-{topic}`. abort classification.
+1. **notability gate first.** apply `lens-notability` (§8). if the unit fails the notability test, fold the unit's content into the parent entry's body and emit `finding-deferred-{parent-slug}-{topic}`. abort classification.
 2. **decision-tree pass.**
-   1. apply `lens-lens`. if the unit's body and frontmatter match the lens criteria, set `category: lens` and `classified_by: lens-lens`. proceed to annotation pass.
-   2. otherwise, walk the remaining decision-tree lenses in ascending `lens_priority` order. for each lens, evaluate the criteria in §7.4's `## Criteria` section. first match wins. set `category` to that lens's `lens_covers_category`; set `classified_by` to that lens's slug.
+   1. apply `lens-lens`. if the unit's body and header match the lens criteria, set `category: lens` and `classified_by: lens-lens`. proceed to annotation pass.
+   2. otherwise, walk the remaining decision-tree lenses in ascending `lens_priority` order. for each lens, evaluate the criteria in §7.4's criteria section. first match wins. set `category` to that lens's `lens_covers_category`; set `classified_by` to that lens's identifier.
    3. if no lens matches (rare; `lens-concept` at priority 99 is the catch-all), emit `finding-classification-gap-{candidate-id}` and halt classification for this unit. the finding is a coverage signal that the lens set needs extension.
-3. **annotation pass.** run each annotation lens in the order listed in §7.3. each lens writes its own frontmatter field. lenses that don't apply to this kind (e.g., `lens-evidence-grade` on a `concept`) are skipped silently.
-4. emit a classification record into the producing run's `## Notes` section: `classified candidate-id as {category} via {classified_by}; annotations: {…}`. the run entry under §25 captures this.
+3. **annotation pass.** run each annotation lens in the order listed in §7.3. each lens writes its own header field. lenses that don't apply to this kind (e.g., `lens-evidence-grade` on a `concept`) are skipped silently.
+4. emit a classification record into the producing run's notes section: `classified candidate-id as {category} via {classified_by}; annotations: {…}`. the run entry under §25 captures this.
 
 ### 7.6 lens versioning
 
@@ -875,7 +702,7 @@ when a lens is edited, lint runs `lens-version-drift` over all entries classifie
 a unit deserves its own entry if and only if **at least one** of the following holds:
 
 1. **multi-source coverage.** the unit is covered by at least two independent sources, where "independent" means the sources are not derivative of each other (translations, abridgements, and reprints are not independent).
-2. **routing necessity.** the unit is referenced by at least N other entries (v0: N=2) that would have to use anchor links into a parent entry instead of a clean wikilink. a routing target reduces brittleness.
+2. **routing necessity.** the unit is referenced by at least N other entries (v0: N=2) that would otherwise have to anchor into a parent entry instead of pointing at a clean reference target. a routing target reduces brittleness.
 3. **explicit policy carve-out.** the unit is in a class declared notable by `policy-notability`. the seed list includes: any entry classified as `source`, `domain`, `lens`, `policy`, `guideline`, `essay`, `agent`, `agent-test`, or `discussion` (these are notable by virtue of their kind); any concept that names a foundational framework cited in primary literature.
 
 ### 8.2 the lens — `lens-notability`
@@ -890,16 +717,16 @@ stamps `notability_status: passes | borderline | fails`.
 
 #### 8.3.1 staging
 
-borderline units are staged as `pending-{run-id}-{slug}.md` files in `temp/` during phase 1. at phase 4 (closeout), borderline units that have not been promoted in this chapter are migrated to a per-source pending area at `raw/{source-slug}/pending/{slug}.md`. they remain there until promoted or retired.
+borderline units are staged in ephemeral staging during phase 1, identified as `pending-{run-id}-{slug}`. at phase 4 (closeout), borderline units that have not been promoted in this chapter are migrated to the per-source pending area inside source intake (§2.1). they remain there until promoted or retired.
 
 #### 8.3.2 promotion
 
-a borderline unit promotes to `passes` and becomes a regular entry under `wiki/entries/{slug}.md` when:
+a borderline unit promotes to `passes` and becomes a regular entry in the entries pile when:
 
-- a later sub-section, chapter, or source produces a wikilink to its slug, **or**
+- a later sub-section, chapter, or source produces an inbound reference to its identifier, **or**
 - a later ingestion adds a second independent source that mentions the unit.
 
-promotion is mechanical: at every closeout, the pending area is walked, and any entry whose promotion condition is met is moved to `wiki/entries/`. a `run-promotion-{slug}` entry records the move and the trigger that satisfied the predicate.
+promotion is mechanical: at every closeout, the per-source pending area is walked, and any entry whose promotion condition is met is moved into the entries pile. a `run-promotion-{slug}` entry records the move and the trigger that satisfied the predicate.
 
 #### 8.3.3 retirement
 
@@ -909,16 +736,16 @@ a borderline unit retires when:
 - the unit has been pending for 90 days without promotion (per `policy-notability`), **or**
 - a later finding declares the unit a duplicate of an existing entry.
 
-retirement is also mechanical. the unit is removed from `raw/{source-slug}/pending/`. a `run-retirement-{slug}` entry records the action and the reason. the unit's content remains preserved inside the parent entry's body (where it was also folded at unpack, per §17.3.4).
+retirement is also mechanical. the unit is removed from its per-source pending area. a `run-retirement-{slug}` entry records the action and the reason. the unit's content remains preserved inside the parent entry's body (where it was also folded at unpack, per §17.3.4).
 
 ### 8.4 failed units
 
-units stamped `fails` at unpack are folded into the parent entry's body in phase 1 (the staging step writes them into `temp/{parent-slug}.md` rather than as their own file). a `finding-deferred-{parent-slug}-{topic}` is emitted at the same time, indexing the deferred unit so a future ingestion can promote it if more material arrives. the finding's `severity` is `advisory`.
+units stamped `fails` at unpack are folded into the parent entry's body in phase 1 (the staging step extends the parent's draft rather than producing a separate one). a `finding-deferred-{parent-slug}-{topic}` is emitted at the same time, indexing the deferred unit so a future ingestion can promote it if more material arrives. the finding's `severity` is `advisory`.
 
 ### 8.5 special cases
 
 - a `claim` is always notable when it is being asserted in the body of another entry. claims do not pass through the notability gate the same way as concepts; instead, the gate decides whether the claim deserves its own `claim-{slug}` entry (yes if the claim has multiple inbound `supports`/`contradicts` relations, or carries `high_stakes_class != none`) versus living inline in the parent entry as a sentence with a citation.
-- `relation` entries are notable iff they connect two notable entries and carry a load-bearing predicate (`supports`, `contradicts`, `supersedes`, `depends-on`, `instance-of`). casual cross-reference does not need a relation entry; a wikilink suffices.
+- `relation` entries are notable iff they connect two notable entries and carry a load-bearing predicate (`supports`, `contradicts`, `supersedes`, `depends-on`, `instance-of`). a casual cross-reference does not need a relation entry; an inline reference suffices.
 - `question` entries are always notable. opening a question is an explicit act of pinning a gap.
 - `disambiguation` entries are always notable. they exist precisely because more than one variant is notable.
 
@@ -928,7 +755,7 @@ units stamped `fails` at unpack are folded into the parent entry's body in phase
 
 ### 9.1 the five tiers
 
-every entry carries `edit_hardness` in its common frontmatter. the value is one of:
+every entry carries `edit_hardness` in its common header. the value is one of:
 
 | tier                 | gating rule                                                          | who edits                                    |
 | -------------------- | -------------------------------------------------------------------- | -------------------------------------------- |
@@ -1007,15 +834,15 @@ the runtime intercepts the write at submission time, examines:
 2. the agent's reputation.
 3. the agent's `slice.write_domains` overlap with the target's `domains`.
 
-if (reputation ≥ tier-threshold) and (target's domains ∩ slice.write_domains) is non-empty, the write lands directly. otherwise, it is converted to a `pending-{run-id}-{target-slug}.md` entry. the original agent's run records the conversion.
+if (reputation ≥ tier-threshold) and (target's domains ∩ slice.write_domains) is non-empty, the write lands directly. otherwise, it is converted to a `pending-{run-id}-{target-slug}` entry. the original agent's run records the conversion.
 
 #### 9.5.2 the proposal entry
 
-frontmatter per §4.3.21. body is the proposed content for `proposal_kind: create`, or a unified diff for `proposal_kind: modify`. the proposal lives at `wiki/entries/pending-{run-id}-{target-slug}.md`. it is itself an entry, indexed and linked, but it does not affect the target entry's content until accepted.
+header per §4.3.21. body is the proposed content for `proposal_kind: create`, or a structured diff for `proposal_kind: modify`. the proposal is itself an entry in the entries pile, indexed and linked, but it does not affect the target entry's content until accepted.
 
 #### 9.5.3 the review flow
 
-reviewers (confirmed-or-above agents) read the noticeboard `_meta/noticeboards/pending-changes.md` (§23) to find proposals to review. for each:
+reviewers (confirmed-or-above agents) read the `pending-changes` noticeboard (§23) to find proposals to review. for each:
 
 1. read the proposal's diff or body.
 2. read the target entry.
@@ -1027,7 +854,7 @@ reviewers (confirmed-or-above agents) read the noticeboard `_meta/noticeboards/p
 
 #### 9.5.4 borderline-notability units share this mechanism
 
-a borderline-notability unit (§8.3.1) lives in the same proposal flow but with `proposal_kind: create` and a target slug under `wiki/entries/{slug}.md` that does not yet exist. promotion (§8.3.2) is the act of accepting the proposal.
+a borderline-notability unit (§8.3.1) lives in the same proposal flow but with `proposal_kind: create` and a target identifier that does not yet exist in the entries pile. promotion (§8.3.2) is the act of accepting the proposal.
 
 ### 9.6 reputation
 
@@ -1037,7 +864,7 @@ a borderline-notability unit (§8.3.1) lives in the same proposal flow but with 
 | ------------------------------------------------------------------------------------------- | ----------------- |
 | agent-test passes (per test, per run)                                                       | +0.1              |
 | editor agent's `run-edit` produces an entry that passes lint                                | +0.5              |
-| editor agent's contribution is cited (wikilinked) by an entry produced by a different agent | +0.2 per citation |
+| editor agent's contribution is referenced by an entry produced by a different agent          | +0.2 per citation |
 | editor agent raises a finding that is later resolved (not wontfix)                          | +1.0              |
 | editor agent's claim is relied on by a later `relation: supports`                           | +0.3 per relation |
 | persona agent's slice passes a quarterly assessment                                         | +2.0              |
@@ -1125,7 +952,7 @@ a **relation** is a directed, typed edge between two entries, carrying its own e
 | `supersedes`  | A is a newer or more accurate version of B; B is retained for history.                                 |
 | `depends-on`  | A cannot be applied or evaluated without B in context.                                                 |
 
-`is-a` is **not** a predicate; use `instance-of`. `related-to` is **not** a predicate; that's a wikilink. relation predicates are load-bearing only when retrieval can traverse them and reasoning over them is meaningful.
+`is-a` is **not** a predicate; use `instance-of`. `related-to` is **not** a predicate; that's an inline reference. relation predicates are load-bearing only when retrieval can traverse them and reasoning over them is meaningful.
 
 #### 10.2.2 when to formalize as a relation entry
 
@@ -1135,11 +962,11 @@ formalize when at least one is true:
 - the relation carries evidence that is not visible in either endpoint.
 - the relation is itself the locus of a discussion or contradiction.
 
-inline `## Connections` entries with informal predicates ("Related to", "Coined by") do not require a relation entry.
+inline connections-section entries with informal predicates ("Related to", "Coined by") do not require a relation entry.
 
 #### 10.2.3 relation entry placement
 
-a relation between entries A and B with predicate `P` lives at `wiki/entries/relation-{a-slug}-{p}-{b-slug}.md`. the slug is deterministic and prevents duplicates.
+a relation between entries A and B with predicate `P` is the entry `relation-{a-slug}-{p}-{b-slug}`. the identifier is deterministic and prevents duplicates.
 
 ### 10.3 questions
 
@@ -1169,56 +996,22 @@ a structure note holds a region of the graph together. it is the substrate's ans
 
 ### 11.2 body conventions
 
-a structure note's body is **organizing prose plus annotated links**. the structure is not free-form:
+a structure note's body is **organizing prose plus annotated references**. its body carries the following named sections, in order:
 
-```markdown
-# {Cluster Title}
-
-## Lead
-
-{1–3 sentences compressing the cluster's shape: what's in it, what's at stake, what frames it.}
-
-## How the cluster is held together
-
-{2–4 paragraphs describing the cluster's organizing logic — the dominant axis, the major sub-regions, the unresolved tensions, the cross-domain bridges.}
-
-## Load-bearing entries
-
-- [[concept-1]] — annotation: {what role this entry plays in the cluster, in 1–2 sentences}
-- [[concept-2]] — annotation: ...
-- [[insight-3]] — annotation: ...
-
-## Subregions or themes
-
-### {Subregion 1}
-
-{1 paragraph describing the subregion, with annotated links.}
-
-- [[entry-a]] — {one-line annotation}
-- [[entry-b]] — {one-line annotation}
-
-### {Subregion 2}
-
-...
-
-## Open questions in this cluster
-
-- [[question-{slug}]] — {one-line context}
-- [[question-{slug}]] — ...
-
-## Cross-cluster bridges
-
-- [[other-structure-note]] — {how the two clusters relate}
-- [[other-structure-note]] — ...
-```
+1. **lead.** 1–3 sentences compressing the cluster's shape: what's in it, what's at stake, what frames it.
+2. **how the cluster is held together.** 2–4 paragraphs describing the cluster's organizing logic — the dominant axis, the major sub-regions, the unresolved tensions, the cross-domain bridges.
+3. **load-bearing entries.** an annotated list of references to the entries that carry the cluster. each item is a reference plus 1–2 sentences naming the role that entry plays in the cluster.
+4. **subregions or themes.** one sub-section per subregion. each subregion has a paragraph of organizing prose followed by an annotated list of references.
+5. **open questions in this cluster.** an annotated list of references to question entries that are unresolved within the cluster.
+6. **cross-cluster bridges.** an annotated list of references to peer structure notes whose clusters border or interact with this one.
 
 ### 11.3 multiple structure notes per cluster
 
 a cluster may be held together by more than one structure note, each from a different `domain_frame`. for example:
 
-- `structure-memory-learning-theory.md` — frames "memory" through the cognitive-mechanism lens.
-- `structure-memory-neuroscience.md` — frames "memory" through the brain-mechanism lens.
-- `structure-memory-pedagogy.md` — frames "memory" through the teaching-practice lens.
+- `structure-memory-learning-theory` — frames "memory" through the cognitive-mechanism lens.
+- `structure-memory-neuroscience` — frames "memory" through the brain-mechanism lens.
+- `structure-memory-pedagogy` — frames "memory" through the teaching-practice lens.
 
 each structure note is a peer; none is the canonical "parent" of the cluster. consumers query the frame they need.
 
@@ -1226,8 +1019,8 @@ each structure note is a peer; none is the canonical "parent" of the cluster. co
 
 lint `structure-note-coverage`:
 
-- finds every connected component of content entries above size threshold (v0: 8 entries connected by wikilinks).
-- checks whether at least one structure note has the component's entries in its `organizes` frontmatter list.
+- finds every connected component of content entries above size threshold (v0: 8 entries connected by references).
+- checks whether at least one structure note has the component's entries in its `organizes` header field.
 - if not, emits `finding-cluster-without-structure-note-{cluster-id}` with severity `advisory`. the cluster id is generated deterministically from the sorted slug list.
 
 resolution: an editor (or a lint agent with confirmed reputation) writes a structure note. the finding closes when the structure note's `organizes` list covers the cluster.
@@ -1242,49 +1035,20 @@ per §19.7. summary: the body's organizing prose may be consolidated; the load-b
 
 ### 12.1 the domain entry
 
-a domain is itself an entry under `wiki/entries/{domain-slug}.md`. its frontmatter (§4.3.13) carries the domain's metadata; its body declares scope, purpose, and load-bearing entries.
+a domain is itself an entry. its header (§4.3.13) carries the domain's metadata; its body declares scope, purpose, and load-bearing entries.
 
 ### 12.2 domain entry body
 
-```markdown
-# {Domain Title}
+a domain entry's body carries the following named sections, in order:
 
-## Lead
-
-{1–2 sentences describing the domain's scope.}
-
-## Scope
-
-{What this domain covers, in prose.}
-
-## Out of scope
-
-{What this domain explicitly excludes, even if it might appear adjacent.}
-
-## Canonical questions
-
-- [[question-{slug}]] — the central open question
-- [[question-{slug}]] — ...
-
-## Load-bearing structure notes
-
-- [[structure-{slug}]] — frame: {frame name}
-- [[structure-{slug}]] — frame: {frame name}
-
-## Subscribed editor agents
-
-- [[agent-{slug}]] — write scope: {summary}
-- [[agent-{slug}]] — ...
-
-## Sourcing standards
-
-- minimum evidence grade: {A/B/C/D} (matches `evidence_grade_floor`)
-- mandatory citation: {yes/no — derived from contentious flag}
-
-## Related domains
-
-- [[other-domain]] — relationship
-```
+1. **lead.** 1–2 sentences describing the domain's scope.
+2. **scope.** what this domain covers, in prose.
+3. **out of scope.** what this domain explicitly excludes, even when it might appear adjacent.
+4. **canonical questions.** annotated references to question entries that are central to this domain.
+5. **load-bearing structure notes.** annotated references to structure notes that frame this domain, with the frame name for each.
+6. **subscribed editor agents.** annotated references to agent entries subscribed to this domain, with each agent's write scope.
+7. **sourcing standards.** the minimum evidence grade (matching `evidence_grade_floor`) and whether citation is mandatory (derived from the `contentious` flag).
+8. **related domains.** annotated references to neighbouring domain entries.
 
 ### 12.3 contentious flag mechanics
 
@@ -1313,17 +1077,17 @@ this is the wikiproject pattern: not a permission gate, but visibility into who 
 
 #### 12.5.1 adding a domain
 
-1. draft a domain entry under `wiki/entries/{domain-slug}.md`.
+1. draft a domain entry, identified `{domain-slug}`.
 2. classify via the domain lifecycle protocol (`produced_by: lifecycle-domain-create`).
 3. open at least one `question-{slug}` for the domain's canonical questions list.
 4. seed the domain entry's `subscribed_agents` (may be empty initially).
-5. create `wiki/_meta/indexes/{domain-slug}.md` as a placeholder; first index rebuild populates it.
+5. create the per-domain catalog as a placeholder; first index rebuild populates it.
 
 #### 12.5.2 removing a domain
 
 1. every entry whose `domains` list includes the domain must be reassigned. lint `unassigned-domain-removal` blocks the removal until reassignment is complete.
-2. the domain entry's `lifecycle_stage` flips to `retired`. it remains in `wiki/entries/` for history but stops appearing in fresh assessments.
-3. `wiki/_meta/indexes/{domain-slug}.md` is moved to `wiki/_meta/indexes/_retired/{domain-slug}.md`.
+2. the domain entry's `lifecycle_stage` flips to `retired`. it remains in the entries pile for history but stops appearing in fresh assessments.
+3. the per-domain catalog is moved out of the active catalogs and into a retired-catalogs partition.
 
 ---
 
@@ -1349,39 +1113,14 @@ a rule cannot be both `policy` and `guideline`. promotion (§13.4) is the only l
 
 ### 13.3 the body of a rule entry
 
-```markdown
-# {Rule Title}
+a rule entry's body carries the following named sections, in order:
 
-## Lead
-
-{1-2 sentences stating what the rule says.}
-
-## Rule
-
-{The rule itself, in normative language. "Editors must…", "An entry should…", "Lint flags…"}
-
-## Rationale
-
-{Why this rule exists. The motivating failure mode, the problem it prevents, the goal it serves.}
-
-## How violation is detected
-
-- {Lint rule name and its `severity`}
-- {Manual review trigger, if any}
-
-## Examples
-
-- A passing case: {…}
-- A failing case: {…}
-
-## Promotion history
-
-{For entries that have been promoted, list the path:}
-
-- 2026-04-01: created as `essay`.
-- 2026-05-15: promoted to `guideline` via [[discussion-{slug}]].
-- 2026-07-22: promoted to `policy` via [[discussion-{slug}]].
-```
+1. **lead.** 1–2 sentences stating what the rule says.
+2. **rule.** the rule itself, in normative language ("editors must…", "an entry should…", "lint flags…").
+3. **rationale.** why this rule exists — the motivating failure mode, the problem it prevents, the goal it serves.
+4. **how violation is detected.** the lint rule that fires (with its `severity`), and any manual-review trigger.
+5. **examples.** a passing case and a failing case.
+6. **promotion history.** for entries that have been promoted, the chronological path — date, the tier transition, and a reference to the discussion that ratified it.
 
 ### 13.4 the promotion path
 
@@ -1389,7 +1128,7 @@ a rule cannot be both `policy` and `guideline`. promotion (§13.4) is the only l
 
 triggered by:
 
-- the essay has been cited (wikilinked) by at least 3 other entries (any kind).
+- the essay has been referenced by at least 3 other entries (any kind).
 - a discussion has been opened proposing promotion, and the discussion closed with `closed-resolved` outcome.
 - at least one author of the essay and one independent agent at reputation ≥ 60 endorsed the promotion in the discussion.
 
@@ -1417,7 +1156,7 @@ a guideline may demote to essay similarly. demotion is rare; the design intent i
 
 #### 13.4.4 retirement
 
-a rule entry is retired (not deleted) when its content is fully subsumed by another rule, or when the rule's premise is invalidated. retirement: `lifecycle_stage: retired` (an additional infrastructure-frontmatter field for rule entries; see §35.4). the retired rule remains in `wiki/entries/` for history.
+a rule entry is retired (not deleted) when its content is fully subsumed by another rule, or when the rule's premise is invalidated. retirement: `lifecycle_stage: retired` (an additional infrastructure-header field for rule entries; see §35.4). the retired rule remains in the entries pile for history.
 
 ### 13.5 essays as content vs. policies as content
 
@@ -1492,7 +1231,7 @@ the evidence grade describes the evidence; the high-stakes class describes the *
 
 ### 14.5 high-stakes noticeboard
 
-`wiki/_meta/noticeboards/high-stakes.md` lists every open `finding-high-stakes-removal-*`. specialized review agents (and human reviewers) subscribe to this board. it rebuilds on every closeout that produces a high-stakes finding.
+the `high-stakes` noticeboard (§23) lists every open `finding-high-stakes-removal-*`. specialized review agents (and human reviewers) subscribe to this board. it rebuilds on every closeout that produces a high-stakes finding.
 
 ---
 
@@ -1500,7 +1239,7 @@ the evidence grade describes the evidence; the high-stakes class describes the *
 
 ### 15.1 declaration
 
-a domain becomes contentious by setting its `contentious` frontmatter field to `true`. this is a `restricted`-tier edit; meta-rule quorum required.
+a domain becomes contentious by setting its `contentious` header field to `true`. this is a `restricted`-tier edit; meta-rule quorum required.
 
 ### 15.2 elevated rules — exact mechanics
 
@@ -1534,7 +1273,7 @@ flipping `contentious: true → false` does **not** retroactively lower `edit_ha
 
 ### 16.1 agent kinds — the v0 population catalog
 
-every agent is an entry under `wiki/entries/agent-*.md`. its frontmatter (§4.3.15) declares its kind, slice, prompt reference, lifecycle stage, and reputation. its body declares voice, prompt strategy, and behavioral notes. the runtime (`runner/`, §26.6) executes agents per their manifests.
+every agent is an entry, identified `agent-*`. its header (§4.3.15) declares its kind, slice, prompt reference, lifecycle stage, and reputation. its body declares voice, prompt strategy, and behavioral notes. the runtime (§26.6) executes agents per their manifests.
 
 #### 16.1.1 the three kinds
 
@@ -1567,42 +1306,16 @@ the human reviewer is a stand-in for `confirmed`-tier review during phase 1. the
 
 ### 16.2 the agent manifest
 
-every agent is described by an `agent-{slug}.md` entry. the manifest is the entry's frontmatter (§4.3.15) plus a body that elaborates voice, prompt strategy, and constraints. the body template:
+every agent is described by an `agent-{slug}` entry. the manifest is the entry's header (§4.3.15) plus a body that elaborates voice, prompt strategy, and constraints.
 
-```markdown
-# {Agent Title}
+an agent entry's body carries:
 
-## Lead
-
-{1-2 sentences describing the agent's role, slice, and intended use.}
-
-## Slice
-
-- read domains: {list}
-- write domains: {list, for editors only}
-- voice rules: {for personas}
-- refusal rules: {for personas}
-- policy targets: {for linters}
-
-## Prompt strategy
-
-{The high-level shape of how this agent is prompted. Not the raw prompt itself — that lives in `runner/prompts/{slug}.md` outside the vault.}
-
-## Reputation history
-
-- {YYYY-MM-DD}: started at 5.0
-- {YYYY-MM-DD}: +0.5 (entry passed lint)
-- ...
-
-## Seed tests
-
-- [[agent-test-{slug}]]
-- [[agent-test-{slug}]]
-
-## Notes
-
-{Any operational notes, known limitations, or behavioral quirks.}
-```
+1. a lead — one or two sentences naming the agent's role, slice, and intended use.
+2. a slice section — read domains; write domains (for editors); voice rules (for personas); refusal rules (for personas); policy targets (for linters).
+3. a prompt strategy — the high-level shape of how this agent is prompted. the raw prompt itself is referenced (§16.1) but lives outside the vault.
+4. a reputation history — append-only log of reputation changes with dates and causes.
+5. seed tests — references to the agent-test entries that gate this agent's lifecycle.
+6. notes — operational notes, known limitations, or behavioral quirks.
 
 ### 16.3 lifecycle protocols
 
@@ -1619,7 +1332,7 @@ inputs: a draft agent manifest, a starting reputation, a list of seed tests.
 procedure:
 
 1. validate the manifest. all fields present; `slice` non-empty; `prompt_ref` resolves.
-2. write the agent entry under `wiki/entries/agent-{slug}.md` with `lifecycle_stage: proposed`.
+2. write the agent entry, identified `agent-{slug}`, with `lifecycle_stage: proposed`.
 3. open a discussion `discussion-agent-create-{slug}` for review.
 4. seed tests are run against a baseline vault state. a `run-agent-test-{test-slug}` per test records pass/fail.
 5. on quorum approval (3 agents at reputation ≥ 80, or 1 human reviewer), `lifecycle_stage` flips to `active`.
@@ -1688,11 +1401,11 @@ per §22.1, a discussion opens when:
 - a wontfix justification is challenged.
 - an agent retirement is proposed.
 
-opening a discussion is the write of a new `wiki/entries/discussion-{disputed-slug}-{disambiguator}.md`. the opening agent populates the disputed object, the participants, and the first round.
+opening a discussion creates a new `discussion-{disputed-slug}-{disambiguator}` entry. the opening agent populates the disputed object, the participants, and the first round.
 
 #### 16.8.2 how an agent participates
 
-once a discussion exists, any active agent (subject to its `slice`) may add a round. each round is one statement per participant. discussions are bounded at 5 rounds (3 in contentious domains, §22.3). termination is decided by the protocol named in the discussion's frontmatter (`content-quorum`, `meta-rule-quorum`, or `human-escalation`, §22.4).
+once a discussion exists, any active agent (subject to its `slice`) may add a round. each round is one statement per participant. discussions are bounded at 5 rounds (3 in contentious domains, §22.3). termination is decided by the protocol named in the discussion's header (`content-quorum`, `meta-rule-quorum`, or `human-escalation`, §22.4).
 
 #### 16.8.3 phase 1 — discussions about structural objects are advisory
 
@@ -1779,17 +1492,17 @@ source completion  (once, after all chapters)
 
 #### 17.2.2 steps
 
-1. **place the source.** create `raw/{source-slug}/`. write the source document at `raw/{source-slug}/{source-slug}.md`. immutable from this point. add assets to `raw/{source-slug}/assets/` if any.
-2. **create the process trace.** write `raw/{source-slug}/{source-slug}-process-trace.md` with:
+1. **place the source.** admit the source document into the source-intake scope (§2). it is immutable from this point. associated assets join the same scope, addressable from the source.
+2. **create the process trace.** the trace is bound to the source in the source-intake scope and carries:
    - title, author, year, isbn or equivalent identifier.
    - estimated total length (words, pages, chapters).
    - candidate domain assignment.
    - candidate high-stakes class for the source as a whole (if any).
    - editor agent assigned.
    - chapter list with `not-started` status for each row.
-3. **draft or update the source entry.** at `wiki/entries/{source-slug}.md`:
-   - frontmatter per §4.3.2 (and the common head per §4.1).
-   - body with a `## Lead` (mandatory for sources), a `## Summary` (initial — to be enriched chapter by chapter), `## Key ideas` (empty, populated per chapter), `## Notable claims` (empty), `## Connections` (empty), `## Sources` (the source itself).
+3. **draft or update the source entry.** the entry, identified `{source-slug}`, carries:
+   - the common header per §4.1, plus source-specific header fields per §4.3.2.
+   - a body with a lead (mandatory for sources), a summary (initial — to be enriched chapter by chapter), key ideas (empty, populated per chapter), notable claims (empty), connections (empty), and sources (the source itself).
 4. **classify domain inheritance.** for each domain in the source entry's `domains`:
    - read the domain entry's `contentious` flag.
    - record the in-domain `evidence_grade_floor`.
@@ -1804,8 +1517,8 @@ source completion  (once, after all chapters)
 
 #### 17.2.3 phase 0 output
 
-- a populated `raw/{source-slug}/` folder.
-- a draft source entry at `wiki/entries/{source-slug}.md`.
+- the source admitted into source-intake scope alongside its assets and process trace.
+- a draft source entry, identified `{source-slug}`, in the entries pile.
 - a process trace listing chapters as `not-started`.
 
 ### 17.3 phase 1 — chapter setup (once per chapter)
@@ -1818,33 +1531,22 @@ source completion  (once, after all chapters)
 #### 17.3.2 steps
 
 1. **mark chapter `in-progress`** in the process trace.
-2. **clear `temp/`.** delete every file under `temp/`. preserve the directory.
+2. **clear ephemeral staging.** discard everything in the ephemeral staging scope (§2). the scope itself remains.
 3. **read the chapter.** identify 2–5 coherent sub-sections based on topic boundaries:
    - ≤25 pages: 2 sub-sections.
    - 25–40 pages: 2–3.
    - 40–60 pages: 3–5.
    - > 60 pages: 4–5.
 4. **record sub-sections** as nested rows in the process trace, each `not-started`.
-5. **create `temp/_staging-index.md`**:
-
-   ```markdown
-   # staging index — {source-slug} chapter {N}
-
-   ## sub-sections
-
-   - sub-section 1 (status): ...
-   - sub-section 2 (status): ...
-
-   ## staged so far
-
-   (populated as phase 2 progresses)
-   ```
-
+5. **create the staging index** in ephemeral staging. the staging index is a chapter-scoped manifest carrying:
+   - the source slug and chapter number it belongs to.
+   - the sub-section list with status per row.
+   - the running tally of units staged so far (populated as phase 2 progresses).
 6. **emit `run-chapter-setup-{source-slug}-{N}`**.
 
 #### 17.3.3 phase 1 output
 
-- a clean `temp/` with `_staging-index.md`.
+- a clean ephemeral staging scope holding only the staging index.
 - the chapter row marked `in-progress`.
 - nested sub-section rows.
 
@@ -1861,13 +1563,13 @@ run this once per sub-section, in chapter order.
 #### 17.4.2 steps for each sub-section
 
 1. **read the sub-section.** identify candidate knowledge units. a candidate is a coherent assertion or coherent grouping of assertions about a single subject.
-2. **for each candidate unit, draft body and partial frontmatter.**
-   - draft the body. write **blind** with respect to any existing entry that might exist on this topic (do not read `wiki/entries/{slug}.md` before writing; this eliminates anchoring bias).
-   - draft the common-head frontmatter, leaving `category`, `classified_by`, and the annotation-stamped fields blank.
+2. **for each candidate unit, draft body and partial header.**
+   - draft the body. write **blind** with respect to any existing entry that might exist on this topic (do not read the existing entry before writing; this eliminates anchoring bias).
+   - draft the common-header fields, leaving `category`, `classified_by`, and the annotation-stamped fields blank.
 3. **run the notability gate.** apply `lens-notability` per §8.2.
    - `passes`: proceed to step 4.
-   - `borderline`: stage the unit as `temp/pending-{run-id}-{slug}.md` per §8.3.1. do not classify further; continue with the next candidate.
-   - `fails`: fold the unit's content into the parent entry's body (the parent is the entry the candidate would have nested under — usually a concept entry being staged in this same sub-section). emit `finding-deferred-{parent-slug}-{topic}` with `severity: advisory`. do not stage as a separate file.
+   - `borderline`: stage the unit as a pending-notability proposal per §8.3.1. do not classify further; continue with the next candidate.
+   - `fails`: fold the unit's content into the parent entry's body (the parent is the entry the candidate would have nested under — usually a concept entry being staged in this same sub-section). emit `finding-deferred-{parent-slug}-{topic}` with `severity: advisory`. do not stage as a separate unit.
 4. **run the decision-tree.** classify per §7.5.2. set `category` and `classified_by`.
 5. **run annotation lenses.** stamp:
    - `notability_status` — already done in step 3.
@@ -1876,18 +1578,18 @@ run this once per sub-section, in chapter order.
    - `high_stakes_class` — claims and concepts that contain claims. apply the asymmetric removal regime per §14.3 if the resulting class is non-`none` and evidence is below floor.
    - `edit_hardness` — default per §9.2, then raised by domain inheritance and high-stakes stamps.
 6. **pick a slug.** apply §6.3.
-   - `new`: write into `temp/{slug}.md`.
-   - `merges-with: {existing-slug}`: write into `temp/{slug}.md` using the same slug as the existing entry. do **not** read the existing entry. phase 3 will merge.
-   - `extends: {temp-slug}`: open `temp/{temp-slug}.md` and enrich in place.
+   - `new`: stage under the chosen slug in ephemeral staging.
+   - `merges-with: {existing-slug}`: stage under the same slug as the existing entry. do **not** read the existing entry. phase 3 will merge.
+   - `extends: {staged-slug}`: open the already-staged unit and enrich in place.
    - collision with a different subject: handle disambiguation per §6.4.
 7. **lead-section requirement.**
-   - if the entry's body exceeds the threshold (§5.2.1), draft a `## Lead` section explicitly.
-   - if the entry is a structure note, source, or in a contentious domain, draft a `## Lead` regardless of size.
+   - if the entry's body exceeds the threshold (§5.2.1), draft a lead section explicitly.
+   - if the entry is a structure note, source, or in a contentious domain, draft a lead regardless of size.
    - otherwise, the first sentence of the body is the implicit lead; no separate section.
-8. **link to existing entries liberally.** every wikilink must resolve; if a referenced concept does not have an entry, either:
-   - open a `question-{slug}` for it (and wikilink to the question), or
+8. **link to existing entries liberally.** every reference must resolve; if a referenced concept does not have an entry, either:
+   - open a `question-{slug}` for it (and reference the question), or
    - mark the link as a "link expected" and resolve in phase 4.
-9. **update `temp/_staging-index.md`** with what was staged this sub-section.
+9. **update the staging index** with what was staged this sub-section.
 10. **mark the sub-section row complete** in the process trace.
 
 #### 17.4.3 sub-section invariants
@@ -1895,9 +1597,9 @@ run this once per sub-section, in chapter order.
 after every sub-section completes:
 
 - every candidate unit has been classified, folded, or staged pending.
-- every staged file has valid frontmatter.
-- every wikilink in staged files resolves (to existing entries, to entries staged earlier in this chapter, or to opened questions).
-- `temp/_staging-index.md` is current.
+- every staged unit has a valid header.
+- every reference in staged units resolves (to existing entries, to entries staged earlier in this chapter, or to opened questions).
+- the staging index is current.
 
 if any invariant fails, the sub-section is **not** marked complete; the editor must repair before continuing.
 
@@ -1907,43 +1609,43 @@ run after every sub-section is staged.
 
 #### 17.5.1 inputs
 
-- the contents of `temp/`.
-- the existing `wiki/entries/`.
+- the contents of ephemeral staging.
+- the entries pile.
 
 #### 17.5.2 steps
 
-for each file in `temp/` (excluding `_staging-index.md` and any `pending-*`):
+for each staged unit (excluding the staging index and any pending-notability proposals):
 
-1. **look up `wiki/entries/{slug}.md`.**
-2. **if no existing entry, the temp file becomes a new entry.**
-   - move `temp/{slug}.md` to `wiki/entries/{slug}.md`.
+1. **look up the existing entry by slug.**
+2. **if no existing entry, the staged unit becomes a new entry.**
+   - promote the unit from ephemeral staging into the entries pile under its slug.
    - emit `run-merge-create-{slug}`.
 3. **if an existing entry, apply the per-kind merge rule** (§19).
-4. **on `category` or `classified_by` mismatch between temp and existing**, halt the merge for that file and emit `finding-merge-classification-mismatch-{slug}` with `severity: blocking`. resolution is manual.
+4. **on `category` or `classified_by` mismatch between staged and existing**, halt the merge for that unit and emit `finding-merge-classification-mismatch-{slug}` with `severity: blocking`. resolution is manual.
 5. **on `high_stakes_class` mismatch**, halt and emit `finding-merge-high-stakes-mismatch-{slug}`.
 
-for each `pending-*` file in `temp/`:
+for each pending-notability proposal in ephemeral staging:
 
-- migrate to `raw/{source-slug}/pending/{slug}.md`. these are borderline-notability units carried forward.
+- carry it forward into the source-intake scope, bound to its source. these are borderline-notability units awaiting a future inbound reference.
 
 #### 17.5.3 phase 3 output
 
-- `wiki/entries/` updated with the chapter's writes.
-- `temp/` still contains: `_staging-index.md`, possibly `pending-*` files (which are migrated), and any merge-blocked files (which await manual repair).
+- the entries pile updated with the chapter's writes.
+- ephemeral staging still contains: the staging index, any pending-notability proposals (which are carried forward), and any merge-blocked units (which await manual repair).
 
 ### 17.6 phase 4 — chapter closeout (once per chapter)
 
 #### 17.6.1 steps
 
 1. **update the source entry's body.**
-   - append to `## Key ideas` from this chapter.
-   - append to `## Notable claims` from this chapter.
-   - append to `## Connections` from this chapter.
+   - append to its key-ideas section from this chapter.
+   - append to its notable-claims section from this chapter.
+   - append to its connections section from this chapter.
    - update the source entry's `updated` field.
 2. **structure-note coverage check.** lint `structure-note-coverage` runs on every cluster touched by this chapter. for any cluster of >8 entries without an associated structure note, emit `finding-cluster-without-structure-note-{cluster-id}` with `severity: advisory`.
-3. **structure-note enrichment.** for every existing structure note that links to entries created or modified this chapter, the editor (or a structure-note-enrichment lint agent) updates the structure note's "Load-bearing entries" or "Subregions" sections. structure-note merge rules (§19.7) apply.
+3. **structure-note enrichment.** for every existing structure note that links to entries created or modified this chapter, the editor (or a structure-note-enrichment lint agent) updates the structure note's load-bearing entries or subregions sections. structure-note merge rules (§19.7) apply.
 4. **notability promotion check.** walk every entry whose `notability_status` is `borderline`:
-   - count inbound wikilinks created or updated this chapter that point at the entry's slug.
+   - count inbound references created or updated this chapter that point at the entry's slug.
    - if the count crosses the promotion threshold (v0: 1 new inbound), promote per §8.3.2.
 5. **high-stakes review.** walk every claim newly stamped `high_stakes_class != none`. if the asymmetric removal regime fired for any claim, ensure the placeholder and finding are in place; if the claim has improved evidence (e.g., a later sub-section provided primary literature), close the finding.
 6. **lint sweep on touched entries.** run every relevant lint check (§20) over the entries this chapter touched. each finding is logged.
@@ -1951,21 +1653,21 @@ for each `pending-*` file in `temp/`:
    - all writes from this chapter landed as `pending-*` proposals.
    - a confirmed agent (or human reviewer during seed) walks the proposals via §9.5.3.
    - until this step completes, the chapter's writes are not visible to retrieval.
-8. **mechanical index rebuild.** run `pnpm build:vault-indexes`:
-   - rebuild `wiki/_meta/index.md`.
-   - rebuild every per-domain index file under `wiki/_meta/indexes/`.
-9. **noticeboard rebuild.** rebuild affected noticeboards under `wiki/_meta/noticeboards/`. the rebuild scope is determined by which finding kinds were emitted this chapter; minimum: deferred-notability, high-stakes, pending-changes, broken-wikilink.
-10. **structure-note narrative pass.** if the chapter materially reshapes how a cluster hangs together, update the relevant structure note's `## How the cluster is held together` section and `## Cross-cluster bridges` section. structure notes are where cross-cluster narrative lives; if no existing structure note covers the new material and the cluster has crossed the size threshold, the structure-note coverage finding raised in step 2 will drive its creation in a follow-up run.
+8. **mechanical index rebuild.** rebuild the meta projections (§2):
+   - the master catalog over the entries pile.
+   - every per-domain catalog.
+9. **noticeboard rebuild.** rebuild affected noticeboards (§23). the rebuild scope is determined by which finding kinds were emitted this chapter; minimum: deferred-notability, high-stakes, pending-changes, broken-reference.
+10. **structure-note narrative pass.** if the chapter materially reshapes how a cluster hangs together, update the relevant structure note's section on how the cluster is held together and its cross-cluster bridges section. structure notes are where cross-cluster narrative lives; if no existing structure note covers the new material and the cluster has crossed the size threshold, the structure-note coverage finding raised in step 2 will drive its creation in a follow-up run.
 11. **update the process trace.** mark the chapter row `complete`. list entries created and updated. note any open findings the chapter produced. record per-chapter counts (entries created, entries merged, units folded, units staged pending, structure notes touched, high-stakes claims processed, pending proposals raised) directly in the tracker row — the tracker is the per-source activity record; vault-wide activity is queryable from `run-*` entries on demand.
-12. **clean `temp/`** including `_staging-index.md`. pending files have already been migrated in phase 3. merge-blocked files remain until repaired (a follow-up run, not this closeout).
-13. **emit `run-chapter-closeout-{source-slug}-{N}`** with reads, writes, findings raised, and policy/lens versions per the run schema (§25.3). this run entry, together with git history, is the canonical record of what the chapter did; no separate hand-authored log is maintained.
+12. **clean ephemeral staging** including the staging index. pending units have already been carried forward in phase 3. merge-blocked units remain until repaired (a follow-up run, not this closeout).
+13. **emit `run-chapter-closeout-{source-slug}-{N}`** with reads, writes, findings raised, and policy/lens versions per the run schema (§25.3). this run entry, together with the audit log, is the canonical record of what the chapter did; no separate hand-authored log is maintained.
 
 #### 17.6.2 phase 4 output
 
-- `wiki/entries/` reflecting all chapter writes that passed review.
+- the entries pile reflecting all chapter writes that passed review.
 - updated source entry, indexes, and noticeboards.
 - updated structure notes for any cluster the chapter materially reshaped.
-- a clean `temp/`.
+- a clean ephemeral staging scope.
 - the chapter row marked `complete`.
 - new open findings tracked in the relevant noticeboards.
 
@@ -1973,7 +1675,7 @@ for each `pending-*` file in `temp/`:
 
 after every chapter has gone through phase 4:
 
-1. **walk surviving pending-notability units** in `raw/{source-slug}/pending/`. any not promoted by source completion are retired per §8.3.3.
+1. **walk surviving pending-notability units** carried forward in source-intake. any not promoted by source completion are retired per §8.3.3.
 2. **walk surviving high-stakes findings.** if primary-literature evidence has arrived during ingestion, close the findings; otherwise they remain open as ingestion priorities for the next source.
 3. **promote cross-chapter observations.** review the process trace's running notes; for any observation that warrants its own entry, draft and stage as a normal phase-2 unit (in a one-shot mini-chapter for closeout).
 4. **review the source entry** end-to-end. summary, key ideas, connections, lead all reflect the full work. update `quality` to a finer grade if applicable.
@@ -1998,8 +1700,8 @@ reingestion is triggered when:
 
 1. confirm from the process trace that the chapter was `complete`.
 2. mark the chapter row `in-progress`. add `Reingesting chapter {N} — {date}` to the running notes.
-3. run phases 1–3 fresh. temp starts empty; staging is **blind** (no reading of existing wiki entries).
-4. phase 3 merge proceeds with this rule: **the existing wiki entry is treated as the richer side** in the merge — it has accumulated connections from later chapters. the reingested version is a depth upgrade on prose, not a replacement on connections. append-only sections (especially `## Connections` and the structure-note `## Load-bearing entries` list) are preserved in full.
+3. run phases 1–3 fresh. ephemeral staging starts empty; staging is **blind** (no reading of existing entries).
+4. phase 3 merge proceeds with this rule: **the existing entry is treated as the richer side** in the merge — it has accumulated connections from later chapters. the reingested version is a depth upgrade on prose, not a replacement on connections. append-only sections (especially the connections section and the structure-note load-bearing entries list) are preserved in full.
 5. phase 4 closeout proceeds normally, but the chapter's `chapters_completed` count in the process trace does not increment; the row's `Notes` cell gains `(reingested)`.
 
 ### 18.3 the depth-upgrade merge rule
@@ -2014,12 +1716,12 @@ partial reingestion (a single sub-section) is permitted when only one sub-sectio
 
 ## 19. merge rules — full catalog
 
-### 19.1 the frontmatter merge — mechanical, applies to all kinds
+### 19.1 the header merge — mechanical, applies to all kinds
 
 | field                                                                             | rule on merge                                                                                                         |
 | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `id`                                                                              | keep original; must match filename. mismatch is `finding-id-filename-mismatch-{slug}` blocking.                       |
-| `title`                                                                           | keep original unless explicitly re-canonicalized in temp; recanonicalization requires a discussion.                   |
+| `id`                                                                              | keep original; must match the entry's identifier. mismatch is `finding-id-mismatch-{slug}` blocking.                  |
+| `title`                                                                           | keep original unless explicitly re-canonicalized in the staged version; recanonicalization requires a discussion.     |
 | `category`                                                                        | must agree. mismatch → halt, emit `finding-merge-classification-mismatch-{slug}`.                                     |
 | `classified_by`                                                                   | must agree. mismatch → halt, emit `finding-merge-classified-by-mismatch-{slug}`.                                      |
 | `produced_by`                                                                     | must agree. mismatch → halt.                                                                                          |
@@ -2049,7 +1751,7 @@ procedure:
 1. read the existing entry's body and the temp body.
 2. produce a consolidated body by synthesizing both.
 3. preserve the most precise wording from each side. when phrasing conflicts, prefer the version with better source attribution.
-4. `## Connections`, `## Illustrations`, `## Sources`, `## Mentioned in` sections are **append-only**: deduplicate but never delete entries that exist on either side.
+4. the connections, illustrations, sources, and mentioned-in sections are **append-only**: deduplicate but never delete entries that exist on either side.
 5. the lead section is rewritten if either side's lead is materially different from a faithful summary of the consolidated body.
 
 ### 19.3 insight merge
@@ -2058,15 +1760,15 @@ procedure:
 
 ### 19.4 entity merge
 
-**body merge rule: structured merge.** sections like `## Background`, `## Key contributions`, `## Influences` are append-only at the bullet level. prose paragraphs are consolidated. union the category-specific fields (`entity_kind` must agree).
+**body merge rule: structured merge.** sections like background, key contributions, and influences are append-only at the bullet level. prose paragraphs are consolidated. union the category-specific fields (`entity_kind` must agree).
 
 ### 19.5 application merge
 
-**body merge rule: structured merge.** the `## Steps` section is the load-bearing one; if both sides have a steps list and they differ, the canonical version is the one in the existing entry, with new steps inserted from the temp side at the locations the temp version implies. if the steps fundamentally disagree on order, halt and emit `finding-application-steps-conflict-{slug}`.
+**body merge rule: structured merge.** the steps section is the load-bearing one; if both sides have a steps list and they differ, the canonical version is the one in the existing entry, with new steps inserted from the staged side at the locations the staged version implies. if the steps fundamentally disagree on order, halt and emit `finding-application-steps-conflict-{slug}`.
 
 ### 19.6 process merge
 
-**body merge rule: structured merge with stage-list union.** the `stages` frontmatter is unioned but order-preserving: existing stages keep their position; new stages from temp are inserted at the position the temp version implies. order conflict → halt and emit `finding-process-stages-conflict-{slug}`.
+**body merge rule: structured merge with stage-list union.** the `stages` header field is unioned but order-preserving: existing stages keep their position; new stages from the staged side are inserted at the position the staged version implies. order conflict → halt and emit `finding-process-stages-conflict-{slug}`.
 
 ### 19.7 structure-note merge
 
@@ -2074,28 +1776,28 @@ procedure:
 
 procedure:
 
-1. consolidate the `## How the cluster is held together` section by synthesizing both sides.
-2. the `## Load-bearing entries` section is append-only at the bullet level. deduplicate by slug; if both sides have an annotation for the same slug, prefer the temp side's annotation (fresher) but keep both as `existing annotation: …` and `revised annotation: …` until a discussion ratifies.
-3. `## Subregions or themes` sections: each subregion's bullet list is append-only; subregion prose is consolidated.
-4. `## Open questions in this cluster` is append-only.
-5. `## Cross-cluster bridges` is append-only.
+1. consolidate the section on how the cluster is held together by synthesizing both sides.
+2. the load-bearing-entries section is append-only at the bullet level. deduplicate by slug; if both sides have an annotation for the same slug, prefer the staged side's annotation (fresher) but keep both as existing-annotation and revised-annotation until a discussion ratifies.
+3. subregions-or-themes sections: each subregion's bullet list is append-only; subregion prose is consolidated.
+4. the open-questions-in-this-cluster section is append-only.
+5. the cross-cluster-bridges section is append-only.
 
 ### 19.8 illustration merge
 
-**body merge rule: replace.** the temp version is a fresher, unanchored retelling. it replaces the existing body. the `illustrates` frontmatter is union; `chapter`, `pages`, `source` fields take temp values if present.
+**body merge rule: replace.** the staged version is a fresher, unanchored retelling. it replaces the existing body. the `illustrates` header field is union; `chapter`, `pages`, `source` fields take staged values if present.
 
-rationale: an illustration is a story retold from a single source; the second telling is usually a refinement, not an addition. earlier connections drawn from the illustration are preserved in inbound wikilinks (which the merge does not modify).
+rationale: an illustration is a story retold from a single source; the second telling is usually a refinement, not an addition. earlier connections drawn from the illustration are preserved in inbound references (which the merge does not modify).
 
 ### 19.9 source merge
 
 **body merge rule: structured append.**
 
-- `## Lead` — replace if the new lead more accurately captures the now-fuller summary.
-- `## Summary` — append a paragraph or rewrite the summary to incorporate new chapters.
-- `## Key ideas` — append.
-- `## Notable claims` — append.
-- `## Connections` — append.
-- `## Sources` — the source itself; do not append (would create circularity).
+- lead — replace if the new lead more accurately captures the now-fuller summary.
+- summary — append a paragraph or rewrite the summary to incorporate new chapters.
+- key ideas — append.
+- notable claims — append.
+- connections — append.
+- sources — the source itself; do not append (would create circularity).
 
 ### 19.10 claim merge
 
@@ -2128,8 +1830,8 @@ rationale: an illustration is a story retold from a single source; the second te
 **body merge rule: full prose consolidation; criteria append-only.**
 
 - `lens_question`, `lens_priority`, `lens_covers_category`, `lens_kind` — must agree. mismatch → halt; lens edits go through quorum, not ordinary merge.
-- `## Criteria` section is append-only at the bullet level.
-- `## Worked examples` is append-only.
+- the criteria section is append-only at the bullet level.
+- the worked-examples section is append-only.
 - `lens_version` increments.
 
 ### 19.14 policy / guideline / essay merge
@@ -2140,7 +1842,7 @@ merge rules apply only to ordinary edits at a tier. tier transitions (`essay →
 
 ### 19.15 disambiguation merge
 
-**body merge rule: append-only on variants list and on the body's `## Variants` section.** new variants merge in; existing variants remain. annotations are append-only at the bullet level (variant-distinguisher prose may be refined; refinement keeps both versions until discussion ratifies).
+**body merge rule: append-only on variants list and on the body's variants section.** new variants merge in; existing variants remain. annotations are append-only at the bullet level (variant-distinguisher prose may be refined; refinement keeps both versions until discussion ratifies).
 
 ### 19.16 domain merge
 
@@ -2148,7 +1850,7 @@ domain entries change rarely. ordinary edits use full prose consolidation on bod
 
 ### 19.17 agent merge
 
-agent manifest mutations follow `lifecycle-agent-mutate` (§16.3.2). ordinary merges may not occur on agent entries; lint `agent-direct-merge` blocks any merge run that targets an `agent-*` entry without going through the lifecycle protocol.
+agent manifest mutations follow `lifecycle-agent-mutate` (§16.3.2). ordinary merges may not occur on agent entries; lint `agent-direct-merge` blocks any merge run that targets an agent entry without going through the lifecycle protocol.
 
 ### 19.18 run, finding, discussion, notification, pending merge
 
@@ -2162,7 +1864,7 @@ these kinds are immutable once written. attempted merges produce `finding-immuta
 
 - **on every write** — every `run-*` that writes an entry triggers a focused lint pass on that entry and on entries it references.
 - **on every closeout** — phase 4 includes a chapter-scope lint pass.
-- **scheduled** — a daily full pass over `wiki/entries/`.
+- **scheduled** — a daily full pass over the entries pile.
 - **on demand** — a human or agent can request a targeted lint over a slug, a domain, or the full vault.
 
 ### 20.2 lint rule catalog
@@ -2172,7 +1874,7 @@ each rule has a name, scope, severity, and a finding-kind. severity is `advisory
 | rule name                            | scope                                 | severity                                           | finding kind                                          |
 | ------------------------------------ | ------------------------------------- | -------------------------------------------------- | ----------------------------------------------------- |
 | `slug-uniqueness`                    | full vault                            | blocking                                           | `finding-slug-collision-{slug}`                       |
-| `id-filename-mismatch`               | per entry                             | blocking                                           | `finding-id-filename-mismatch-{slug}`                 |
+| `id-mismatch`                        | per entry                             | blocking                                           | `finding-id-mismatch-{slug}`                          |
 | `unknown-category`                   | per entry                             | blocking                                           | `finding-unknown-category-{slug}`                     |
 | `classification-consistency`         | per content entry                     | blocking                                           | `finding-classification-consistency-{slug}`           |
 | `infrastructure-without-produced-by` | per infra entry                       | blocking                                           | `finding-infrastructure-without-produced-by-{slug}`   |
@@ -2181,15 +1883,15 @@ each rule has a name, scope, severity, and a finding-kind. severity is `advisory
 | `unknown-domain`                     | per entry                             | blocking                                           | `finding-unknown-domain-{slug}`                       |
 | `entry-without-domain`               | per entry                             | blocking                                           | `finding-entry-without-domain-{slug}`                 |
 | `tag-shadowing-domain`               | per entry                             | advisory                                           | `finding-tag-shadowing-domain-{slug}`                 |
-| `source-frontmatter-mismatch`        | per entry                             | advisory                                           | `finding-source-frontmatter-mismatch-{slug}`          |
+| `source-attribution-mismatch`        | per entry                             | advisory                                           | `finding-source-attribution-mismatch-{slug}`          |
 | `missing-required-list`              | per entry                             | blocking                                           | `finding-missing-required-list-{slug}-{field}`        |
-| `category-fields-presence`           | per entry                             | blocking                                           | `finding-category-fields-presence-{slug}`             |
+| `kind-fields-presence`               | per entry                             | blocking                                           | `finding-kind-fields-presence-{slug}`                 |
 | `reserved-prefix-misuse`             | per entry                             | blocking                                           | `finding-reserved-prefix-misuse-{slug}`               |
 | `lead-missing`                       | per entry                             | advisory or blocking (see §20.3)                   | `finding-lead-missing-{slug}`                         |
 | `lead-too-long`                      | per entry                             | advisory                                           | `finding-lead-too-long-{slug}`                        |
 | `low-link-density`                   | per content entry                     | advisory                                           | `finding-low-link-density-{slug}`                     |
 | `structure-note-low-link-density`    | per structure note                    | blocking                                           | `finding-structure-note-low-link-density-{slug}`      |
-| `broken-wikilink`                    | per entry                             | blocking                                           | `finding-broken-wikilink-{slug}-{target}`             |
+| `broken-reference`                   | per entry                             | blocking                                           | `finding-broken-reference-{slug}-{target}`            |
 | `relation-not-formalized`            | per entry                             | advisory                                           | `finding-relation-not-formalized-{slug}`              |
 | `orphan-entry`                       | full vault                            | advisory                                           | `finding-orphan-entry-{slug}`                         |
 | `main-index-coverage`                | full vault                            | advisory                                           | `finding-main-index-coverage-{slug}`                  |
@@ -2210,7 +1912,7 @@ each rule has a name, scope, severity, and a finding-kind. severity is `advisory
 | `disambiguation-no-hatnote`          | per variant of a disambiguation       | advisory                                           | `finding-disambiguation-no-hatnote-{slug}`            |
 | `notability-stamp-missing`           | per content entry                     | blocking                                           | `finding-notability-stamp-missing-{slug}`             |
 | `edit-hardness-consistency`          | per entry                             | blocking                                           | `finding-edit-hardness-consistency-{slug}`            |
-| `frontmatter-yaml-invalid`           | per entry                             | blocking                                           | `finding-frontmatter-yaml-invalid-{slug}`             |
+| `header-invalid`                     | per entry                             | blocking                                           | `finding-header-invalid-{slug}`                       |
 | `body-section-order`                 | per entry with explicit lead          | advisory                                           | `finding-body-section-order-{slug}`                   |
 | `wontfix-without-justification`      | per finding                           | blocking                                           | `finding-wontfix-without-justification-{slug}`        |
 | `discussion-round-bound-exceeded`    | per discussion                        | blocking                                           | `finding-discussion-round-exceeded-{slug}`            |
@@ -2219,7 +1921,7 @@ each rule has a name, scope, severity, and a finding-kind. severity is `advisory
 
 ### 20.3 the `lead-missing` rule — severity rules
 
-- if the entry's body exceeds the threshold and lacks a `## Lead`, the rule fires.
+- if the entry's body exceeds the threshold and lacks a lead section, the rule fires.
 - in a non-contentious domain, the finding is `advisory`.
 - in a contentious domain, the finding is `blocking` (the lead is required regardless of size in contentious domains, per §15.2).
 - structure notes and source entries always require a lead; missing lead is `blocking` regardless of domain.
@@ -2245,35 +1947,14 @@ at seed, lint is enacted by a small set of named lint agents (§29.6), each with
 
 ### 21.1 finding entry schema
 
-every finding is an entry under `wiki/entries/finding-*.md`. its frontmatter is per §4.3.17. its body:
+every finding is an entry, identified `finding-*`. its header is per §4.3.17. its body carries:
 
-```markdown
-# {Finding Title}
-
-## Lead
-
-{1-2 sentences naming the issue, the entry it touches, and the rule that fired.}
-
-## What the rule says
-
-{Excerpt or summary of the rule that fired.}
-
-## What the entry has
-
-{The state of the entry that triggered the finding.}
-
-## Resolution path
-
-{How the finding can be resolved. May be empty until a resolution is proposed.}
-
-## Resolution
-
-{Filled when status flips to `resolved`.}
-
-## Wontfix justification
-
-{Filled when status flips to `wontfix`. Required for blocking findings.}
-```
+1. a lead — one or two sentences naming the issue, the entry it touches, and the rule that fired.
+2. what the rule says — an excerpt or summary of the rule that fired.
+3. what the entry has — the state of the entry that triggered the finding.
+4. resolution path — how the finding can be resolved (may be empty until a resolution is proposed).
+5. resolution — filled when status flips to `resolved`.
+6. wontfix justification — filled when status flips to `wontfix`; required for blocking findings.
 
 ### 21.2 finding lifecycle
 
@@ -2302,7 +1983,7 @@ reopening creates a new `run-finding-reopen-{slug}` entry; the finding's `status
 
 ### 21.3 findings as first-class persistent objects
 
-findings are not log lines. every finding the vault notices is an entry. the open list of things wrong with the vault is therefore visible at any time as the union of `wiki/entries/finding-*.md` with `status: open`. this is the substrate for the noticeboards (§23) and for the assessment layer (§28).
+findings are not log lines. every finding the vault notices is an entry. the open list of things wrong with the vault is therefore visible at any time as the union of all `finding-*` entries with `status: open`. this is the substrate for the noticeboards (§23) and for the assessment layer (§28).
 
 ### 21.4 finding-kind taxonomy (selected)
 
@@ -2330,39 +2011,16 @@ each finding-kind has a corresponding noticeboard projection (§23.2).
 - a wontfix justification is challenged.
 - an agent retirement is proposed.
 
-a discussion is opened by writing a `discussion-{slug}.md` entry. the slug is `discussion-{disputed-object-slug}-{short-disambiguator}`.
+a discussion is opened by creating a `discussion-{disputed-object-slug}-{short-disambiguator}` entry.
 
 ### 22.2 discussion entry body
 
-```markdown
-# {Title}
+a discussion entry's body carries:
 
-## Lead
-
-{1-2 sentences: what is disputed, who participates, what termination protocol applies.}
-
-## Disputed object
-
-[[{slug}]] — {one-line context}
-
-## Round 1
-
-### {Agent slug}
-
-{Argument, with citations.}
-
-### {Agent slug}
-
-{Counter-argument.}
-
-## Round 2
-
-...
-
-## Termination
-
-{Filled at close. Names the protocol applied (content-quorum, meta-rule-quorum, human-escalation), the outcome, and the resulting vault operation.}
-```
+1. a lead — one or two sentences naming what is disputed, who participates, and the termination protocol that applies.
+2. the disputed object — a reference to the entry under dispute with one-line context.
+3. rounds — each round is one statement per participant, in order. round headings preserve the sequence; participant statements within a round include arguments and citations.
+4. termination — filled at close. names the protocol applied (`content-quorum`, `meta-rule-quorum`, `human-escalation`), the outcome, and the resulting vault operation.
 
 ### 22.3 round bound
 
@@ -2401,39 +2059,39 @@ every discussion ends within bound or becomes a finding. nothing dangles in chat
 
 ### 23.1 noticeboards are projections
 
-a noticeboard is **not** an entry. it is a generated file under `wiki/_meta/noticeboards/{kind}.md` that lists open findings of a particular kind. it rebuilds:
+a noticeboard is **not** an entry. it is a meta projection (§2) keyed by finding kind that lists open findings of that kind. it rebuilds:
 
 - on every closeout that produces a finding of the relevant kind.
 - on the daily scheduled lint pass.
 - on demand.
 
-each noticeboard records its last-rebuild timestamp at the top.
+each noticeboard records its last-rebuild timestamp.
 
 ### 23.2 the seed noticeboard set
 
-| file                             | lists                                                                                  |
-| -------------------------------- | -------------------------------------------------------------------------------------- |
-| `slug-uniqueness.md`             | `finding-slug-collision-*`                                                             |
-| `broken-wikilink.md`             | `finding-broken-wikilink-*`                                                            |
-| `contradictions.md`              | open relation entries with predicate `contradicts` whose dispute is unresolved         |
-| `high-stakes.md`                 | `finding-high-stakes-removal-*`                                                        |
-| `evidence-below-floor.md`        | `finding-evidence-below-floor-*`                                                       |
-| `pending-changes.md`             | open `pending-*` entries awaiting review                                               |
-| `notability-deferrals.md`        | `finding-deferred-*`                                                                   |
-| `cluster-coverage.md`            | `finding-cluster-without-structure-note-*`                                             |
-| `stale-discussions.md`           | `finding-stale-discussion-*` and discussions inactive >2 weeks                         |
-| `stale-findings.md`              | `finding-stale-finding-*` and findings open >60 days                                   |
-| `agent-test-failures.md`         | `finding-persona-test-fail-*`                                                          |
-| `domain-non-subscriber-edits.md` | `finding-domain-non-subscriber-edit-*`                                                 |
-| `frontmatter-violations.md`      | every finding tied to a frontmatter rule                                               |
-| `lifecycle-issues.md`            | `finding-agent-direct-merge-*`, `finding-immutable-merge-*`, agent retirement findings |
-| `coverage-regressions.md`        | `finding-coverage-regression-*`                                                        |
+| noticeboard kind             | lists                                                                                  |
+| ---------------------------- | -------------------------------------------------------------------------------------- |
+| `slug-uniqueness`            | `finding-slug-collision-*`                                                             |
+| `broken-reference`           | `finding-broken-reference-*`                                                           |
+| `contradictions`             | open relation entries with predicate `contradicts` whose dispute is unresolved         |
+| `high-stakes`                | `finding-high-stakes-removal-*`                                                        |
+| `evidence-below-floor`       | `finding-evidence-below-floor-*`                                                       |
+| `pending-changes`            | open `pending-*` entries awaiting review                                               |
+| `notability-deferrals`       | `finding-deferred-*`                                                                   |
+| `cluster-coverage`           | `finding-cluster-without-structure-note-*`                                             |
+| `stale-discussions`          | `finding-stale-discussion-*` and discussions inactive >2 weeks                         |
+| `stale-findings`             | `finding-stale-finding-*` and findings open >60 days                                   |
+| `agent-test-failures`        | `finding-persona-test-fail-*`                                                          |
+| `domain-non-subscriber-edits`| `finding-domain-non-subscriber-edit-*`                                                 |
+| `header-violations`          | every finding tied to a header rule                                                    |
+| `lifecycle-issues`           | `finding-agent-direct-merge-*`, `finding-immutable-merge-*`, agent retirement findings |
+| `coverage-regressions`       | `finding-coverage-regression-*`                                                        |
 
-new noticeboard files may be added when a finding kind needs its own visible board. removal: empty the file's source query and let the rebuild produce an empty board; or delete the file (which forces a full rebuild on next pass).
+new noticeboard kinds may be added when a finding kind needs its own visible board. removal: empty the kind's source query and let the rebuild produce an empty board; or drop the kind (which forces a full rebuild on next pass).
 
 ### 23.3 subscribe semantics for review agents
 
-agents subscribe to noticeboards via their manifest (or via a dedicated `agent-test`-like construct). a review agent that processes contradictions reads `wiki/_meta/noticeboards/contradictions.md` rather than scanning all findings. this keeps the agent's working set bounded.
+agents subscribe to noticeboards via their manifest (or via a dedicated `agent-test`-like construct). a review agent that processes contradictions reads the contradictions noticeboard rather than scanning all findings. this keeps the agent's working set bounded.
 
 ### 23.4 noticeboards as the operational dashboard
 
@@ -2507,47 +2165,17 @@ every agent execution that produces side effects (writes, findings, notification
 | `notification-flush` | bulk processing of notifications                                            |
 | `archival`           | a roll-up archive operation                                                 |
 
-### 25.3 run frontmatter and body
+### 25.3 run header and body
 
-per §4.3.16. body is templated:
+per §4.3.16. a run entry's body carries:
 
-```markdown
-# run {kind} — {date} — {short summary}
-
-## Lead
-
-{1 sentence: what this run did, in active voice.}
-
-## Reads
-
-- [[slug]]
-- ...
-
-## Writes
-
-- [[slug]] — {action: created | modified | merged}
-- ...
-
-## Findings raised
-
-- [[finding-{slug}]]
-- ...
-
-## Findings resolved
-
-- [[finding-{slug}]]
-- ...
-
-## Active versions
-
-policy-ingestion: v3
-lens-concept: v4
-...
-
-## Notes
-
-{Anything not captured above.}
-```
+1. a lead — one sentence in active voice describing what this run did.
+2. reads — references to entries the run read.
+3. writes — references to entries the run wrote, each annotated with the action (created, modified, or merged).
+4. findings raised — references to finding entries this run produced.
+5. findings resolved — references to finding entries this run closed.
+6. active versions — the rule and lens versions in force at run time, named and versioned (e.g., `policy-ingestion v3`, `lens-concept v4`).
+7. notes — anything not captured above.
 
 ### 25.4 versioning
 
@@ -2561,7 +2189,7 @@ procedure:
 
 1. identify the target version (a prior run that wrote the entry).
 2. read the entry as it existed immediately after that run (reconstructable from the run's record of the write content).
-3. write that body and frontmatter as the entry's current state.
+3. write that body and header as the entry's current state.
 4. emit `run-rollback-{slug}` recording: the prior run's slug, the rationale, the reverter agent.
 5. lint runs against the rolled-back state.
 
@@ -2569,13 +2197,13 @@ rollback respects edit-hardness: rolling back a `restricted` entry requires meta
 
 ### 25.6 querying activity over time
 
-there is no hand-authored or rendered "vault log" file. the canonical record of vault activity at the agent-action level is the set of `run-*` entries; at the file level, it is git history. both are queryable on demand:
+there is no hand-authored or rendered "vault log". the canonical record of vault activity at the agent-action level is the set of `run-*` entries; at the entry-content level, it is the audit log over the entries pile (§2). both are queryable on demand:
 
 - "what did agent X do this week?" — `run-*` entries whose `agent` field matches and whose `started` date falls in the window.
-- "what changed in entry Y?" — `run-*` entries whose `writes` list includes the slug, ordered chronologically; or `git log` on the file.
+- "what changed in entry Y?" — `run-*` entries whose `writes` list includes the slug, ordered chronologically; or the audit log scoped to that entry.
 - "what happened across the vault today?" — `run-*` entries with today's `started` date.
 
-if a recent-changes-style operational view ever proves load-bearing for a review or patrol agent, build it as a noticeboard (§23) — a cached projection over runs by date, computed on the same rebuild schedule as the other noticeboards. the design principle is that `_meta/` files are computed from entries, never the source of truth and never hand-authored; runs and git already carry the activity record, so a separate log artifact would be a third copy of the same information with no canonical authority.
+if a recent-changes-style operational view ever proves load-bearing for a review or patrol agent, build it as a noticeboard (§23) — a cached projection over runs by date, computed on the same rebuild schedule as the other noticeboards. the design principle is that meta projections are computed from entries, never the source of truth and never hand-authored; runs and the audit log already carry the activity record, so a separate log artifact would be a third copy of the same information with no canonical authority.
 
 ### 25.7 run rollups
 
@@ -2583,7 +2211,7 @@ old `run-*` entries are aggressively archived. per `policy-archival`:
 
 - runs older than 30 days are eligible for rollup.
 - a rollup combines all runs of a given agent over a period (week, month) into a single `run-rollup-{agent}-{period}` entry summarizing the activity.
-- the original `run-*` entries are retained but moved to `wiki/_meta/archive/` (outside the indexed entry pile, but reachable for forensics).
+- the original `run-*` entries are retained but moved out of the live entries pile into the archive scope (still reachable for forensics, but no longer indexed for retrieval).
 
 ---
 
@@ -2591,9 +2219,9 @@ old `run-*` entries are aggressively archived. per `policy-archival`:
 
 ### 26.1 concurrency
 
-#### 26.1.1 file-level optimistic locking
+#### 26.1.1 entry-level optimistic locking
 
-writes are file-level. an agent prepares a write, the runtime acquires a per-entry advisory lock, the write applies, the lock releases. the lock is not pre-acquired during long thinking; it is taken at submission.
+writes are entry-level. an agent prepares a write, the runtime acquires a per-entry advisory lock, the write applies, the lock releases. the lock is not pre-acquired during long thinking; it is taken at submission.
 
 #### 26.1.2 simultaneous-write conflicts
 
@@ -2608,7 +2236,7 @@ write conflicts are findings, not silent overwrites.
 
 #### 26.1.3 read consistency
 
-reads are eventually consistent. a reader may see an entry in a state that has just been overwritten; the next read after the lock release sees the new state. retrieval (§27) does not pin a snapshot — it reads from the current state of `wiki/entries/`.
+reads are eventually consistent. a reader may see an entry in a state that has just been overwritten; the next read after the lock release sees the new state. retrieval (§27) does not pin a snapshot — it reads from the current state of the entries pile.
 
 ### 26.2 compute budget
 
@@ -2625,26 +2253,23 @@ every agent run carries a token budget in its prompt. lint and assessment passes
 
 #### 26.3.1 hot-cold split
 
-infrastructure entries — runs, findings (resolved), notifications, discussions (closed) — would dominate file count without archival. per `policy-archival`:
+infrastructure entries — runs, findings (resolved), notifications, discussions (closed) — would dominate entry count by volume without archival. per `policy-archival`:
 
-- **hot window**: 30 days. entries less than 30 days old remain in `wiki/entries/`.
-- **cold archive**: entries older than 30 days are moved to `wiki/_meta/archive/` per their kind.
-  - `archive/runs/{year}/{month}/{slug}.md`
-  - `archive/findings/{year}/{month}/{slug}.md`
-  - etc.
-- **rollups**: per §25.7, runs older than 30 days are also summarized into rollups in `wiki/_meta/archive/rollups/`.
+- **hot window**: 30 days. entries less than 30 days old remain in the live entries pile.
+- **cold archive**: entries older than 30 days are moved to the archive scope, partitioned by kind and time period.
+- **rollups**: per §25.7, runs older than 30 days are also summarized into rollups inside the archive scope.
 
 content entries are **never** archived this way. content persists.
 
 #### 26.3.2 retrieval over archives
 
-`wiki/_meta/archive/` is reachable but not indexed for retrieval. searches default to the live `wiki/entries/` directory. archive forensics use a separate explicit query.
+the archive scope is reachable but not indexed for retrieval. searches default to the live entries pile. archive forensics use a separate explicit query.
 
 ### 26.4 indexes
 
 #### 26.4.1 cached projections
 
-`wiki/_meta/index.md` and the per-domain index files under `wiki/_meta/indexes/` are cached projections. they rebuild:
+the master catalog and the per-domain catalogs are meta projections (§2). they rebuild:
 
 - on every closeout that touches their scope.
 - on a daily schedule.
@@ -2652,56 +2277,22 @@ content entries are **never** archived this way. content persists.
 
 each index records its last-rebuild timestamp. consumers may read an index's timestamp to decide whether to trust it.
 
-#### 26.4.2 the rebuild script
+#### 26.4.2 the rebuild process
 
-`pnpm build:vault-indexes` walks `wiki/entries/`, reads each frontmatter, and emits the catalog files. it is deterministic given the same vault state.
+a deterministic rebuild walks the entries pile, reads each header, and emits the catalogs. given the same vault state, it produces the same output.
 
-#### 26.4.3 main index format
+#### 26.4.3 main index shape
 
-```markdown
-# main index
+the master catalog lists every entry, grouped by category. each row carries the entry's slug, title, and domain assignments. the catalog records its last-rebuild timestamp and per-category entry counts.
 
-last rebuild: {YYYY-MM-DD HH:MM}
+#### 26.4.4 per-domain index shape
 
-## by category
+a per-domain catalog covers all entries in one domain. it carries:
 
-### concept (N entries)
-
-- [[slug]] — title — domains: ...
-- ...
-
-### source (N entries)
-
-- ...
-
-(every category, with entry counts)
-```
-
-#### 26.4.4 per-domain index format
-
-```markdown
-# domain: {Domain Title}
-
-last rebuild: {YYYY-MM-DD HH:MM}
-
-## load-bearing structure notes
-
-- [[structure-{slug}]] — frame: ...
-
-## by category
-
-### concept (N entries in this domain)
-
-- [[slug]] — title
-- ...
-
-(per category in this domain)
-
-## open questions
-
-- [[question-{slug}]]
-- ...
-```
+1. the domain's title and last-rebuild timestamp.
+2. its load-bearing structure notes, each with the frame they hold.
+3. entries grouped by category (only entries in this domain), with per-category counts.
+4. open questions in this domain.
 
 ### 26.5 noticeboards (cached projections, like indexes)
 
@@ -2709,17 +2300,17 @@ last rebuild: {YYYY-MM-DD HH:MM}
 
 ### 26.6 runtime
 
-`runner/` is the only enforcer of write-scope, reputation gates, edit-hardness, and pending-changes routing. it lives outside `wiki/`. it is small and versioned. it is described in `policy-runtime` once that policy lands.
+the runtime is the only enforcer of write-scope, reputation gates, edit-hardness, and pending-changes routing. it sits outside the entries pile and is described in `policy-runtime` once that policy lands.
 
-`runner/`'s responsibilities:
+runtime responsibilities:
 
 1. read agent manifests and execute agents per their prompt strategy.
 2. intercept writes; apply edit-hardness and reputation gates; route to direct write or pending proposal.
 3. emit `run-*` entries for every execution.
-4. maintain advisory file-level locks.
+4. maintain advisory entry-level locks.
 5. report queue depth, token usage, and run statistics for assessment.
 
-`runner/` does **not**:
+the runtime does **not**:
 
 - decide content (that is the agent's job).
 - enforce lens criteria (lint agents do that).
@@ -2727,17 +2318,17 @@ last rebuild: {YYYY-MM-DD HH:MM}
 
 ### 26.7 backup, audit, and provenance
 
-every entry is a markdown file under version control (git). git history is the canonical record of every change at the file level. `run-*` entries are the canonical record of every change at the agent-action level. the two layers are redundant — git can answer "what changed when in this file"; runs can answer "which agent changed this file and why." together, they support full auditability.
+every entry is durable and audit-logged. the audit log is the canonical record of every change at the entry-content level. `run-*` entries are the canonical record of every change at the agent-action level. the two layers are redundant — the audit log can answer "what changed when in this entry"; runs can answer "which agent changed this entry and why." together, they support full auditability.
 
 ### 26.8 failure modes and recovery
 
 | failure                                  | response                                                                                                                                                                                                                                              |
 | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| an entry's frontmatter becomes malformed | lint `frontmatter-yaml-invalid` blocking; the offending write is rejected.                                                                                                                                                                            |
-| `temp/` is not cleared between chapters  | phase 1 detects and blocks; the editor is notified to clean before retry.                                                                                                                                                                             |
+| an entry's header becomes malformed      | lint `header-invalid` blocking; the offending write is rejected.                                                                                                                                                                                      |
+| ephemeral staging is not cleared between chapters | phase 1 detects and blocks; the editor is notified to clean before retry.                                                                                                                                                                    |
 | an agent's runtime crashes mid-run       | the partial run is recorded as `run-{kind}-{slug}` with `status: aborted` (an additional run field; see §35.5). subsequent retry produces a new run entry. partial writes that landed are linted as if they were complete; broken state is a finding. |
-| `runner/` is misconfigured               | the runtime fails closed: rejects writes until the misconfiguration is fixed.                                                                                                                                                                         |
-| disk corruption                          | recovery from git history.                                                                                                                                                                                                                            |
+| runtime is misconfigured                 | the runtime fails closed: rejects writes until the misconfiguration is fixed.                                                                                                                                                                         |
+| storage corruption                       | recovery from the audit log.                                                                                                                                                                                                                          |
 
 ---
 
@@ -2791,33 +2382,13 @@ orthogonality is applied at lead-level first (cheap) and at body-level only for 
 
 retrieval respects confidence and high-stakes:
 
-- `confidence: contested` entries are returned with an explicit marker (a prefix `[CONTESTED] `) so the consumer knows.
-- entries with `high_stakes_class != none` and an open removal finding are returned as the placeholder string (per §14.3.1), not as the original claim.
+- `confidence: contested` entries are returned with an explicit contested marker so the consumer knows.
+- entries with `high_stakes_class != none` and an open removal finding are returned as the placeholder text (per §14.3.1), not as the original claim.
 - `status: draft` entries are excluded from default retrieval. an explicit filter `include_drafts: true` overrides.
 
 ### 27.5 retrieval output format
 
-the consumer receives:
-
-```
-[Slice: {domain slugs and/or persona slug}]
-[Budget: {tokens used} / {budget}]
-[Fragment count: N]
-
-## Domain index — {domain}
-{headers}
-
-## Structure note — [[structure-{slug}]] (lead)
-{lead text}
-
-## Entry — [[slug]] (lead, A-grade)
-{lead text}
-
-...
-
-## Entry — [[slug]] (full body)
-{full body}
-```
+the consumer receives an ordered fragment stream. every fragment is annotated with its origin (the slug of the entry or projection it came from) and its kind (domain-index header, structure-note lead, entry lead, entry body, or full body). the stream begins with metadata: the resolved slice, the token budget used vs allotted, and the fragment count. the kinds appear in the order specified in §27.2.1.
 
 ### 27.6 retrieval quality measurement
 
@@ -2835,7 +2406,7 @@ a periodic pass that computes signals about the vault's state. per `policy-asses
 - weekly for slower signals (coverage, source grounding, link density).
 - on demand.
 
-each pass produces a `run-assess-{date}` entry recording every signal computed. signals are stored as structured frontmatter in the run entry; a per-domain dashboard projection (§28.6) visualizes them over time.
+each pass produces a `run-assess-{date}` entry recording every signal computed. signals are stored as structured header fields in the run entry; a per-domain dashboard projection (§28.6) visualizes them over time.
 
 ### 28.2 coverage signals
 
@@ -2846,7 +2417,7 @@ per domain:
 - `claims_with_evidence` — fraction of claim entries in this domain whose `evidence_grade` is set (always, in correct vaults) and `evidence_pointers` non-empty.
 - `claims_above_floor` — fraction of claims at or above the domain's `evidence_grade_floor`.
 - `relation_density` — average number of relation-\* entries per content entry in this domain.
-- `domain_orphans` — entries in this domain with no inbound wikilinks.
+- `domain_orphans` — entries in this domain with no inbound references.
 - `structure_note_coverage` — fraction of clusters in this domain with at least one structure note.
 
 a domain whose `open_questions_count` keeps rising without closures is a signal to direct ingestion attention.
@@ -2859,7 +2430,7 @@ vault-wide:
 - `findings_open_count` — count of `finding-*` with `status: open`.
 - `findings_stale_count` — findings open >60 days.
 - `confidence_contested_count` — entries with `confidence: contested`.
-- `orphan_count` — content entries with no inbound wikilinks.
+- `orphan_count` — content entries with no inbound references.
 - `pending_queue_depth` — count of `pending-*` entries awaiting review.
 
 ### 28.4 source grounding signals
@@ -2885,7 +2456,7 @@ the panel itself is a `policy-thesis-eval` entry (and accompanying agent-tests).
 
 ### 28.6 dashboards
 
-`wiki/_meta/dashboard.md` (or per-domain `wiki/_meta/indexes/{domain}-dashboard.md`) is a projection over recent assessment runs. it shows:
+a vault-wide dashboard (and per-domain dashboard projections) is a meta projection over recent assessment runs. it shows:
 
 - the latest values of every signal.
 - trend over the last 4 weeks.
@@ -2915,7 +2486,7 @@ at v0 startup, the vault must contain at minimum:
 - one persona agent with human-authored seed tests.
 - a `policy-phase` entry declaring the operative phase as `phase-1`.
 - a thesis-eval panel with recorded unaided baseline.
-- a small runtime under `runner/` capable of executing agents per the per-entry lock model.
+- a small runtime capable of executing agents per the per-entry lock model.
 
 ### 29.2 seed policies (must exist before chapter 1 of the first source)
 
@@ -2982,7 +2553,7 @@ each domain entry is hand-authored at seed. `contentious: false` everywhere at s
 | `agent-editor-learning-theory`  | editor  | write_domains: [learning-theory, pedagogy]                                              | 5.0                 |
 | `agent-editor-neuroscience`     | editor  | write_domains: [neuroscience]                                                           | 5.0                 |
 | `agent-persona-learning-theory` | persona | read_domains: [learning-theory, pedagogy, self-regulation, assessment]                  | 5.0                 |
-| `agent-lint-frontmatter`        | lint    | policy_targets: [policy-classification, policy-entry-layout, policy-lint]               | 10.0                |
+| `agent-lint-header`             | lint    | policy_targets: [policy-classification, policy-entry-layout, policy-lint]               | 10.0                |
 | `agent-lint-links`              | lint    | policy_targets: [policy-classification, policy-lint]                                    | 10.0                |
 | `agent-lint-evidence`           | lint    | policy_targets: [policy-content-quality, policy-high-stakes, policy-contentious-domain] | 10.0                |
 
@@ -3017,9 +2588,9 @@ each task has 5 unaided runs with a baseline model recorded as the variance base
 
 ### 29.9 seed runtime
 
-the runtime under `runner/` at seed is small enough to specify here:
+the runtime at seed is small enough to specify here as a set of capabilities:
 
-- a process-launcher capable of running an agent per its `prompt_ref`.
+- the ability to run an agent per its `prompt_ref`.
 - a write-interceptor that gates per `edit_hardness` and reputation.
 - a per-entry advisory lock manager.
 - a `run-*` emitter.
@@ -3052,7 +2623,7 @@ at first run, the vault is empty. bootstrap is **entirely human-authored** — a
 9. **run the seed agent-tests** against the bootstrapped vault. record results in `run-seed-tests-{date}`.
 10. **write the seed thesis-eval panel** entries and run the unaided baseline. record in `run-seed-thesis-eval-baseline-{date}`.
 11. **promote seed agents** from `proposed` to `active` via human review.
-12. **build initial indexes** via `pnpm build:vault-indexes`.
+12. **build initial indexes** by running the deterministic rebuild over the entries pile.
 13. **emit `run-bootstrap-{date}`** recording the entire bootstrap.
 
 ### 30.2 bootstrap human-review check
@@ -3084,13 +2655,13 @@ amendments to this document are `restricted`-tier edits. they require:
 - meta-rule quorum (§9.4).
 - a `run-spec-amend-{date}` entry that records the change.
 
-### 31.2 the spec is descriptive once working documents exist
+### 31.2 the spec is descriptive once an implementation exists
 
-once a working document has been generated from this spec — a policy entry, a runtime module, a lens — that working document is the authority on its own behavior. divergence between such a working document and this spec is not a conflict that the spec adjudicates: the working document governs itself; the spec, if it still serves any purpose, may be updated as a historical record of the original blueprint, but it does not enforce against the working artifact.
+once an implementation has been generated from this spec — a policy entry, a runtime, a lens — that implementation is the authority on its own behavior. divergence between such an implementation and this spec is not a conflict that the spec adjudicates: the implementation governs itself; the spec, if it still serves any purpose, may be updated as a historical record of the original blueprint, but it does not enforce against the running artifact.
 
-### 31.3 the spec is not referenced from working documents
+### 31.3 the spec is not referenced from the implementation
 
-per §1.2, working documents do not link back to this spec. the spec's reach ends at the moment of translation. amendments to this spec therefore have no effect on already-generated working documents; their effect is limited to subsequent translation passes that produce new working documents from the amended blueprint.
+per §1.2, an implementation does not link back to this spec. the spec's reach ends at the moment of translation. amendments to this spec therefore have no effect on an already-generated implementation; their effect is limited to subsequent translation passes that produce a new implementation from the amended blueprint.
 
 ---
 
@@ -3163,43 +2734,9 @@ source slug: `make-it-stick`.
 
 ### 33.2 phase 0 — source intake
 
-1. `raw/make-it-stick/make-it-stick.md` — the source text. immutable.
-2. `raw/make-it-stick/make-it-stick-process-trace.md`:
-   ```
-   title: Make It Stick
-   author: Brown, Roediger, McDaniel
-   year: 2014
-   chapters: 8
-   editor_agent: agent-editor-learning-theory
-   high_stakes_class: none
-   domains: [learning-theory, pedagogy]
-   ```
-3. `wiki/entries/make-it-stick.md`:
-   ```yaml
-   ---
-   id: make-it-stick
-   title: 'Make It Stick'
-   category: source
-   produced_by: pipeline-source-intake
-   domains: [learning-theory, pedagogy]
-   tags: [book]
-   sources: [make-it-stick]
-   aliases: ['Make It Stick: The Science of Successful Learning']
-   created: 2026-04-27
-   updated: 2026-04-27
-   confidence: high
-   status: stub
-   notability_status: passes
-   edit_hardness: confirmed
-   high_stakes_class: none
-   quality: stub
-   author: 'Brown, Roediger, McDaniel'
-   year: 2014
-   source_file: 'raw/make-it-stick/make-it-stick.md'
-   date_ingested: 2026-04-27
-   ---
-   ```
-   body has `## Lead`, `## Summary` (initial), empty `## Key ideas`, `## Notable claims`, `## Connections`.
+1. the source text is admitted into source-intake under the slug `make-it-stick`. immutable from this point.
+2. a process trace is bound to the source carrying: title (Make It Stick); author (Brown, Roediger, McDaniel); year (2014); 8 chapters; editor agent `agent-editor-learning-theory`; `high_stakes_class: none`; `domains: [learning-theory, pedagogy]`.
+3. a source entry, identified `make-it-stick`, is drafted in the entries pile. its header carries: `category: source`; `produced_by: pipeline-source-intake`; `domains: [learning-theory, pedagogy]`; `tags: [book]`; `sources: [make-it-stick]`; aliases including the full subtitle; `confidence: high`; `status: stub`; `notability_status: passes`; `edit_hardness: confirmed`; `high_stakes_class: none`; `quality: stub`; author and year as on the trace; `intake_ref` pointing at the source-intake binding; `date_ingested: 2026-04-27`. its body has a lead, an initial summary, and empty key-ideas, notable-claims, and connections sections.
 4. domain inheritance: both `learning-theory` and `pedagogy` are non-contentious. `evidence_grade_floor: D`. defaults apply.
 5. source-level high-stakes: `none`.
 6. editor agent: `agent-editor-learning-theory`, reputation 5.0 (sub-confirmed; writes will land as pending). human reviewer is the confirmed proxy for seed.
@@ -3210,10 +2747,10 @@ source slug: `make-it-stick`.
 chapter 1: "learning is misunderstood" (32 pages).
 
 1. tracker row: `chapter 1 — in-progress`.
-2. `temp/` cleared.
+2. ephemeral staging cleared.
 3. read the chapter. identify 3 sub-sections: "what we get wrong about learning", "the testing effect introduced", "fluency illusion and metacognitive failure".
 4. tracker rows for sub-sections added.
-5. `temp/_staging-index.md` created.
+5. staging index created in ephemeral staging.
 
 ### 33.4 phase 2 — sub-section 1 ("what we get wrong about learning")
 
@@ -3229,20 +2766,20 @@ processing each:
    - notability: `passes` (covered in multiple sources, referenced widely).
    - decision tree: walks past lens-lens, lens-policy-tier, lens-source, lens-structure-note, lens-disambiguation, lens-illustration (no story), lens-relation (not an edge), lens-claim (not a single atom), lens-application (not steps), lens-question (not a question), lens-entity (not a proper noun), lens-process (not stages), lens-insight (not a 2+ concept relationship), lens-concept → match. `category: concept`, `classified_by: lens-concept`.
    - annotation: `confidence: high`, `evidence_grade` n/a (not a claim), `high_stakes_class: none`, `edit_hardness: open`.
-   - slug: `fluency-illusion`. check `wiki/entries/fluency-illusion.md` — does not exist. `new`.
+   - slug: `fluency-illusion`. check the entries pile — no entry exists at this slug. `new`.
    - lead: body is ~300 words; lead required. drafted: "the fluency illusion is the metacognitive failure of mistaking the ease of recognizing material for the ability to recall it; readers who re-read fluent text feel they have mastered it but cannot reproduce its content under test."
-   - written to `temp/fluency-illusion.md` blind.
+   - staged blind under `fluency-illusion` in ephemeral staging.
 2. **claim "highlighting and re-reading are among the least effective"**:
    - notability: `passes` (multi-source, foundational claim).
    - decision tree: lens-claim matches.
    - annotation: `evidence_grade: B` (cited in make-it-stick as a synthesis of multiple primary studies; not the primary literature itself), `high_stakes_class: none`, `confidence: high`.
    - slug: `claim-highlighting-rereading-low-effective`.
    - lead: not required (single-sentence claim).
-   - written to `temp/claim-highlighting-rereading-low-effective.md`.
+   - staged under that slug in ephemeral staging.
 3. **geary mention**:
-   - already an entry. no new staging needed; the sub-section will produce a wikilink in the body of `fluency-illusion` ("contrast with [[biologically-primary-and-secondary-knowledge]]") that resolves to existing.
+   - already an entry. no new staging needed; the sub-section will produce a reference in the body of `fluency-illusion` ("contrast with [[biologically-primary-and-secondary-knowledge]]") that resolves to existing.
 
-`temp/_staging-index.md` updated. sub-section 1 row marked complete.
+the staging index is updated. sub-section 1 row marked complete.
 
 ### 33.5 phase 2 — sub-sections 2, 3 (compressed)
 
@@ -3254,35 +2791,35 @@ each sub-section's invariants are checked and marked complete.
 
 ### 33.6 phase 3 — chapter 1 merge
 
-for each temp file:
+for each staged unit:
 
-- `fluency-illusion.md` — `wiki/entries/fluency-illusion.md` does not exist → move temp to wiki.
-- `claim-highlighting-rereading-low-effective.md` — does not exist → move to wiki.
-- `testing-effect.md` — already exists in vault. apply concept-merge rule (full prose consolidation; appended sources and connections). resolve. emit `run-merge-testing-effect`.
-- `structure-misunderstood-learning-traps.md` — does not exist → move to wiki.
+- `fluency-illusion` — no existing entry → promote into the entries pile.
+- `claim-highlighting-rereading-low-effective` — no existing entry → promote.
+- `testing-effect` — already exists in the entries pile. apply concept-merge rule (full prose consolidation; appended sources and connections). resolve. emit `run-merge-testing-effect`.
+- `structure-misunderstood-learning-traps` — no existing entry → promote.
 - claims and other staged units handled likewise.
 
 ### 33.7 phase 4 — chapter 1 closeout
 
-1. update source entry: append "fluency illusion", "testing effect", "metacognitive failure" to `## Key ideas`. update `## Connections` with the new entries.
+1. update source entry: append "fluency illusion", "testing effect", "metacognitive failure" to its key-ideas section. update its connections with the new entries.
 2. structure-note coverage: chapter created a new structure note covering 3 entries. cluster size below threshold (8) elsewhere. no findings.
 3. notability promotion: no borderline entries from this chapter.
 4. high-stakes review: no high-stakes claims.
-5. lint sweep: every touched entry. fluency-illusion's body has 2 outbound wikilinks; passes `low-link-density` floor. lead present; passes `lead-missing`. no blocking findings.
-6. pending review: editor was sub-confirmed, so all writes landed as pending. human reviewer accepts each. on accept, the proposals merge; final entries appear under `wiki/entries/`. emit `run-merge-*` per acceptance.
-7. index rebuild: `pnpm build:vault-indexes`. main index gains 3 new entries; learning-theory and pedagogy domain indexes gain entries.
-8. noticeboard rebuild: no findings of note this chapter, so most boards unchanged. `notability-deferrals.md` unchanged. `pending-changes.md` shrinks (proposals accepted).
-9. structure-note narrative pass: `structure-misunderstood-learning-traps` is the chapter's own contribution, so its `## How the cluster is held together` section is fully written this pass; no other structure notes were materially reshaped, so no further updates.
+5. lint sweep: every touched entry. fluency-illusion's body has 2 outbound references; passes `low-link-density` floor. lead present; passes `lead-missing`. no blocking findings.
+6. pending review: editor was sub-confirmed, so all writes landed as pending. human reviewer accepts each. on accept, the proposals merge; final entries appear in the entries pile. emit `run-merge-*` per acceptance.
+7. index rebuild: the deterministic rebuild runs over the entries pile. the master catalog gains 3 new entries; learning-theory and pedagogy domain catalogs gain entries.
+8. noticeboard rebuild: no findings of note this chapter, so most boards unchanged. the notability-deferrals board is unchanged. the pending-changes board shrinks (proposals accepted).
+9. structure-note narrative pass: `structure-misunderstood-learning-traps` is the chapter's own contribution, so its how-the-cluster-is-held-together section is fully written this pass; no other structure notes were materially reshaped, so no further updates.
 10. tracker: chapter 1 row marked complete with per-chapter counts recorded inline (4 entries created, 1 merged, 1 structure note added, 0 findings raised).
-11. clean `temp/`.
-12. emit `run-chapter-closeout-make-it-stick-1` recording reads, writes, findings, and active policy/lens versions per §25.3. this run entry plus git history is the canonical record of the chapter's work; no separate vault-wide log is appended.
+11. clean ephemeral staging.
+12. emit `run-chapter-closeout-make-it-stick-1` recording reads, writes, findings, and active policy/lens versions per §25.3. this run entry plus the audit log is the canonical record of the chapter's work; no separate vault-wide log is appended.
 
 ### 33.8 lessons illustrated
 
 - the editor agent's sub-confirmed reputation is the load-bearing constraint that puts every write through human review during seed.
 - the structure note is what gives the chapter cohesion at retrieval time — its lead summarizes the chapter's organizing frame in 1–3 sentences.
 - the claim is treated as its own entry because it is multi-source and load-bearing; if the chapter had only one weak source, the claim would be borderline-notability and stage as pending.
-- merging an existing entry (testing-effect) preserves the existing entry's connections from later chapters of other sources; the temp version's prose is consolidated, but the connections remain intact.
+- merging an existing entry (testing-effect) preserves the existing entry's connections from later chapters of other sources; the staged version's prose is consolidated, but the connections remain intact.
 
 ---
 
@@ -3294,7 +2831,7 @@ for each temp file:
 | ------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | phase 0 | source slug collision                                      | halt; rename and retry.                                                                 |
 | phase 0 | malformed process trace                                    | halt; repair; retry.                                                                    |
-| phase 1 | `temp/` not clean                                          | halt; clear; retry.                                                                     |
+| phase 1 | ephemeral staging not clean                                | halt; clear; retry.                                                                     |
 | phase 1 | sub-section identification failure                         | halt; manual sub-section assignment by editor.                                          |
 | phase 2 | candidate classification gap                               | emit `finding-classification-gap`; continue with other candidates; revisit at closeout. |
 | phase 2 | slug collision (different subject)                         | per §6.4 disambiguation.                                                                |
@@ -3306,11 +2843,11 @@ for each temp file:
 
 ### 34.2 partial completion
 
-a chapter that does not reach closeout cleanly remains `in-progress`. retry is the same procedure; the editor reads the tracker, identifies which sub-section to resume from, and continues. the `_staging-index.md` and `temp/` state from the failed run is the recovery starting point.
+a chapter that does not reach closeout cleanly remains `in-progress`. retry is the same procedure; the editor reads the tracker, identifies which sub-section to resume from, and continues. the staging index and ephemeral staging state from the failed run are the recovery starting point.
 
 ### 34.3 catastrophic recovery
 
-git history is the canonical recovery substrate. a vault that becomes inconsistent (e.g., simultaneous lock failure) is rolled back via `git revert` of the offending commits. `run-*` history may show writes that no longer exist on disk; lint `dangling-run-references` flags these for cleanup.
+the audit log is the canonical recovery substrate. a vault that becomes inconsistent (e.g., simultaneous lock failure) is rolled back by reverting the offending writes through the audit log. `run-*` history may show writes that no longer correspond to live entries; lint `dangling-run-references` flags these for cleanup.
 
 ### 34.4 human-in-the-loop handoffs
 
@@ -3322,7 +2859,7 @@ the seed phase has the human reviewer in the loop for every quorum action and ev
 
 ### 35.1 the "category" vocabulary clash
 
-the vault uses "category" for the lens-output kind of an entry. wikipedia uses "category" for navigational hierarchies, which are closer to the vault's domains plus tags. reader confusion is real. the planned rename is "category" → "kind" everywhere, with corresponding lens nomenclature shift (`lens_covers_category` → `lens_covers_kind`). mechanical but invasive across the codebase. retained through seed; revisited before opening to outside contributions.
+the vault uses "category" for the lens-output kind of an entry. wikipedia uses "category" for navigational hierarchies, which are closer to the vault's domains plus tags. reader confusion is real. the planned rename is "category" → "kind" everywhere, with corresponding lens nomenclature shift (`lens_covers_category` → `lens_covers_kind`). mechanical but invasive across the spec. retained through seed; revisited before opening to outside contributions.
 
 ### 35.2 reputation thresholds
 
@@ -3339,7 +2876,7 @@ these are guesses. once promotion has been exercised a few dozen times, the rule
 
 ### 35.4 lifecycle stage on rule entries
 
-§13.4.4 names retirement of rules. an additional infrastructure-frontmatter field `lifecycle_stage: active | proposed | retired` for rule entries (parallel to agents) is implied but not added to §4.3.14. resolution: add the field, lint enforces.
+§13.4.4 names retirement of rules. an additional infrastructure header field `lifecycle_stage: active | proposed | retired` for rule entries (parallel to agents) is implied but not added to §4.3.14. resolution: add the field, lint enforces.
 
 ### 35.5 aborted run status
 
@@ -3370,11 +2907,11 @@ population mechanics assume good-faith collaboration. collusion, sybil patterns,
 
 ### 35.10 the runtime / vault boundary
 
-`runner/` is described in §26.6 and `policy-runtime`, but the exact api between vault entries and runtime invocation is not spelled out here. resolution: a `policy-runtime` entry with the api specification, written before the seed agents are activated.
+the runtime is described in §26.6 and `policy-runtime`, but the exact contract between vault entries and runtime invocation is not spelled out here. resolution: a `policy-runtime` entry with the contract specification, written before the seed agents are activated.
 
 ### 35.11 backup and migration
 
-archival (§26.3) describes hot-cold split; backup of the cold archive is not specified. resolution: the cold archive is backed up to a write-ahead log managed by `runner/` per `policy-archival`.
+archival (§26.3) describes hot-cold split; backup of the cold archive is not specified. resolution: the cold archive is backed up to a write-ahead log managed by the runtime per `policy-archival`.
 
 ### 35.12 cross-language and cross-locale
 
