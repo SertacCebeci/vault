@@ -52,8 +52,8 @@ Slugs follow the deterministic pattern so they do not duplicate. Two relations b
 
 ## Worked matches
 
-- `relation-spaced-practice-supports-long-term-retention` — `from: [[spaced-practice]]`, `to: [[long-term-retention]]`, `predicate: supports`, `evidence_grade: A`.
-- `relation-learning-styles-myth-contradicts-vak-classification` — `from: [[learning-styles-myth]]`, `to: [[vak-classification]]`, `predicate: contradicts`.
+- `relation-spaced-practice-supports-long-term-retention` — `from: spaced-practice`, `to: long-term-retention`, `predicate: supports`, `evidence_grade: A` (illustrative; both endpoint slugs would need to exist).
+- `relation-learning-styles-myth-contradicts-vak-classification` — `from: [[learning-styles-myth]]`, `to: vak-classification`, `predicate: contradicts`.
 - `relation-leitner-box-instance-of-spaced-repetition` — `from: [[leitner-box]]`, `to: [[spaced-repetition]]`, `predicate: instance-of`.
 
 ## Worked non-matches

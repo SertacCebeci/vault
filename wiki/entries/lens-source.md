@@ -40,7 +40,7 @@ Apply by checking:
 1. The entry summarizes one specific document (one book, one paper, one transcript).
 2. Its frontmatter points at a file under `raw/` via `source_file`.
 3. The body discusses *the source itself* — its thesis, methodology, key ideas, notable claims — rather than the topic the source is about.
-4. Other entries reference this entry via `sources: [[this-slug]]`.
+4. Other entries reference this entry via `sources: [<this-slug>]`.
 
 If all four hold, category is `source`. Otherwise, the entry synthesizes a topic across (possibly many) sources — route to a later lens.
 

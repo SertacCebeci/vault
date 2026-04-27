@@ -43,11 +43,11 @@ Apply by checking:
 2. Does the body do *only* navigation work — listing variants with one-line distinguishers — and *no* substantive synthesis?
 3. Are there at least two variants in `wiki/entries/` that the entry routes to?
 
-A disambiguation entry's body is short by design. Add inline hatnotes (`> For X, see [[other-variant]]. For routing, see [[disambiguation-base]].`) at the top of each variant entry per §6.4 step 4.
+A disambiguation entry's body is short by design. Add inline hatnotes — e.g. a blockquote pointing the reader at the other variant and at the disambiguation entry itself — at the top of each variant entry per §6.4 step 4.
 
 ## Worked matches
 
-- `disambiguation-transfer` — routes between `[[transfer-learning]]` (educational-psychology concept) and `[[transfer-finance]]` (financial concept).
+- `disambiguation-transfer` — routes between a `transfer-learning` (educational-psychology concept) and a `transfer-finance` (financial concept) when both exist.
 - `disambiguation-memory` — routes between several frame-specific entries on memory if the cluster grows enough to warrant variants.
 
 ## Worked non-matches

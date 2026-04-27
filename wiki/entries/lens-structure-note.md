@@ -44,8 +44,8 @@ If the candidate is asserting facts about itself rather than organizing other en
 
 ## Worked matches
 
-- A note titled "Misunderstood learning traps" whose body doesn't define a single phenomenon but enumerates and frames `[[fluency-illusion]]`, `[[testing-effect]]`, `[[metacognitive-failure]]` and how they interrelate — slug: `structure-misunderstood-learning-traps`.
-- A note framing the memory cluster from the cognitive-mechanism frame, organizing `[[encoding]]`, `[[consolidation]]`, `[[retrieval]]`, `[[forgetting]]` — slug: `structure-memory-learning-theory`.
+- A note titled "Misunderstood learning traps" whose body doesn't define a single phenomenon but enumerates and frames `fluency-illusion`, [[testing-effect]], and a `metacognitive-failure` entry, describing how they interrelate — slug: `structure-misunderstood-learning-traps`.
+- A note framing the memory cluster from the cognitive-mechanism frame, organizing [[encoding]], [[consolidation]], a `retrieval` entry, and a `forgetting` entry — slug: `structure-memory-learning-theory`.
 
 ## Worked non-matches
 

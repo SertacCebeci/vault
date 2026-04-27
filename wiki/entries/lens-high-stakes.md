@@ -50,7 +50,7 @@ If a claim plausibly fits two classes, stamp the highest-stakes one (medical > l
 
 When a claim is stamped non-`none` AND its `evidence_grade` is below the floor, the regime fires (§14.3.1):
 
-1. The claim is **not** written into the staging entry. A placeholder `> [HIGH-STAKES CLAIM REMOVED — see [[finding-{slug}]]]` is left at the location.
+1. The claim is **not** written into the staging entry. A placeholder `> [HIGH-STAKES CLAIM REMOVED — see finding-{slug}]` is left at the location, where `{slug}` is the slug of the resulting `finding-high-stakes-removal-*` entry.
 2. A `finding-high-stakes-removal-` is emitted with `severity: blocking`.
 3. The parent entry's `confidence` is downgraded by one tier until the finding resolves.
 4. Retrieval treats the placeholder as a non-fragment.

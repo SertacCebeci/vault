@@ -58,7 +58,7 @@ Apply the segmentation rule from `policy-claim-segmentation`:
 
 ## Worked non-matches
 
-- A sentence "Spaced practice improves long-term retention" inside the body of [[spaced-practice]] with a citation — lives inline, no claim entry needed.
+- A sentence "Spaced practice improves long-term retention" inside the body of a `spaced-practice` concept entry with a citation — lives inline, no claim entry needed.
 - A relationship between two entries with evidence, e.g. "spaced practice supports long-term retention" — that's a [[lens-relation]] match (the predicate makes it an edge, not a claim).
 - A multi-clause sentence asserting two independent things — split first, then each piece lands separately.
 

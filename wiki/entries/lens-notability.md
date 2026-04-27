@@ -69,9 +69,9 @@ It retires when (§8.3.3):
 
 ## Worked stampings
 
-- A concept like `[[fluency-illusion]]` cited in two textbooks → `passes`.
+- A concept like the existing [[desirable-difficulty]] cited in two textbooks → `passes`.
 - A passing mention of an obscure procedure named once in one chapter → `fails` (folded into parent).
-- A new term referenced once but plausibly notable on its content (e.g., "the Bjork effect") → `borderline` (staged as pending; revisited).
+- A new term referenced once but plausibly notable on its content (e.g., a future "fluency-illusion" entry referenced from one chapter) → `borderline` (staged as pending; revisited).
 - Any `lens-`, `policy-`, `domain-` entry → `n/a`.
 
 ## Notes
