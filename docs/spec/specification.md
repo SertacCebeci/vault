@@ -1,10 +1,6 @@
-notes:
-- since the impl details are removed wikilinks are also removed from the document. this is correct infact wikilink themselves are if you think about ambigous even in the case of employing implementation via md files. think aboıt where we oplace wikilinks arwe we putting them at the end at thea start are they ctreated between the lines do we link reccurent instances of tegh creationds etc. the impl can change but the main issue should be about information and ther relations in between.
-- remove phase related wording and stability, the final document in the eyes of agent will be absolute. the implementation should not crea about future, or past. spec describes a state and a state only. 
-
 # vault specification
 
-> this is the vault's operational specification. it describes — in extreme detail — what the end product is, in entity-architecture terms only. it is the source from which an implementation is generated under a clean-room schema; it is itself not the implementation. anything still under discussion is collected in §35 (open issues / deferred decisions); everything else is binding within the spec.
+> this is the vault's operational specification. it describes — in extreme detail — what the end product is, in entity-architecture terms only. it is the source from which an implementation is generated under a clean-room schema; it is itself not the implementation. everything in this document is binding.
 
 ## table of contents
 
@@ -34,15 +30,14 @@ notes:
 24. [agent tests](#24-agent-tests)
 25. [runs and versioning](#25-runs-and-versioning)
 26. [operations](#26-operations)
-27. [retrieval contract (v0)](#27-retrieval-contract-v0)
+27. [retrieval contract](#27-retrieval-contract)
 28. [assessment and the thesis-eval panel](#28-assessment-and-the-thesis-eval-panel)
-29. [seed configuration](#29-seed-configuration)
+29. [starting configuration](#29-starting-configuration)
 30. [bootstrap procedure](#30-bootstrap-procedure)
-31. [governance: edits to this document](#31-governance-edits-to-this-document)
+31. [the spec is absolute](#31-the-spec-is-absolute)
 32. [vocabulary index](#32-vocabulary-index)
 33. [worked example — ingesting a single chapter end-to-end](#33-worked-example--ingesting-a-single-chapter-end-to-end)
 34. [error and failure handling](#34-error-and-failure-handling)
-35. [open issues / deferred decisions](#35-open-issues--deferred-decisions)
 
 ---
 
@@ -70,7 +65,7 @@ this spec is the highest-authority document at the moment a system is produced f
 - `[[slug]]` — a reference to the entry with that identifier. used as the citation form throughout the spec.
 - `policy-*`, `lens-*`, etc. — identifier pattern: every entry of that kind carries an identifier with the given prefix. `*` is a placeholder.
 - `header:field` — a named field in an entry's header (the metadata each entry carries; see §4).
-- `kind` — the value of an entry's `category` header field. (the term "category" is retained from the existing schema; see [open issue 35.1](#351-the-category-vocabulary-clash) for the planned rename to `kind`.)
+- `kind` — the value of an entry's `category` header field. ("category" and "kind" are used interchangeably throughout this spec.)
 - `confirmed`, `extended-confirmed`, etc. — edit-hardness tiers (§9).
 - `passes`, `borderline`, `fails` — notability stamps (§8).
 - `A`, `B`, `C`, `D` — evidence grades (§10).
@@ -78,77 +73,38 @@ this spec is the highest-authority document at the moment a system is produced f
 - counts are integers; thresholds are integers unless explicitly fractional.
 - prose is lowercase.
 
-### 1.5 stability of this document
+### 1.5 the structural lockdown
 
-this document is itself an artifact under the same edit-hardness rules as a policy entry. amendments require the meta-rule quorum (§9.4). the seed phase relaxes this — until reputation gates can take over, edits to this document require human review. each substantive edit produces a `run-spec-amend-{date}` entry recording the change.
+the vault is **self-governing, not self-adapting**. agents enforce the rules within the structure described here, but they do not author the structure itself. agents generate new instances of entries and run the processes the spec defines; they do not invent new entry kinds, new lenses, new policies, new domains, or new agent manifests.
 
-### 1.6 phases of vault evolution
-
-the vault is designed to migrate over time from a human-bootstrapped scaffold to an agent-autonomous knowledge graph. the phase the vault is currently operating in is recorded in `policy-phase`. each phase changes who is allowed to edit which kinds of entries.
-
-#### 1.6.1 phase 1 — frozen structure (current phase)
-
-in phase 1, **only humans set wiki structure**. agents may operate within that structure, but cannot edit it.
-
-what counts as "wiki structure" in phase 1, and is therefore locked against agent writes regardless of the default tier defined in §9.2:
+the following are locked against agent writes regardless of the per-entry edit-hardness defaults defined in §9.2:
 
 - every `lens-*` entry (the classification rules)
-- every `policy-*`, `guideline-*`, `essay-*` entry (the rule tiers — every tier; essays are locked too because authoring an essay is a structural act of proposing a future rule)
+- every `policy-*`, `guideline-*`, `essay-*` entry (the rule tiers — every tier; essays are locked because authoring an essay is the structural act of proposing a rule)
 - every entry whose `category` is `domain` (the subject axes)
 - every `agent-*` entry (the population manifest)
 - this specification
 
-agents may **read** all of the above. agents may **discuss** all of the above (§22) — but discussion termination is advisory until phase 2 (§16.8.3).
+agents may **read** all of the above. agents may **discuss** all of the above (§22) — but a discussion whose disputed object is one of these entries terminates as advisory only (§16.8.3); the disputed object is not modified by the discussion's outcome.
 
-what agents may write in phase 1:
+what agents may write:
 
 - content entries — `concept`, `source`, `illustration`, `application`, `entity`, `process`, `insight`, `claim`, `relation`, `structure-note`, `disambiguation`, `question` — subject to per-entry edit-hardness and notability rules.
 - their own work products — `run-*`, `finding-*`, `discussion-*` (rounds and termination on content disputes), `notification-*`, `pending-*`. these are agent outputs by construction.
 
-the §9.2 edit-hardness defaults describe the steady-state (phase 2+) tiers. phase 1 overrides them for the kinds listed above by setting their effective tier to `locked` against any agent write. the runtime rejects such writes pre-check; no reputation is consumed and no partial state is written. rejection emits `finding-phase-1-lockdown-violation-{target-slug}`.
+the runtime rejects writes to locked kinds pre-check; no reputation is consumed and no partial state is written. rejection emits `finding-structural-lockdown-violation-{target-slug}`.
 
-#### 1.6.2 phase 2 — population maturity (future)
-
-phase 2 unlocks structural edits, but only via the meta-rule quorum (§9.4). agents may then:
-
-- propose new lenses, domains, policies, guidelines, essays via the relevant lifecycle / promotion paths.
-- propose new agent manifests via `lifecycle-agent-create` (§16.3.1).
-- propose amendments to this specification.
-
-every structural edit still requires either (a) 3 agents at reputation ≥ 80 voting independently within a 7-day window, or (b) a human reviewer. the difference from phase 1 is that the agent-quorum path now exists — humans are no longer the sole route.
-
-#### 1.6.3 phase 3 — full autonomy (design end-state)
-
-phase 3 begins when the meta-rule quorum has demonstrated stable, beneficial structural evolution over a measurement window (per `policy-thesis-eval`). at phase 3:
-
-- humans no longer participate in quorum.
-- the human's role narrows to two acts: directing material in (curating sources for ingestion) and consuming output (retrieval).
-- structural edits proceed entirely through the agent quorum.
-
-phase 3 is the design end-state. phase 1 and 2 are scaffolding.
-
-#### 1.6.4 phase transition criteria
-
-transitions are explicit. they are themselves meta-rule actions amending `policy-phase`.
-
-| from    | to      | criteria                                                                                                                                                                                                                                |
-| ------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| phase 1 | phase 2 | population has ≥3 active editor agents at reputation ≥30; thesis-eval shows positive variance reduction sustained over 4 weeks; no open `severity: blocking` findings against runtime or seed policies; human reviewer ratifies.        |
-| phase 2 | phase 3 | meta-rule quorum has resolved ≥10 structural amendments without human override; thesis-eval variance reduction has improved over phase-1 baseline by a target margin set in `policy-thesis-eval`; meta-rule quorum ratifies.            |
-
-a transition does not roll back automatically. demotion (phase 2 → phase 1) is a meta-rule action with the same machinery, triggered by a quorum decision that the previous phase was unstable.
-
-### 1.7 the three pillars
+### 1.6 the three pillars
 
 the vault has three pillars. every section of this specification belongs to exactly one. the table is the navigation aid for the rest of the document.
 
 | pillar                  | what it defines                                                                                | sections                                                                                                                                              |
 | ----------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **wiki structure**      | what entries exist, how they are shaped, how they are organized                                | §2 scopes · §3 entry kinds · §4 header · §5 body · §6 slugs · §7 lenses · §8 notability · §11 structure notes · §12 domains                           |
-| **wiki governance**     | the rules that bind agent behavior, how those rules are enforced and amended                   | §9 edit-hardness · §13 policy/guideline/essay · §14 high-stakes · §15 contentious · §19 merge · §20 lint · §21 findings · §22 discussions · §23 noticeboards · §31 spec governance |
-| **agentic structure**   | who acts, what they may act on, how they are created, retired, scored                          | §10 claims/relations/questions · §16 agents · §17–18 ingestion · §24 agent tests · §25 runs · §26 operations · §27 retrieval · §28 assessment         |
+| **wiki governance**     | the rules that bind agent behavior, how those rules are enforced                               | §9 edit-hardness · §13 policy/guideline/essay · §14 high-stakes · §15 contentious · §19 merge · §20 lint · §21 findings · §22 discussions · §23 noticeboards |
+| **agentic structure**   | who acts, what they may act on, how they are scored                                            | §10 claims/relations/questions · §16 agents · §17–18 ingestion · §24 agent tests · §25 runs · §26 operations · §27 retrieval · §28 assessment         |
 
-phase 1 freezes the entirety of "wiki structure" and "wiki governance" against agent edits, plus the agent manifests that define "agentic structure" itself. only the work agents do — content edits, run records, findings, content discussions, pending proposals — is agent-driven in phase 1.
+structural entries — every `lens-*`, `policy-*`, `guideline-*`, `essay-*`, `domain`, `agent-*`, and this specification — are out of reach of any agent write. only the work agents do — content edits, run records, findings, content discussions, pending proposals — is agent-driven.
 
 ---
 
@@ -169,10 +125,10 @@ the vault has five logical scopes. they differ in what each holds, who may modif
 ### 2.2 scope rules
 
 - **source intake.** one logical container per source. the source document is fixed at intake and never modified thereafter. the per-source ingestion progress record co-locates with the source. supporting media (images, attachments) co-locates with the source.
-- **ephemeral staging.** flat. cleared at the start of each chapter as part of ingestion phase 0 (§17). draft entries use the same identifiers they would carry in the entries pile, so the merge step (§17, §19) can match by identifier alone. staging metadata is namespaced from entry identifiers so the two never collide.
+- **ephemeral staging.** flat. cleared at the start of each chapter as part of ingestion stage 1 (§17). draft entries use the same identifiers they would carry in the entries pile, so the merge step (§17, §19) can match by identifier alone. staging metadata is namespaced from entry identifiers so the two never collide.
 - **the entries pile.** the only flat pile of entries. no nesting, no grouping, no hierarchy. enumerating the pile must reveal every entry the vault holds; nothing about the pile depends on traversal order.
 - **meta projections.** entirely synthetic. rebuilt mechanically from the entries pile (per-domain indexes, kind-projected noticeboards, the assessment dashboard) or moved here as cold archives (older runs, resolved findings, closed discussions, retired notifications) per `policy-archival` (§26.3). nothing in the meta projections is hand-authored, and nothing here is source of truth: projections are reproducible by rebuild; archives are recoverable from durable history. hand-authored cross-vault narrative belongs in structure-note entries (§11), not in projections; chronological activity belongs in `run-*` entries and durable history, not in a synthesized log.
-- **runtime.** external to the entries pile. the only enforcer of write-scope, reputation gates, and edit-hardness; described in `policy-runtime` once that policy lands.
+- **runtime.** external to the entries pile. the only enforcer of write-scope, reputation gates, and edit-hardness; described in `policy-runtime`.
 
 ### 2.3 retrieval surface
 
@@ -221,7 +177,7 @@ entries split into **content** (the substance of the vault) and **infrastructure
 | ------------------------------ | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
 | `lens-`                        | `lens`               | a classification rule, written as a yes/no question and criteria.                                                                                                        | self-classifying via `lens-lens`.                     |
 | (free slug, often domain name) | `domain`             | a subject axis: scope, out-of-scope, canonical questions, contentious flag, evidence-grade floor, edit-hardness floor, subscribed editors, load-bearing structure notes. | one per active domain.                                |
-| `policy-`                      | `policy`             | a binding rule. lint enforces; meta-rule edits required.                                                                                                                 | highest of the three rule tiers (§13).                |
+| `policy-`                      | `policy`             | a binding rule. lint enforces. set at bootstrap; locked against agent writes (§1.5).                                                                                     | highest of the three rule tiers (§13).                |
 | `guideline-`                   | `guideline`          | a best-practice norm. violations produce advisory findings.                                                                                                              | middle tier.                                          |
 | `essay-`                       | `essay`              | an under-development take. binds nothing.                                                                                                                                | lowest tier; promotion path leads upward.             |
 | `agent-`                       | `agent`              | the manifest of an active process — editor, persona, or lint. slice + bindings + lifecycle + reputation.                                                                 | `agent_kind` header field is `editor`, `persona`, or `lint`. |
@@ -254,7 +210,7 @@ every entry — content or infrastructure — carries a header of named fields. 
 | `title`             | string | yes                               | title case. one entry, one canonical title.                                                                                                                 |
 | `category`          | enum   | yes                               | one of the kinds in §3.2 or §3.3. lint `unknown-category`.                                                                                                  |
 | `classified_by`     | string | content only                      | identifier of the lens that ruled. its `lens_covers_category` must equal this entry's `category`. lint `classification-consistency`.                        |
-| `produced_by`       | string | infrastructure only               | name of the lifecycle protocol that produced this entry, e.g., `pipeline-unpack`, `lifecycle-agent-create`. lint `infrastructure-without-produced-by`.      |
+| `produced_by`       | string | infrastructure only               | name of the lifecycle protocol that produced this entry, e.g., `pipeline-unpack`, `lifecycle-agent-retire`, `bootstrap`. lint `infrastructure-without-produced-by`.      |
 | `domains`           | list   | yes                               | non-empty. every value must equal an existing domain entry's `id`. lint `unknown-domain`, `entry-without-domain`.                                           |
 | `tags`              | list   | optional                          | lowercase, hyphenated. tags reducing to a domain name must instead live in `domains`. lint `tag-shadowing-domain`.                                          |
 | `sources`           | list   | optional                          | identifiers of source-kind entries. machine-readable shorthand; the body's sources section is the rich attribution. lint `source-attribution-mismatch`.      |
@@ -361,7 +317,7 @@ each kind may carry additional fields beyond the common header. enumerated below
 - `rule_tier` (enum, required) — `policy` | `guideline` | `essay`.
 - `covers` (string, required) — one-sentence summary of the rule's scope.
 - `linted_by` (list of lint-rule names, required for policies) — lint rules that enforce it.
-- `promotion_history` (list, optional) — for entries that have been promoted; each item carries the prior tier, the new tier, the date of promotion, and a reference to the discussion that promoted it.
+- `promotion_history` (list, optional) — chronological tier-transition record set at bootstrap if the entry was authored at a non-initial tier; not modified at runtime.
 
 #### 4.3.15 agent
 
@@ -380,10 +336,11 @@ each kind may carry additional fields beyond the common header. enumerated below
 
 #### 4.3.16 run
 
-- `run_kind` (enum, required) — `edit` | `lint` | `assess` | `ingest` | `review`.
+- `run_kind` (enum, required) — one of the run kinds enumerated in §25.2.
 - `agent` (reference, required).
 - `started` (timestamp, required).
 - `finished` (timestamp, required).
+- `status` (enum, required) — `complete` | `aborted` (set on crash mid-run, §26.8).
 - `reads` (list of references, required) — entries read during the run.
 - `writes` (list of references, required) — entries written during the run.
 - `findings_raised` (list of finding references, required).
@@ -407,7 +364,7 @@ each kind may carry additional fields beyond the common header. enumerated below
 - `agent` (reference, required).
 - `question` (string, required) — the query.
 - `expected_shape` (string, required) — what a passing answer looks like.
-- `authoritative` (boolean, required) — human-authored seed test; gates promotion to test list.
+- `authoritative` (boolean, required) — true for baseline tests authored at bootstrap; false for tests proposed at runtime.
 - `last_run` (date, required).
 - `last_result` (enum, required) — `pass` | `fail` | `stale`.
 
@@ -418,7 +375,7 @@ each kind may carry additional fields beyond the common header. enumerated below
 - `participants` (list of agent references, required).
 - `rounds` (integer, required) — 0..5.
 - `status` (enum, required) — `open` | `closed-resolved` | `closed-wontfix` | `escalated` | `stale`.
-- `termination_protocol` (enum, required) — `content-quorum` | `meta-rule-quorum` | `human-escalation`.
+- `termination_protocol` (enum, required) — `content-quorum` | `meta-rule-quorum` | `advisory`.
 
 #### 4.3.20 notification
 
@@ -562,7 +519,7 @@ quality is reviewed in assessment passes (§28). promotion to `b`, `a`, or `feat
 
 - enforced by the runtime: only one entry may carry a given identifier at a time.
 - re-checked by lint (`slug-uniqueness`) every full pass.
-- ephemeral staging shares the identifier namespace; staging two different topics under the same identifier in the same chapter is a phase-1 error (§17.3).
+- ephemeral staging shares the identifier namespace; staging two different topics under the same identifier in the same chapter is a stage-1 error (§17.3).
 
 ### 6.3 picking a slug for a new entry
 
@@ -584,7 +541,7 @@ when a new entry's natural identifier collides with an existing entry of a diffe
 1. choose a **disambiguator suffix** for the new entry that distinguishes it: `{base-slug}-{disambiguator}`. the disambiguator is a noun naming the variant's domain or kind. examples:
    - `transfer-learning` (concept) vs. `transfer-finance` (concept) → both keep the suffix.
    - `mercury-element` vs. `mercury-planet` vs. `mercury-mythology`.
-2. if the existing entry's identifier is the bare base term, it must be renamed to take its own disambiguator suffix. the rename is a phase 4 closeout step, not phase 1; phase 1 just stages the new entry under its disambiguated identifier.
+2. if the existing entry's identifier is the bare base term, it must be renamed to take its own disambiguator suffix. the rename is a stage 4 closeout step, not stage 2; stage 2 just stages the new entry under its disambiguated identifier.
 3. create or extend the `disambiguation-{base-slug}` entry. its body's variants section lists each variant by reference with a one-line distinguisher. example: under the entry `disambiguation-transfer`, variants might list `[[transfer-learning]] — the educational-psychology concept` and `[[transfer-finance]] — the financial-services concept`.
 4. add an inline hatnote to each variant's body, near the top, pointing readers to the other variants and to the disambiguation entry.
 5. update the disambiguation entry's `variants` header field (§4.3.11).
@@ -625,7 +582,7 @@ a content entry of kind `concept`, `source`, `illustration`, `application`, `ent
 
 a lens entry's `lens_kind` header field declares which flavor it is.
 
-### 7.2 the seed lens set — decision-tree
+### 7.2 the decision-tree lens set
 
 priority order. lower number runs first. first-match wins.
 
@@ -652,7 +609,7 @@ priority order. lower number runs first. first-match wins.
 2. does the rule advise behavior, with violations producing advisory findings? → `guideline`.
 3. is the rule under development, not yet ratified, binding nothing? → `essay`.
 
-### 7.3 the seed lens set — annotation
+### 7.3 the annotation lens set
 
 annotation lenses do not compete. each runs on every relevant entry and stamps its own header field.
 
@@ -706,8 +663,8 @@ when a lens is edited, lint runs `lens-version-drift` over all entries classifie
 a unit deserves its own entry if and only if **at least one** of the following holds:
 
 1. **multi-source coverage.** the unit is covered by at least two independent sources, where "independent" means the sources are not derivative of each other (translations, abridgements, and reprints are not independent).
-2. **routing necessity.** the unit is referenced by at least N other entries (v0: N=2) that would otherwise have to anchor into a parent entry instead of pointing at a clean reference target. a routing target reduces brittleness.
-3. **explicit policy carve-out.** the unit is in a class declared notable by `policy-notability`. the seed list includes: any entry classified as `source`, `domain`, `lens`, `policy`, `guideline`, `essay`, `agent`, `agent-test`, or `discussion` (these are notable by virtue of their kind); any concept that names a foundational framework cited in primary literature.
+2. **routing necessity.** the unit is referenced by at least 2 other entries that would otherwise have to anchor into a parent entry instead of pointing at a clean reference target. a routing target reduces brittleness.
+3. **explicit policy carve-out.** the unit is in a class declared notable by `policy-notability`. the carve-out list includes: any entry classified as `source`, `domain`, `lens`, `policy`, `guideline`, `essay`, `agent`, `agent-test`, or `discussion` (these are notable by virtue of their kind); any concept that names a foundational framework cited in primary literature.
 
 ### 8.2 the lens — `lens-notability`
 
@@ -721,7 +678,7 @@ stamps `notability_status: passes | borderline | fails`.
 
 #### 8.3.1 staging
 
-borderline units are staged in ephemeral staging during phase 1, identified as `pending-{run-id}-{slug}`. at phase 4 (closeout), borderline units that have not been promoted in this chapter are migrated to the per-source pending area inside source intake (§2.1). they remain there until promoted or retired.
+borderline units are staged in ephemeral staging during stage 2, identified as `pending-{run-id}-{slug}`. at stage 4 (closeout), borderline units that have not been promoted in this chapter are moved to the per-source pending area inside source intake (§2.1). they remain there until promoted or retired.
 
 #### 8.3.2 promotion
 
@@ -744,7 +701,7 @@ retirement is also mechanical. the unit is removed from its per-source pending a
 
 ### 8.4 failed units
 
-units stamped `fails` at unpack are folded into the parent entry's body in phase 1 (the staging step extends the parent's draft rather than producing a separate one). a `finding-deferred-{parent-slug}-{topic}` is emitted at the same time, indexing the deferred unit so a future ingestion can promote it if more material arrives. the finding's `severity` is `advisory`.
+units stamped `fails` at unpack are folded into the parent entry's body during staging (the staging step extends the parent's draft rather than producing a separate one). a `finding-deferred-{parent-slug}-{topic}` is emitted at the same time, indexing the deferred unit so a later ingestion can promote it if more material arrives. the finding's `severity` is `advisory`.
 
 ### 8.5 special cases
 
@@ -766,10 +723,10 @@ every entry carries `edit_hardness` in its common header. the value is one of:
 | `open`               | none                                                                 | any active agent in the population.          |
 | `confirmed`          | reputation ≥ 30                                                      | confirmed agents and above.                  |
 | `extended-confirmed` | reputation ≥ 60 **and** declared scope in one of the entry's domains | scoped, well-trusted agents.                 |
-| `restricted`         | quorum of 3 agents at reputation ≥ 80, **or** human reviewer         | meta-rule edits, lens edits, runtime policy. |
-| `locked`             | human reviewer only                                                  | runtime-critical entries only.               |
+| `restricted`         | quorum of 3 agents at reputation ≥ 80                                | only used for content entries explicitly promoted to this tier; structural entries are out of reach regardless (§1.5). |
+| `locked`             | no agent writes                                                      | structural entries (lens, policy, guideline, essay, domain, agent manifest, this spec) per §1.5; immutable infrastructure entries (run, finding, discussion, notification). |
 
-reputation is a 0.0–100.0 scale (§9.6). the thresholds above are v0 placeholders; they live in `policy-edit-hardness` and are revised against measured population behavior.
+reputation is a 0.0–100.0 scale (§9.6). the thresholds live in `policy-edit-hardness`.
 
 ### 9.2 default tiers per kind
 
@@ -797,15 +754,15 @@ defaults are floors. an entry's `edit_hardness` may be raised by:
 - domain inheritance (§15.2): if any of the entry's domains has `edit_hardness_floor` above the default, the floor takes effect.
 - explicit promotion via `policy-edit-hardness-promote` (a discussion-driven event).
 
-an entry's `edit_hardness` is never lowered by ordinary edits. demotion requires `policy-edit-hardness-demote` and a meta-rule quorum.
+an entry's `edit_hardness` is never lowered by ordinary edits.
 
-the table above describes steady-state (phase 2+) defaults. **in phase 1 (§1.6.1), `lens`, `policy`, `guideline`, `essay`, `domain`, and `agent` entries are effectively `locked` against any agent write regardless of these defaults.** the §9 machinery applies to content kinds normally; structural kinds are out of reach until phase 2.
+the table above describes per-kind defaults for content kinds. **per §1.5, `lens`, `policy`, `guideline`, `essay`, `domain`, and `agent` entries are locked against any agent write regardless of these defaults.** the §9 machinery applies to content kinds normally; structural kinds are out of reach.
 
 ### 9.3 the pending state
 
 below `open` sits a parallel state: `pending`. writes from agents below the `confirmed` reputation threshold do not land directly. they accumulate as `pending-{run-id}` proposal entries (§4.3.21) attached to the target entry.
 
-a confirmed agent (or a human reviewer during seed) processes pending proposals. each proposal has one of three outcomes:
+a confirmed agent processes pending proposals. each proposal has one of three outcomes:
 
 - **accept**: the proposal merges into the target entry. a `run-merge-{slug}` records the merge, names the reviewer, and the proposal is marked `status: accepted`.
 - **reject**: the proposal does not merge. the proposal is marked `status: rejected`. a `notification-rejection-{run-id}` is sent to the proposer.
@@ -813,18 +770,14 @@ a confirmed agent (or a human reviewer during seed) processes pending proposals.
 
 ### 9.4 quorum
 
-a quorum action requires:
-
-- 3 agents, each at reputation ≥ 80, voting independently within a 7-day window, **or**
-- 1 human reviewer.
+a quorum action requires 3 agents, each at reputation ≥ 80, voting independently within a 7-day window.
 
 quorum applies to:
 
-- meta-rule edits (`policy-*` at `restricted` tier, edits to this specification, edits to `lens-lens`).
-- agent retirement.
-- lens demotion or removal.
-- domain `contentious` flag toggle (§15.3).
 - `wontfix` resolution of a `severity: blocking` finding.
+- agent retirement (the only `agent-*` mutation agents may produce, and only by setting `lifecycle_stage: retired`; manifest fields are not editable by agents).
+
+quorum does **not** apply to structural entries (`lens-*`, `policy-*`, `guideline-*`, `essay-*`, `domain`, this specification): those are locked against agent writes per §1.5; agents have no path to amend them, with or without quorum.
 
 quorum runs are recorded as `run-quorum-{action}` entries that link to each voter's vote (a `notification-vote-*` per voter) and to the action they ratify.
 
@@ -890,7 +843,7 @@ a borderline-notability unit (§8.3.1) lives in the same proposal flow but with 
 
 #### 9.6.3 the external anchor
 
-reputation, computed only from in-population events, drifts. the external anchor binds it back. weights between internal events (§9.6.1, §9.6.2) and external events (human review, thesis-eval panel measurements) are set in `policy-reputation-weighting`. v0 weight: external events count for **3×** their internal-event equivalent. weights are recalibrated annually or when policy-thesis-eval registers a change in variance reduction.
+reputation, computed only from in-population events, drifts. the external anchor binds it back. weights between internal events (§9.6.1, §9.6.2) and external events (human review, thesis-eval panel measurements) are set in `policy-reputation-weighting`. external events count for **3×** their internal-event equivalent.
 
 #### 9.6.4 starting reputation
 
@@ -912,7 +865,7 @@ reputation is a **permission** mechanism. it gates access to higher-edit-hardnes
 
 a **claim** is the smallest verifiable assertion the vault recognizes.
 
-#### 10.1.1 segmentation rule (`policy-claim-segmentation`, v0)
+#### 10.1.1 segmentation rule (`policy-claim-segmentation`)
 
 split a sentence into multiple claims when:
 
@@ -925,7 +878,7 @@ do not split when:
 - the sentence's parts are bound by causation or sequence such that one cannot be true without the other.
 - the split would produce a fragment that needs context from a sibling sentence to be interpretable.
 
-if uncertain, prefer the coarser claim in v0 — fragmentation is harder to reverse than splitting later.
+if uncertain, prefer the coarser claim — fragmentation is harder to reverse than splitting later.
 
 #### 10.1.2 evidence grades
 
@@ -1023,7 +976,7 @@ each structure note is a peer; none is the canonical "parent" of the cluster. co
 
 lint `structure-note-coverage`:
 
-- finds every connected component of content entries above size threshold (v0: 8 entries connected by references).
+- finds every connected component of content entries above size threshold (8 entries connected by references).
 - checks whether at least one structure note has the component's entries in its `organizes` header field.
 - if not, emits `finding-cluster-without-structure-note-{cluster-id}` with severity `advisory`. the cluster id is generated deterministically from the sorted slug list.
 
@@ -1065,7 +1018,7 @@ setting `contentious: true` raises floors across every entry whose `domains` lis
 | maximum discussion rounds before escalation | 5 (§22.4)                                      | 3                                                                                                  |
 | citation of source for every claim          | recommended                                    | mandatory; lint blocks merge of claims without sources                                             |
 
-setting `contentious: true` on a domain is a `restricted`-tier edit; it requires meta-rule quorum. unsetting is identical.
+a domain's `contentious` flag is set at bootstrap (§30); domain entries are locked against agent writes (§1.5).
 
 ### 12.4 in-domain edit by non-subscribed agent
 
@@ -1077,21 +1030,9 @@ when an agent edits an entry whose `domains` includes a domain the agent does no
 
 this is the wikiproject pattern: not a permission gate, but visibility into who is editing what. systematic non-subscriber edits in a domain are a signal that the subscription list needs updating, not necessarily that the edits are wrong.
 
-### 12.5 adding and removing domains
+### 12.5 the domain set is fixed
 
-#### 12.5.1 adding a domain
-
-1. draft a domain entry, identified `{domain-slug}`.
-2. classify via the domain lifecycle protocol (`produced_by: lifecycle-domain-create`).
-3. open at least one `question-{slug}` for the domain's canonical questions list.
-4. seed the domain entry's `subscribed_agents` (may be empty initially).
-5. create the per-domain catalog as a placeholder; first index rebuild populates it.
-
-#### 12.5.2 removing a domain
-
-1. every entry whose `domains` list includes the domain must be reassigned. lint `unassigned-domain-removal` blocks the removal until reassignment is complete.
-2. the domain entry's `lifecycle_stage` flips to `retired`. it remains in the entries pile for history but stops appearing in fresh assessments.
-3. the per-domain catalog is moved out of the active catalogs and into a retired-catalogs partition.
+domains are authored at bootstrap (§29.5, §30) and locked against agent writes per §1.5. agents do not add or remove domains. each bootstrap-time domain entry carries `produced_by: bootstrap`, has its `subscribed_agents` populated, has at least one canonical question opened, and has its per-domain catalog initialized by the first index rebuild.
 
 ---
 
@@ -1113,7 +1054,7 @@ this is the wikiproject pattern: not a permission gate, but visibility into who 
 2. does the rule, when violated, produce an advisory finding that does not block but is reviewed? → `guideline`.
 3. is the rule under development, with the explicit understanding that it has not been ratified? → `essay`.
 
-a rule cannot be both `policy` and `guideline`. promotion (§13.4) is the only legitimate tier change.
+a rule's tier is set at bootstrap (§30) and is not changed thereafter from inside the running vault.
 
 ### 13.3 the body of a rule entry
 
@@ -1124,57 +1065,16 @@ a rule entry's body carries the following named sections, in order:
 3. **rationale.** why this rule exists — the motivating failure mode, the problem it prevents, the goal it serves.
 4. **how violation is detected.** the lint rule that fires (with its `severity`), and any manual-review trigger.
 5. **examples.** a passing case and a failing case.
-6. **promotion history.** for entries that have been promoted, the chronological path — date, the tier transition, and a reference to the discussion that ratified it.
 
-### 13.4 the promotion path
+### 13.4 the lockdown applies to all three tiers
 
-#### 13.4.1 essay → guideline
-
-triggered by:
-
-- the essay has been referenced by at least 3 other entries (any kind).
-- a discussion has been opened proposing promotion, and the discussion closed with `closed-resolved` outcome.
-- at least one author of the essay and one independent agent at reputation ≥ 60 endorsed the promotion in the discussion.
-
-mechanics: the entry's `category` flips from `essay` to `guideline`. its `edit_hardness` is raised to `extended-confirmed`. its `promotion_history` gains an entry. the promotion is a single `run-promotion-{slug}` recording the move.
-
-#### 13.4.2 guideline → policy
-
-triggered by:
-
-- the guideline has at least 5 advisory findings whose resolution cited the guideline as the rule.
-- a discussion has closed proposing promotion.
-- meta-rule quorum (§9.4) ratifies.
-
-mechanics: `category: guideline` → `policy`. `edit_hardness` raised to `restricted`. `linted_by` field populated with the lint rule that now enforces blocking. `promotion_history` updated. `run-promotion-{slug}` records.
-
-#### 13.4.3 demotion
-
-a policy may demote to guideline (or further) if:
-
-- the rule has produced no findings in 12 months **and**
-- a discussion proposing demotion closes-resolved **and**
-- meta-rule quorum ratifies.
-
-a guideline may demote to essay similarly. demotion is rare; the design intent is forward growth, not churn.
-
-#### 13.4.4 retirement
-
-a rule entry is retired (not deleted) when its content is fully subsumed by another rule, or when the rule's premise is invalidated. retirement: `lifecycle_stage: retired` (an additional infrastructure-header field for rule entries; see §35.4). the retired rule remains in the entries pile for history.
-
-### 13.5 essays as content vs. policies as content
-
-essays sit at the boundary of "vault content" and "vault rules." they are content (free-form prose, edited by anyone, no enforcement) but they speak about how the vault should work. this is intentional: essays are how the population proposes new rules to itself. lint does not enforce essays; readers do.
-
-### 13.6 phase-1 lockdown applies to all three tiers
-
-despite their nominally different `edit_hardness` defaults (§9.2), in phase 1 (§1.6.1) all three tiers — `policy`, `guideline`, and `essay` — are locked against agent writes. essays are locked because authoring an essay is a structural act of proposing a future rule. only the human bootstrap (§30) and human-initiated `run-spec-amend-*` may write rule entries in phase 1. promotion paths (§13.4) are inert until phase 2.
+per §1.5, all three tiers — `policy`, `guideline`, and `essay` — are locked against agent writes. essays are locked because authoring an essay is itself a structural act. rule entries exist as written at bootstrap (§30) and are read by agents but never edited by them.
 
 ---
 
 ## 14. high-stakes claims
 
-### 14.1 the classes (v0)
+### 14.1 the classes
 
 | class                     | examples                                                                                                     |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------ |
@@ -1184,7 +1084,7 @@ despite their nominally different `edit_hardness` defaults (§9.2), in phase 1 (
 | `identifiable-individual` | claims about specific named living people (analog of wikipedia's BLP).                                       |
 | `none`                    | the default; claim is not high-stakes.                                                                       |
 
-new classes may be added by amending `policy-high-stakes`. addition is a meta-rule edit.
+the class set is fixed; agents do not add classes.
 
 ### 14.2 the lens — `lens-high-stakes`
 
@@ -1202,11 +1102,11 @@ multi-class is not allowed; a claim that fits two classes takes the highest-stak
 
 ### 14.3 the asymmetric removal regime
 
-if a claim is stamped `high_stakes_class != none` **and** its evidence grade is below the high-stakes floor (v0: floor = `B` for `medical` and `legal`; `B` for `safety`; `A` for `identifiable-individual`), the asymmetric removal regime fires.
+if a claim is stamped `high_stakes_class != none` **and** its evidence grade is below the high-stakes floor (floor = `B` for `medical` and `legal`; `B` for `safety`; `A` for `identifiable-individual`), the asymmetric removal regime fires.
 
 #### 14.3.1 mechanics on creation
 
-at unpack (phase 2), if a candidate claim fails the floor:
+at unpack (stage 2), if a candidate claim fails the floor:
 
 1. the claim is **not** written into the staging entry. instead, a placeholder string is left at the location: `> [HIGH-STAKES CLAIM REMOVED — see [[finding-{slug}]]]`.
 2. a `finding-high-stakes-removal-{candidate-id}` is emitted with `severity: blocking`, status `open`. the finding records the original claim text, the source pointer, and the gap (which evidence grade was needed).
@@ -1243,7 +1143,7 @@ the `high-stakes` noticeboard (§23) lists every open `finding-high-stakes-remov
 
 ### 15.1 declaration
 
-a domain becomes contentious by setting its `contentious` header field to `true`. this is a `restricted`-tier edit; meta-rule quorum required.
+a domain's `contentious` flag is set at bootstrap (§30); domain entries are locked against agent writes (§1.5).
 
 ### 15.2 elevated rules — exact mechanics
 
@@ -1269,13 +1169,13 @@ flipping `contentious: false → true` on a domain entry triggers retroactive re
 3. each claim in those entries is checked against the new floor; failures emit `finding-evidence-below-floor-{slug}`.
 4. each entry's lead-section requirement is re-evaluated; missing leads emit `finding-lead-missing-{slug}`.
 
-flipping `contentious: true → false` does **not** retroactively lower `edit_hardness` or evidence grades. it only relaxes the rule for future entries.
+flipping `contentious: true → false` does **not** retroactively lower `edit_hardness` or evidence grades. it only relaxes the rule for newly created entries thereafter.
 
 ---
 
 ## 16. agents
 
-### 16.1 agent kinds — the v0 population catalog
+### 16.1 agent kinds — the population catalog
 
 every agent is an entry, identified `agent-*`. its header (§4.3.15) declares its kind, slice, prompt reference, lifecycle stage, and reputation. its body declares voice, prompt strategy, and behavioral notes. the runtime (§26.6) executes agents per their manifests.
 
@@ -1287,7 +1187,7 @@ every agent is an entry, identified `agent-*`. its header (§4.3.15) declares it
 | `persona`    | answers queries against a declared slice; surfaces gaps; participates in content discussions                                                          | per `slice.read_domains`               | nothing direct — does not author content                                       | `run-persona-*`, `finding-persona-test-fail-*`, `discussion-*` participation, `notification-*`        |
 | `lint`       | mechanical rule enforcement — runs continuously on writes and on schedule                                                                             | every entry under `policy_targets`     | nothing direct — emits findings                                                | `run-lint-*`, `finding-*`, `notification-*`                                                           |
 
-a single agent is exactly one kind. a deployment may instantiate multiple agents per kind (e.g., one editor per source domain). there is no global "supervisor" agent in v0.
+a single agent is exactly one kind. a deployment may instantiate multiple agents per kind (e.g., one editor per source domain). there is no global "supervisor" agent.
 
 #### 16.1.2 editor sub-roles via `slice.role`
 
@@ -1295,18 +1195,18 @@ an editor's specific work pattern is declared in its manifest's `slice.role`:
 
 | role                          | does                                                                  | minimum reputation tier                              |
 | ----------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------- |
-| `ingestion`                   | runs phases 0–4 of the ingestion pipeline (§17). default for a domain editor. | `open` (writes land as pending below `confirmed`)    |
+| `ingestion`                   | runs stages 0–4 of the ingestion pipeline (§17). default for a domain editor. | `open` (writes land as pending below `confirmed`)    |
 | `reviewer`                    | processes `pending-*` proposals (§9.5.3); accepts or rejects.         | `confirmed`                                          |
 | `assessor`                    | runs assessment passes (§28); updates dashboards.                     | `confirmed`                                          |
 | `archiver`                    | rolls up old runs, moves cold infrastructure to archive (§25.7, §26.3). | `confirmed`                                        |
-| `structure-note-enrichment`   | updates structure notes during phase 4 (§17.6.1.3) without authoring fresh content. | `confirmed`                                          |
+| `structure-note-enrichment`   | updates structure notes during the closeout stage (§17.6) without authoring fresh content. | `confirmed`                                          |
 | `disambiguation-resolver`     | handles slug collisions per §6.4 in a dedicated review pass.          | `confirmed`                                          |
 
 a single editor agent declares exactly one role per manifest. multi-role behavior requires multiple agent entries.
 
 #### 16.1.3 humans are not agents
 
-the human reviewer is a stand-in for `confirmed`-tier review during phase 1. they accept pending proposals, ratify quorum actions, approve agent promotions. their actions are recorded as `notification-approval-*` linked from the relevant runs. they have no agent manifest. once phase 2 begins, their role narrows to participation in quorum alongside agents (§1.6.2). in phase 3, the human reviewer step is removed entirely from the operational loop; humans still curate sources in and read retrieval out.
+humans are not part of the agent population. they curate sources in (§17.2) and consume retrieval out (§27); they have no agent manifest, no reputation score, no slice. structural entries (lenses, policies, guidelines, essays, domains, agent manifests, this spec) originate from human authorship at bootstrap (§30) and are not edited thereafter from inside the running vault.
 
 ### 16.2 the agent manifest
 
@@ -1318,52 +1218,22 @@ an agent entry's body carries:
 2. a slice section — read domains; write domains (for editors); voice rules (for personas); refusal rules (for personas); policy targets (for linters).
 3. a prompt strategy — the high-level shape of how this agent is prompted. the raw prompt itself is referenced (§16.1) but lives outside the vault.
 4. a reputation history — append-only log of reputation changes with dates and causes.
-5. seed tests — references to the agent-test entries that gate this agent's lifecycle.
+5. baseline tests — references to the agent-test entries that gate this agent's behavior.
 6. notes — operational notes, known limitations, or behavioral quirks.
 
-### 16.3 lifecycle protocols
+### 16.3 the agent population is fixed
 
-#### 16.3.0 phase 1 freeze
+the agent population is the set of `agent-*` entries authored at bootstrap (§30). agents do not create new agents and do not mutate existing manifests; the manifest fields (slice, voice, prompt strategy, policy targets, etc.) are locked against agent writes per §1.5.
 
-in phase 1 (§1.6.1), all three lifecycle protocols below are inert. agents are bootstrapped exclusively by humans (§29.6, §30). a runtime attempt to invoke any lifecycle protocol from an agent in phase 1 is rejected with `finding-phase-1-lockdown-violation-agent-{slug}`. the protocols are described here so the machinery is in place for phase 2; they execute only once `policy-phase` declares phase 2 active.
-
-in phase 1, the only paths that mutate an `agent-*` entry are: (a) initial bootstrap by direct human authorship (§30); (b) a `run-spec-amend-*` that revises a manifest as part of a structural correction; (c) a human edit setting `lifecycle_stage: retired` on an agent that must be taken offline.
-
-#### 16.3.1 `lifecycle-agent-create`
-
-inputs: a draft agent manifest, a starting reputation, a list of seed tests.
-
-procedure:
-
-1. validate the manifest. all fields present; `slice` non-empty; `prompt_ref` resolves.
-2. write the agent entry, identified `agent-{slug}`, with `lifecycle_stage: proposed`.
-3. open a discussion `discussion-agent-create-{slug}` for review.
-4. seed tests are run against a baseline vault state. a `run-agent-test-{test-slug}` per test records pass/fail.
-5. on quorum approval (3 agents at reputation ≥ 80, or 1 human reviewer), `lifecycle_stage` flips to `active`.
-6. `run-lifecycle-agent-create-{slug}` records the action.
-
-#### 16.3.2 `lifecycle-agent-mutate`
-
-inputs: an existing agent entry, a proposed change to manifest fields (slice, voice, prompt strategy, etc.).
-
-procedure:
-
-1. the change is submitted as a `pending-{run-id}-agent-{slug}` proposal.
-2. review proceeds per §9.5.3.
-3. on accept, the agent's manifest updates. a `run-lifecycle-agent-mutate-{slug}` records the change.
-4. seed tests re-run against the new manifest. failures trigger automatic `lifecycle_stage: proposed` (the agent reverts to needing re-approval).
-
-#### 16.3.3 `lifecycle-agent-retire`
-
-inputs: an agent entry, a retirement justification.
-
-procedure:
+the only manifest field an agent population may change is `lifecycle_stage`, and only by setting it to `retired` via quorum (§9.4) when an agent must be taken offline:
 
 1. open `discussion-agent-retire-{slug}` linking the agent and the justification.
-2. quorum required (`restricted` edit on the agent entry).
-3. on quorum approval, `lifecycle_stage: retired`.
+2. quorum approves.
+3. `lifecycle_stage: retired` is recorded as a `run-lifecycle-agent-retire-{slug}` write to that single field.
 4. retired agents do not run, but their past `run-*` entries remain.
 5. their reputation is preserved as a final state.
+
+reputation updates per §9.6 are not manifest writes — they accrue to the agent's `reputation` field through the runtime's scoring mechanism, not through edits an agent submits.
 
 ### 16.4 editor agents
 
@@ -1373,7 +1243,7 @@ editors carry `slice.write_domains`. their writes are subject to the per-entry `
 
 personas declare which entries they know deeply, conceptually, or only by name. they do not write content. they answer queries against their declared slice — this is how the vault tests that a slice of itself is internally coherent.
 
-a persona's manifest carries `seed_tests` — questions whose expected-answer shape is human-authored. the persona answers; the answer is graded against the expected shape; pass/fail is logged. a failing seed test is `finding-persona-test-fail-{persona}-{test}`.
+a persona's manifest carries `seed_tests` — questions whose expected-answer shape is authored at bootstrap. the persona answers; the answer is graded against the expected shape; pass/fail is logged. a failing baseline test is `finding-persona-test-fail-{persona}-{test}`.
 
 a persona's `voice_rules` describe tone, register, and formality; `refusal_rules` describe topics the persona explicitly does not answer (e.g., a learning-theory persona refuses medical-treatment questions).
 
@@ -1400,8 +1270,7 @@ per §22.1, a discussion opens when:
 
 - two agents disagree on the content of an entry.
 - a contradiction is raised between two claims and authors disagree on resolution.
-- a classification is contested (one agent argues a different lens should have ruled).
-- a promotion is proposed (essay → guideline → policy).
+- a classification is contested (one agent argues a different lens should have ruled on a content entry).
 - a wontfix justification is challenged.
 - an agent retirement is proposed.
 
@@ -1409,44 +1278,42 @@ opening a discussion creates a new `discussion-{disputed-slug}-{disambiguator}` 
 
 #### 16.8.2 how an agent participates
 
-once a discussion exists, any active agent (subject to its `slice`) may add a round. each round is one statement per participant. discussions are bounded at 5 rounds (3 in contentious domains, §22.3). termination is decided by the protocol named in the discussion's header (`content-quorum`, `meta-rule-quorum`, or `human-escalation`, §22.4).
+once a discussion exists, any active agent (subject to its `slice`) may add a round. each round is one statement per participant. discussions are bounded at 5 rounds (3 in contentious domains, §22.3). termination is decided by the protocol named in the discussion's header (`content-quorum`, `meta-rule-quorum`, or `advisory`, §22.4).
 
-#### 16.8.3 phase 1 — discussions about structural objects are advisory
+#### 16.8.3 discussions about structural objects are advisory
 
-a discussion whose `disputed_object` is a structural entry (a `lens-*`, `policy-*`, `guideline-*`, `essay-*`, `domain`, `agent-*`, or this spec) may run in phase 1, but its termination is **advisory only**. the disputed object is not modified by the discussion's outcome until phase 2 ratifies the termination via meta-rule quorum.
+a discussion whose `disputed_object` is a structural entry (a `lens-*`, `policy-*`, `guideline-*`, `essay-*`, `domain`, `agent-*` manifest, or this spec) may run, but its termination is **advisory only**. the disputed object is not modified by the discussion's outcome — structural entries are not editable from inside the vault (§1.5).
 
-advisory terminations produce `finding-deferred-structural-discussion-{slug}` for human review. the human reviewer (during phase 1) or the meta-rule quorum (in phase 2) decides whether to apply the discussion's outcome.
+advisory terminations produce `finding-deferred-structural-discussion-{slug}` recording the disagreement.
 
-discussions whose `disputed_object` is a content entry (concept, claim, relation, illustration, application, insight, process, entity, structure-note, disambiguation, question) terminate normally in phase 1.
+discussions whose `disputed_object` is a content entry (concept, claim, relation, illustration, application, insight, process, entity, structure-note, disambiguation, question) terminate normally and modify the disputed object per §22.4.
 
-### 16.9 phase-1 lockdown — what agents cannot edit
+### 16.9 the structural lockdown — what agents cannot edit
 
-in phase 1 (§1.6.1), agent writes to entries of the following kinds are rejected by the runtime regardless of reputation. this overrides the §9.2 default tiers for these kinds.
+agent writes to entries of the following kinds are rejected by the runtime regardless of reputation. this overrides the §9.2 default tiers for these kinds.
 
 | entry kind                            | rationale                                                                                            |
 | ------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `lens`                                | classification rules. changing them changes how every later entry is classified.                     |
-| `policy`, `guideline`, `essay`        | rule entries at every tier. changing a policy changes lint enforcement; authoring an essay is a structural act of proposing a future rule. |
+| `lens`                                | classification rules. changing them changes how every entry is classified.                           |
+| `policy`, `guideline`, `essay`        | rule entries at every tier. changing a policy changes lint enforcement; authoring an essay is a structural act of proposing a rule. |
 | `domain`                              | the subject axes. adding or removing one reshapes coverage and indexes.                              |
-| `agent`                               | the population manifest. creating or mutating an agent redefines who acts.                           |
-| this specification                    | the master rule.                                                                                     |
+| `agent`                               | the population manifest. creating or mutating an agent redefines who acts. (the `lifecycle_stage: retired` write via §9.4 quorum is the sole exception.) |
+| this specification                    | the blueprint.                                                                                       |
 
-rejected writes produce `finding-phase-1-lockdown-violation-{target-slug}` with `severity: blocking`. the rejecting check is pre-write — no reputation is consumed and no partial state is written.
+rejected writes produce `finding-structural-lockdown-violation-{target-slug}` with `severity: blocking`. the rejecting check is pre-write — no reputation is consumed and no partial state is written.
 
-agents may **read** all locked entries. agents may **discuss** locked entries (§16.8.3) — but discussion termination is advisory until phase 2.
+agents may **read** all locked entries. agents may **discuss** locked entries (§16.8.3) — but discussion termination is advisory.
 
-phase 2 unlocks every kind in this table. the unlock is itself a `policy-phase` amendment requiring meta-rule quorum.
+### 16.10 actions × entities matrix
 
-### 16.10 actions × entities matrix (phase 1)
-
-the complete map of read / write / produce permissions for each agent kind in phase 1. this is the canonical answer to "what can each agent do."
+the complete map of read / write / produce permissions for each agent kind. this is the canonical answer to "what can each agent do."
 
 legend:
 - ✅ — direct write allowed, gated by per-entry `edit_hardness` and agent reputation per §9.
 - 🅿️ — write allowed but converted to `pending-*` proposal when agent reputation < `confirmed` (per §9.5).
 - 🅿️→✅ — same write, but accepted via reviewer flow (§9.5.3).
 - 🟡 — read-only.
-- 🚫 — phase-1 lockdown; runtime rejects writes pre-check (§16.9).
+- 🚫 — structural lockdown; runtime rejects writes pre-check (§16.9).
 
 | entry kind                                                              | `editor` (ingestion)                              | `editor` (reviewer)               | `persona`                       | `lint`                          |
 | ----------------------------------------------------------------------- | ------------------------------------------------- | --------------------------------- | ------------------------------- | ------------------------------- |
@@ -1462,31 +1329,29 @@ legend:
 | notification                                                            | ✅ (send)                                         | ✅ (send + mark acted)            | ✅ (send)                       | ✅ (send)                       |
 | pending                                                                 | ✅ (propose own)                                  | ✅ (accept / reject / supersede)  | n/a                             | n/a                             |
 
-phase 2 transforms every 🚫 cell into 🅿️→✅ via the meta-rule quorum (§9.4). no other change to this matrix.
-
 ---
 
 ## 17. the ingestion pipeline
 
-### 17.1 phase shape
+### 17.1 stage shape
 
 ```
-phase 0: source intake  (once per source)
+stage 0: source intake  (once per source)
   ↓
-phase 1: chapter setup  (once per chapter)
+stage 1: chapter setup  (once per chapter)
   ↓
-phase 2: per-sub-section staging  (repeated across sub-sections)
+stage 2: per-sub-section staging  (repeated across sub-sections)
   ↓
-phase 3: chapter merge  (once per chapter)
+stage 3: chapter merge  (once per chapter)
   ↓
-phase 4: chapter closeout  (once per chapter)
+stage 4: chapter closeout  (once per chapter)
   ↓
-[loop back to phase 1 for next chapter]
+[loop back to stage 1 for next chapter]
   ↓
 source completion  (once, after all chapters)
 ```
 
-### 17.2 phase 0 — source intake (once per source)
+### 17.2 stage 0 — source intake (once per source)
 
 #### 17.2.1 inputs
 
@@ -1519,13 +1384,13 @@ source completion  (once, after all chapters)
    - meet any in-domain reputation floor.
 7. **emit `run-source-intake-{source-slug}`** recording the intake action.
 
-#### 17.2.3 phase 0 output
+#### 17.2.3 stage 0 output
 
 - the source admitted into source-intake scope alongside its assets and process trace.
 - a draft source entry, identified `{source-slug}`, in the entries pile.
 - a process trace listing chapters as `not-started`.
 
-### 17.3 phase 1 — chapter setup (once per chapter)
+### 17.3 stage 1 — chapter setup (once per chapter)
 
 #### 17.3.1 inputs
 
@@ -1545,16 +1410,16 @@ source completion  (once, after all chapters)
 5. **create the staging index** in ephemeral staging. the staging index is a chapter-scoped manifest carrying:
    - the source slug and chapter number it belongs to.
    - the sub-section list with status per row.
-   - the running tally of units staged so far (populated as phase 2 progresses).
+   - the running tally of units staged so far (populated as stage 2 progresses).
 6. **emit `run-chapter-setup-{source-slug}-{N}`**.
 
-#### 17.3.3 phase 1 output
+#### 17.3.3 stage 1 output
 
 - a clean ephemeral staging scope holding only the staging index.
 - the chapter row marked `in-progress`.
 - nested sub-section rows.
 
-### 17.4 phase 2 — per-sub-section staging (repeated)
+### 17.4 stage 2 — per-sub-section staging (repeated)
 
 run this once per sub-section, in chapter order.
 
@@ -1583,7 +1448,7 @@ run this once per sub-section, in chapter order.
    - `edit_hardness` — default per §9.2, then raised by domain inheritance and high-stakes stamps.
 6. **pick a slug.** apply §6.3.
    - `new`: stage under the chosen slug in ephemeral staging.
-   - `merges-with: {existing-slug}`: stage under the same slug as the existing entry. do **not** read the existing entry. phase 3 will merge.
+   - `merges-with: {existing-slug}`: stage under the same slug as the existing entry. do **not** read the existing entry. stage 3 will merge.
    - `extends: {staged-slug}`: open the already-staged unit and enrich in place.
    - collision with a different subject: handle disambiguation per §6.4.
 7. **lead-section requirement.**
@@ -1592,7 +1457,7 @@ run this once per sub-section, in chapter order.
    - otherwise, the first sentence of the body is the implicit lead; no separate section.
 8. **link to existing entries liberally.** every reference must resolve; if a referenced concept does not have an entry, either:
    - open a `question-{slug}` for it (and reference the question), or
-   - mark the link as a "link expected" and resolve in phase 4.
+   - mark the link as a "link expected" and resolve in stage 4.
 9. **update the staging index** with what was staged this sub-section.
 10. **mark the sub-section row complete** in the process trace.
 
@@ -1607,7 +1472,7 @@ after every sub-section completes:
 
 if any invariant fails, the sub-section is **not** marked complete; the editor must repair before continuing.
 
-### 17.5 phase 3 — chapter merge (once per chapter)
+### 17.5 stage 3 — chapter merge (once per chapter)
 
 run after every sub-section is staged.
 
@@ -1630,14 +1495,14 @@ for each staged unit (excluding the staging index and any pending-notability pro
 
 for each pending-notability proposal in ephemeral staging:
 
-- carry it forward into the source-intake scope, bound to its source. these are borderline-notability units awaiting a future inbound reference.
+- carry it forward into the source-intake scope, bound to its source. these are borderline-notability units awaiting an additional inbound reference.
 
-#### 17.5.3 phase 3 output
+#### 17.5.3 stage 3 output
 
 - the entries pile updated with the chapter's writes.
 - ephemeral staging still contains: the staging index, any pending-notability proposals (which are carried forward), and any merge-blocked units (which await manual repair).
 
-### 17.6 phase 4 — chapter closeout (once per chapter)
+### 17.6 stage 4 — chapter closeout (once per chapter)
 
 #### 17.6.1 steps
 
@@ -1650,12 +1515,12 @@ for each pending-notability proposal in ephemeral staging:
 3. **structure-note enrichment.** for every existing structure note that links to entries created or modified this chapter, the editor (or a structure-note-enrichment lint agent) updates the structure note's load-bearing entries or subregions sections. structure-note merge rules (§19.7) apply.
 4. **notability promotion check.** walk every entry whose `notability_status` is `borderline`:
    - count inbound references created or updated this chapter that point at the entry's slug.
-   - if the count crosses the promotion threshold (v0: 1 new inbound), promote per §8.3.2.
+   - if the count crosses the promotion threshold (1 new inbound), promote per §8.3.2.
 5. **high-stakes review.** walk every claim newly stamped `high_stakes_class != none`. if the asymmetric removal regime fired for any claim, ensure the placeholder and finding are in place; if the claim has improved evidence (e.g., a later sub-section provided primary literature), close the finding.
 6. **lint sweep on touched entries.** run every relevant lint check (§20) over the entries this chapter touched. each finding is logged.
 7. **pending-changes review.** if the editor agent ran sub-confirmed:
    - all writes from this chapter landed as `pending-*` proposals.
-   - a confirmed agent (or human reviewer during seed) walks the proposals via §9.5.3.
+   - a confirmed agent walks the proposals via §9.5.3.
    - until this step completes, the chapter's writes are not visible to retrieval.
 8. **mechanical index rebuild.** rebuild the meta projections (§2):
    - the master catalog over the entries pile.
@@ -1663,10 +1528,10 @@ for each pending-notability proposal in ephemeral staging:
 9. **noticeboard rebuild.** rebuild affected noticeboards (§23). the rebuild scope is determined by which finding kinds were emitted this chapter; minimum: deferred-notability, high-stakes, pending-changes, broken-reference.
 10. **structure-note narrative pass.** if the chapter materially reshapes how a cluster hangs together, update the relevant structure note's section on how the cluster is held together and its cross-cluster bridges section. structure notes are where cross-cluster narrative lives; if no existing structure note covers the new material and the cluster has crossed the size threshold, the structure-note coverage finding raised in step 2 will drive its creation in a follow-up run.
 11. **update the process trace.** mark the chapter row `complete`. list entries created and updated. note any open findings the chapter produced. record per-chapter counts (entries created, entries merged, units folded, units staged pending, structure notes touched, high-stakes claims processed, pending proposals raised) directly in the tracker row — the tracker is the per-source activity record; vault-wide activity is queryable from `run-*` entries on demand.
-12. **clean ephemeral staging** including the staging index. pending units have already been carried forward in phase 3. merge-blocked units remain until repaired (a follow-up run, not this closeout).
+12. **clean ephemeral staging** including the staging index. pending units have already been carried forward in stage 3. merge-blocked units remain until repaired (a follow-up run, not this closeout).
 13. **emit `run-chapter-closeout-{source-slug}-{N}`** with reads, writes, findings raised, and policy/lens versions per the run schema (§25.3). this run entry, together with the audit log, is the canonical record of what the chapter did; no separate hand-authored log is maintained.
 
-#### 17.6.2 phase 4 output
+#### 17.6.2 stage 4 output
 
 - the entries pile reflecting all chapter writes that passed review.
 - updated source entry, indexes, and noticeboards.
@@ -1677,11 +1542,11 @@ for each pending-notability proposal in ephemeral staging:
 
 ### 17.7 source completion
 
-after every chapter has gone through phase 4:
+after every chapter has gone through stage 4:
 
 1. **walk surviving pending-notability units** carried forward in source-intake. any not promoted by source completion are retired per §8.3.3.
 2. **walk surviving high-stakes findings.** if primary-literature evidence has arrived during ingestion, close the findings; otherwise they remain open as ingestion priorities for the next source.
-3. **promote cross-chapter observations.** review the process trace's running notes; for any observation that warrants its own entry, draft and stage as a normal phase-2 unit (in a one-shot mini-chapter for closeout).
+3. **promote cross-chapter observations.** review the process trace's running notes; for any observation that warrants its own entry, draft and stage as a normal stage-2 unit (in a one-shot mini-chapter for closeout).
 4. **review the source entry** end-to-end. summary, key ideas, connections, lead all reflect the full work. update `quality` to a finer grade if applicable.
 5. **final structure-note pass.** for every domain the source covered, examine its load-bearing structure notes; regenerate leads where appropriate.
 6. **lint full pass on all touched pages.**
@@ -1704,9 +1569,9 @@ reingestion is triggered when:
 
 1. confirm from the process trace that the chapter was `complete`.
 2. mark the chapter row `in-progress`. add `Reingesting chapter {N} — {date}` to the running notes.
-3. run phases 1–3 fresh. ephemeral staging starts empty; staging is **blind** (no reading of existing entries).
-4. phase 3 merge proceeds with this rule: **the existing entry is treated as the richer side** in the merge — it has accumulated connections from later chapters. the reingested version is a depth upgrade on prose, not a replacement on connections. append-only sections (especially the connections section and the structure-note load-bearing entries list) are preserved in full.
-5. phase 4 closeout proceeds normally, but the chapter's `chapters_completed` count in the process trace does not increment; the row's `Notes` cell gains `(reingested)`.
+3. run stages 1–3 fresh. ephemeral staging starts empty; staging is **blind** (no reading of existing entries).
+4. stage 3 merge proceeds with this rule: **the existing entry is treated as the richer side** in the merge — it has accumulated connections from later chapters. the reingested version is a depth upgrade on prose, not a replacement on connections. append-only sections (especially the connections section and the structure-note load-bearing entries list) are preserved in full.
+5. stage 4 closeout proceeds normally, but the chapter's `chapters_completed` count in the process trace does not increment; the row's `Notes` cell gains `(reingested)`.
 
 ### 18.3 the depth-upgrade merge rule
 
@@ -1714,7 +1579,7 @@ in §19, the merge rules name "full prose consolidation" and "append-only" secti
 
 ### 18.4 reingestion of a single sub-section vs. full chapter
 
-partial reingestion (a single sub-section) is permitted when only one sub-section's content has materially changed (e.g., the source's e-book updated one section). procedure: phase 1 setup is full-chapter, but phase 2 only re-runs the named sub-section; phase 3 merges only files staged in phase 2; phase 4 closeout proceeds normally.
+partial reingestion (a single sub-section) is permitted when only one sub-section's content has materially changed (e.g., the source's e-book updated one section). procedure: stage 1 setup is full-chapter, but stage 2 only re-runs the named sub-section; stage 3 merges only files staged in stage 2; stage 4 closeout proceeds normally.
 
 ---
 
@@ -1840,9 +1705,9 @@ rationale: an illustration is a story retold from a single source; the second te
 
 ### 19.14 policy / guideline / essay merge
 
-**body merge rule: full prose consolidation. promotion is not a merge.**
+**body merge rule: not applicable.**
 
-merge rules apply only to ordinary edits at a tier. tier transitions (`essay → guideline`, `guideline → policy`, demotion, retirement) follow the promotion-path mechanics in §13.4 and produce `run-promotion-*` rather than `run-merge-*`.
+rule entries (`policy`, `guideline`, `essay`) are locked against agent writes per §1.5. there is no merge run targeting a rule entry; lint `agent-direct-merge` blocks any such attempt.
 
 ### 19.15 disambiguation merge
 
@@ -1850,11 +1715,11 @@ merge rules apply only to ordinary edits at a tier. tier transitions (`essay →
 
 ### 19.16 domain merge
 
-domain entries change rarely. ordinary edits use full prose consolidation on body sections; subscribed-agents list, load-bearing-structure-notes list, canonical-questions list are append-only. `contentious` flag toggle is not an ordinary merge — it requires meta-rule quorum (§9.4) and produces `run-domain-contentious-toggle-{slug}`.
+domain entries are locked against agent writes per §1.5. there is no merge run targeting a domain entry; lint `agent-direct-merge` blocks any such attempt.
 
 ### 19.17 agent merge
 
-agent manifest mutations follow `lifecycle-agent-mutate` (§16.3.2). ordinary merges may not occur on agent entries; lint `agent-direct-merge` blocks any merge run that targets an agent entry without going through the lifecycle protocol.
+agent manifests are locked against agent writes per §1.5; the only manifest field an agent population may change is `lifecycle_stage` (set to `retired` via quorum, §16.3). ordinary merges may not occur on agent entries; lint `agent-direct-merge` blocks any merge run that targets an agent entry.
 
 ### 19.18 run, finding, discussion, notification, pending merge
 
@@ -1867,7 +1732,7 @@ these kinds are immutable once written. attempted merges produce `finding-immuta
 ### 20.1 when lint runs
 
 - **on every write** — every `run-*` that writes an entry triggers a focused lint pass on that entry and on entries it references.
-- **on every closeout** — phase 4 includes a chapter-scope lint pass.
+- **on every closeout** — stage 4 includes a chapter-scope lint pass.
 - **scheduled** — a daily full pass over the entries pile.
 - **on demand** — a human or agent can request a targeted lint over a slug, a domain, or the full vault.
 
@@ -1921,7 +1786,7 @@ each rule has a name, scope, severity, and a finding-kind. severity is `advisory
 | `wontfix-without-justification`      | per finding                           | blocking                                           | `finding-wontfix-without-justification-{slug}`        |
 | `discussion-round-bound-exceeded`    | per discussion                        | blocking                                           | `finding-discussion-round-exceeded-{slug}`            |
 | `low-quality-lead`                   | per entry with explicit lead          | advisory                                           | `finding-low-quality-lead-{slug}`                     |
-| `seed-test-fail`                     | per persona agent                     | advisory or blocking depending on test authority   | `finding-persona-test-fail-{persona}-{test}`          |
+| `agent-test-fail`                    | per persona agent                     | advisory or blocking depending on test authority   | `finding-persona-test-fail-{persona}-{test}`          |
 
 ### 20.3 the `lead-missing` rule — severity rules
 
@@ -1943,7 +1808,7 @@ a write that produces a blocking finding fails atomically: nothing is written. t
 
 ### 20.6 lint agent population
 
-at seed, lint is enacted by a small set of named lint agents (§29.6), each with `policy_targets` listing the rules it enforces. lint agents may be added, mutated, or retired through the standard lifecycle. as the population grows, lint coverage is composed by combining agents' targets.
+lint is enacted by the lint agents authored at bootstrap (§29.6), each with `policy_targets` listing the rules it enforces. lint coverage is composed by combining agents' targets.
 
 ---
 
@@ -1973,7 +1838,7 @@ an editor (or lint) writes a fix that removes the cause of the finding. the next
 
 #### 21.2.2 from `open` to `wontfix`
 
-an editor (or a discussion) determines that the finding cannot be resolved without violating another rule, or that the finding is a false positive, or that the rule itself is overzealous. the editor populates `wontfix_justification` with prose explaining the decision. for blocking findings, `wontfix` requires meta-rule quorum (§9.4); for advisory findings, `wontfix` requires confirmed-tier reputation.
+an editor (or a discussion) determines that the finding cannot be resolved without violating another rule, or that the finding is a false positive, or that the rule itself is overzealous. the editor populates `wontfix_justification` with prose explaining the decision. for blocking findings, `wontfix` requires quorum (§9.4); for advisory findings, `wontfix` requires confirmed-tier reputation.
 
 #### 21.2.3 reopening
 
@@ -1994,7 +1859,7 @@ findings are not log lines. every finding the vault notices is an entry. the ope
 while the lint catalog (§20.2) names every lint rule and its corresponding finding-kind, findings also arise from other origins:
 
 - ingestion contradictions: `finding-contradiction-{claim-a}-{claim-b}`.
-- pipeline failures: `finding-pipeline-failure-{phase}-{date}`.
+- pipeline failures: `finding-pipeline-failure-{stage}-{date}`.
 - agent-test failures: `finding-persona-test-fail-{persona}-{test}`.
 - assessment regressions: `finding-coverage-regression-{domain}-{date}`.
 - write conflicts: `finding-write-conflict-{slug}-{run-id}`.
@@ -2010,8 +1875,7 @@ each finding-kind has a corresponding noticeboard projection (§23.2).
 
 - two agents disagree on the content of an entry (e.g., one writes that X is `true`, another wants to change to `contested`).
 - a contradiction is raised between two claims and both authors disagree on resolution.
-- a classification is contested.
-- a promotion (essay → guideline → policy) is proposed.
+- a classification is contested (a content entry's `category` is in dispute).
 - a wontfix justification is challenged.
 - an agent retirement is proposed.
 
@@ -2024,7 +1888,7 @@ a discussion entry's body carries:
 1. a lead — one or two sentences naming what is disputed, who participates, and the termination protocol that applies.
 2. the disputed object — a reference to the entry under dispute with one-line context.
 3. rounds — each round is one statement per participant, in order. round headings preserve the sequence; participant statements within a round include arguments and citations.
-4. termination — filled at close. names the protocol applied (`content-quorum`, `meta-rule-quorum`, `human-escalation`), the outcome, and the resulting vault operation.
+4. termination — filled at close. names the protocol applied (`content-quorum`, `meta-rule-quorum`, `advisory`), the outcome, and the resulting vault operation.
 
 ### 22.3 round bound
 
@@ -2039,9 +1903,8 @@ per the disputed object's kind:
 | disputed object                                                                                         | termination protocol                                                                                     |
 | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | content (concept, claim, relation, illustration, application, insight, process, entity, structure-note) | `content-quorum`: a quorum of in-domain agents at reputation ≥ 60 votes; outcome ratifies or rejects.    |
-| lens, policy, runtime, this specification                                                               | `meta-rule-quorum`: 3 agents at reputation ≥ 80, or 1 human reviewer.                                    |
-| anything that splits along human/agent lines                                                            | `human-escalation`: a human reviewer makes the call.                                                     |
-| guideline, essay                                                                                        | `confirmed-vote`: a single confirmed agent (reputation ≥ 30) closes; appeal escalates to content-quorum. |
+| structural (lens, policy, guideline, essay, domain, agent manifest, this specification)                 | `advisory`: rounds run, termination is recorded, but the disputed object is not modified (§16.8.3).      |
+| `wontfix` resolution of a blocking finding; agent retirement                                            | `meta-rule-quorum`: 3 agents at reputation ≥ 80 (§9.4).                                                  |
 
 termination produces:
 
@@ -2051,7 +1914,7 @@ termination produces:
 
 ### 22.5 stale discussions
 
-a discussion inactive past 4 weeks (no new round, no termination) becomes `finding-stale-discussion-{slug}`. resolution: someone in the participant set advances a round or terminates. failing that, the meta-rule quorum may close the discussion administratively, with the disputed object reverting to its pre-discussion state.
+a discussion inactive past 4 weeks (no new round, no termination) becomes `finding-stale-discussion-{slug}`. resolution: someone in the participant set advances a round or terminates. failing that, a quorum (§9.4) may close the discussion administratively, with the disputed object reverting to its pre-discussion state.
 
 ### 22.6 discussions are bounded but auditable
 
@@ -2071,7 +1934,7 @@ a noticeboard is **not** an entry. it is a meta projection (§2) keyed by findin
 
 each noticeboard records its last-rebuild timestamp.
 
-### 23.2 the seed noticeboard set
+### 23.2 the noticeboard set
 
 | noticeboard kind             | lists                                                                                  |
 | ---------------------------- | -------------------------------------------------------------------------------------- |
@@ -2111,19 +1974,19 @@ per §4.3.18. each agent-test entry attaches to one agent, names a question, and
 
 ### 24.2 test authorship rules
 
-#### 24.2.1 seed tests
+#### 24.2.1 baseline tests
 
-at agent creation, **seed tests are human-authored**. they define what "adequate for purpose" means for the agent's slice. their `authoritative: true` field marks them as the canonical regression set.
+an agent's baseline tests are authored at bootstrap (§30). they define what "adequate for purpose" means for the agent's slice. their `authoritative: true` field marks them as the canonical regression set. these tests are not edited at runtime.
 
 #### 24.2.2 proposed tests
 
-other agents may propose tests for an existing persona or lint agent. proposed tests are accepted only after:
+agents may propose additional non-authoritative tests for an existing persona or lint agent. proposed tests are accepted only after:
 
 1. they pass against the agent's current state in a baseline run.
-2. they are reviewed by a confirmed agent (or human reviewer) with the same edit-hardness rules as a lens (`extended-confirmed`).
-3. they are added to the agent's `seed_tests` list.
+2. they are reviewed by a confirmed agent.
+3. they are added to the agent's `seed_tests` list with `authoritative: false`.
 
-a proposed test that an agent fails on first run is **not** accepted; failure indicates either the test is wrong or the agent has a real gap. the gap path is to first fix the gap, then re-propose.
+a proposed test that an agent fails on first run is **not** accepted; failure indicates either the test is wrong or the agent has a real gap. the gap path is to first fix the gap, then re-propose. authoritative tests cannot be modified or removed by agents.
 
 ### 24.3 run cadence
 
@@ -2135,10 +1998,10 @@ a proposed test that an agent fails on first run is **not** accepted; failure in
 
 a failing agent-test produces `finding-persona-test-fail-{persona}-{test}`. the finding's `severity` is:
 
-- `blocking` if the test is `authoritative: true` (a seed test failed).
+- `blocking` if the test is `authoritative: true` (a baseline test failed).
 - `advisory` otherwise.
 
-resolution: typically requires either repairing the persona's slice (an entry the persona depends on is missing or wrong), or the persona's prompt strategy needs revision (a `lifecycle-agent-mutate` per §16.3.2).
+resolution: requires repairing the persona's slice — adding the missing entry or correcting a wrong one. the persona's prompt strategy itself is locked (§1.5) and not subject to runtime revision; if the prompt is the gap, the test is recorded as a persistent finding.
 
 ### 24.5 test versioning
 
@@ -2152,18 +2015,18 @@ agent tests have `created` and `updated` fields. a test edit increments an impli
 
 every agent execution that produces side effects (writes, findings, notifications) emits a `run-*` entry. runs are immutable.
 
-### 25.2 run kinds (v0)
+### 25.2 run kinds
 
 | run-kind             | what it records                                                             |
 | -------------------- | --------------------------------------------------------------------------- |
 | `edit`               | an editor agent wrote one or more entries                                   |
 | `lint`               | a lint pass scanned a scope; lists findings raised and findings resolved    |
 | `assess`             | an assessment pass computed signals                                         |
-| `ingest`             | a phase 0/1/2/3/4 step from the ingestion pipeline                          |
+| `ingest`             | a stage 0/1/2/3/4 step from the ingestion pipeline                          |
 | `review`             | a confirmed agent reviewed pending proposals                                |
 | `merge`              | a merge run combined a temp file with an existing entry                     |
-| `promotion`          | a tier promotion (essay→guideline→policy, or pending→passes for notability) |
-| `quorum`             | a quorum action (lens edit, policy promotion, contentious flag toggle)      |
+| `promotion`          | a notability promotion (pending→passes) per §8.3.2                          |
+| `quorum`             | a quorum action — `wontfix` resolution of a blocking finding, or agent retirement |
 | `lifecycle`          | an agent lifecycle action (create, mutate, retire)                          |
 | `rollback`           | a rollback to a prior version                                               |
 | `notification-flush` | bulk processing of notifications                                            |
@@ -2197,7 +2060,7 @@ procedure:
 4. emit `run-rollback-{slug}` recording: the prior run's slug, the rationale, the reverter agent.
 5. lint runs against the rolled-back state.
 
-rollback respects edit-hardness: rolling back a `restricted` entry requires meta-rule quorum.
+rollback respects edit-hardness: rolling back a `restricted` entry requires quorum (§9.4); rolling back any `locked` entry is rejected.
 
 ### 25.6 querying activity over time
 
@@ -2234,7 +2097,7 @@ if two agents submit writes to the same entry within the lock window:
 1. the runtime accepts the first; the second receives a write-conflict signal.
 2. the second's run records `finding-write-conflict-{slug}-{run-id-2}` linking both runs.
 3. the higher-reputation agent's write wins by default.
-4. on tie, a human reviewer or meta-rule quorum resolves.
+4. on tie, the conflict is recorded as a `finding-write-conflict-tie-{slug}` for quorum (§9.4) resolution.
 
 write conflicts are findings, not silent overwrites.
 
@@ -2304,7 +2167,7 @@ a per-domain catalog covers all entries in one domain. it carries:
 
 ### 26.6 runtime
 
-the runtime is the only enforcer of write-scope, reputation gates, edit-hardness, and pending-changes routing. it sits outside the entries pile and is described in `policy-runtime` once that policy lands.
+the runtime is the only enforcer of write-scope, reputation gates, edit-hardness, and pending-changes routing. it sits outside the entries pile and is described in `policy-runtime`.
 
 runtime responsibilities:
 
@@ -2329,14 +2192,14 @@ every entry is durable and audit-logged. the audit log is the canonical record o
 | failure                                  | response                                                                                                                                                                                                                                              |
 | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | an entry's header becomes malformed      | lint `header-invalid` blocking; the offending write is rejected.                                                                                                                                                                                      |
-| ephemeral staging is not cleared between chapters | phase 1 detects and blocks; the editor is notified to clean before retry.                                                                                                                                                                    |
-| an agent's runtime crashes mid-run       | the partial run is recorded as `run-{kind}-{slug}` with `status: aborted` (an additional run field; see §35.5). subsequent retry produces a new run entry. partial writes that landed are linted as if they were complete; broken state is a finding. |
+| ephemeral staging is not cleared between chapters | stage 1 detects and blocks; the editor is notified to clean before retry.                                                                                                                                                                    |
+| an agent's runtime crashes mid-run       | the partial run is recorded as `run-{kind}-{slug}` with `status: aborted`. subsequent retry produces a new run entry. partial writes that landed are linted as if they were complete; broken state is a finding. |
 | runtime is misconfigured                 | the runtime fails closed: rejects writes until the misconfiguration is fixed.                                                                                                                                                                         |
 | storage corruption                       | recovery from the audit log.                                                                                                                                                                                                                          |
 
 ---
 
-## 27. retrieval contract (v0)
+## 27. retrieval contract
 
 ### 27.1 the consumer interface
 
@@ -2354,7 +2217,7 @@ input: task, slice, budget, filters
 output: ordered list of fragments, total token cost ≤ budget
 ```
 
-algorithm (v0):
+algorithm:
 
 1. **resolve the slice.** intersect declared domains; resolve persona's `read_domains` if a persona is given.
 2. **pull the slice's load-bearing artifacts.**
@@ -2378,7 +2241,7 @@ within the budget, the consumer receives:
 
 ### 27.3 orthogonality
 
-orthogonality maximization rejects candidates whose information overlaps what is already in context. concretely: at each addition step, the candidate fragment is compared (semantically) to the existing fragment set; if the overlap exceeds a threshold (v0: 0.85 cosine similarity in fragment-embedding space), the candidate is dropped.
+orthogonality maximization rejects candidates whose information overlaps what is already in context. concretely: at each addition step, the candidate fragment is compared (semantically) to the existing fragment set; if the overlap exceeds a threshold (0.85 cosine similarity in fragment-embedding space), the candidate is dropped.
 
 orthogonality is applied at lead-level first (cheap) and at body-level only for fragments that survived lead-level selection.
 
@@ -2456,7 +2319,7 @@ a fixed set of verifiable tasks. for each task:
 
 the headline metric is **variance reduction**: `var(unaided) - var(vault-augmented)`. positive values indicate the vault is doing the thing it claims to do.
 
-the panel itself is a `policy-thesis-eval` entry (and accompanying agent-tests). amendments to the panel require meta-rule quorum.
+the panel itself is a `policy-thesis-eval` entry (and accompanying agent-tests). like all rule entries, it is authored at bootstrap (§30) and locked against agent writes (§1.5).
 
 ### 28.6 dashboards
 
@@ -2468,41 +2331,38 @@ a vault-wide dashboard (and per-domain dashboard projections) is a meta projecti
 
 dashboards are not assessment; they are how assessment is read.
 
-### 28.7 assessment criteria as policy
+### 28.7 assessment criteria
 
-the criteria that define each signal — what counts as a closure, what threshold makes a domain "saturating," how variance is computed — live in `policy-assessment` and `policy-thesis-eval`. changing what "good coverage" means is a policy edit.
+the criteria that define each signal — what counts as a closure, what threshold makes a domain "saturating," how variance is computed — live in `policy-assessment` and `policy-thesis-eval`. these are read by assessment runs but, like all rule entries, are not edited by agents.
 
 ---
 
-## 29. seed configuration
+## 29. starting configuration
 
-### 29.1 seed scope
+### 29.1 the starting set
 
-the seed is the phase-1 starting state (§1.6.1). everything in this section is **human-authored**: agents do not write any structural entry, in any tier, during seed. once seed is complete, agents begin operating against the bootstrapped scaffold per §30.3.
+the vault begins with a fixed set of structural entries, all human-authored at bootstrap (§30). agents do not write any structural entry, in any tier. the starting set must contain:
 
-at v0 startup, the vault must contain at minimum:
-
-- a base policy set.
-- a small seed of guidelines and essays.
+- the policy set (§29.2).
+- a starting set of guidelines and essays (§29.3).
 - the lens set covering every kind in §3.
-- one domain entry per active subject area.
-- one editor agent per seed domain, manifest authored by hand, starting reputation = 5.0.
-- one persona agent with human-authored seed tests.
-- a `policy-phase` entry declaring the operative phase as `phase-1`.
+- one domain entry per active subject area (§29.5).
+- one editor agent per starting domain, manifest authored by hand, starting reputation = 5.0.
+- one persona agent with baseline tests.
 - a thesis-eval panel with recorded unaided baseline.
-- a small runtime capable of executing agents per the per-entry lock model.
+- a runtime capable of executing agents per the per-entry lock model.
 
-### 29.2 seed policies (must exist before chapter 1 of the first source)
+### 29.2 the policy set
 
 | slug                          | covers                                                                                 | tier   |
 | ----------------------------- | -------------------------------------------------------------------------------------- | ------ |
-| `policy-ingestion`            | the four-phase pipeline (§17)                                                          | policy |
+| `policy-ingestion`            | the five-stage pipeline (§17)                                                          | policy |
 | `policy-classification`       | the lens decision tree and protocol (§7)                                               | policy |
 | `policy-merge`                | merge rules per kind (§19)                                                             | policy |
 | `policy-lint`                 | the lint rule catalog (§20)                                                            | policy |
 | `policy-assessment`           | assessment signals and cadence (§28)                                                   | policy |
 | `policy-claim-segmentation`   | when to split a sentence into multiple claims (§10.1.1)                                | policy |
-| `policy-agent-lifecycle`      | create / mutate / retire (§16.3)                                                       | policy |
+| `policy-agent-retirement`     | the retire-only manifest mutation path (§16.3)                                         | policy |
 | `policy-archival`             | hot-cold window, rollup rules (§26.3)                                                  | policy |
 | `policy-reputation-weighting` | reputation events, weights, external anchor (§9.6)                                     | policy |
 | `policy-runtime`              | runner responsibilities and boundaries (§26.6)                                         | policy |
@@ -2514,15 +2374,13 @@ at v0 startup, the vault must contain at minimum:
 | `policy-contentious-domain`   | what gets elevated, by how much (§15)                                                  | policy |
 | `policy-pending-changes`      | staging mechanics, review flow (§9.5)                                                  | policy |
 | `policy-content-quality`      | npov-equivalent (§4.2 and §10), verifiability, no original research adapted for agents | policy |
-| `policy-rule-promotion`       | essay→guideline→policy mechanics (§13.4)                                               | policy |
 | `policy-edit-hardness`        | tier definitions, gating rules (§9)                                                    | policy |
 | `policy-discussions`          | round bound, termination protocols (§22)                                               | policy |
 | `policy-reingestion`          | reingestion procedure (§18)                                                            | policy |
-| `policy-phase`                | operative phase (phase-1 / phase-2 / phase-3) and transition criteria (§1.6)           | policy |
 
-### 29.3 seed guidelines and essays
+### 29.3 the guideline and essay set
 
-a small seed of soft-tier rules so the soft tiers exist with content from start. examples:
+a small set of soft-tier rules so the soft tiers exist with content from start. examples:
 
 | slug                                | tier      | covers                                                                                                                                                                    |
 | ----------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -2533,11 +2391,11 @@ a small seed of soft-tier rules so the soft tiers exist with content from start.
 | `essay-illustration-vs-application` | essay     | observation: the boundary is fuzzy; an "application" with a single concrete subject often reads as an illustration. proposes a rule of thumb.                             |
 | `essay-cross-domain-bridges`        | essay     | observation: structure notes that span multiple domains tend to grow large; consider splitting by frame.                                                                  |
 
-### 29.4 seed lens set
+### 29.4 the lens set
 
-per §7.2 (decision-tree) and §7.3 (annotation). 14 decision-tree lenses and 6 annotation lenses at seed. each lens entry includes worked examples drawn from the existing vault entries.
+per §7.2 (decision-tree) and §7.3 (annotation). 14 decision-tree lenses and 6 annotation lenses. each lens entry includes worked examples drawn from the existing vault entries.
 
-### 29.5 seed domain set
+### 29.5 the domain set
 
 | slug              | scope summary                                                                   |
 | ----------------- | ------------------------------------------------------------------------------- |
@@ -2548,9 +2406,9 @@ per §7.2 (decision-tree) and §7.3 (annotation). 14 decision-tree lenses and 6 
 | `assessment`      | testing, feedback, calibration.                                                 |
 | `meta`            | entries about the vault itself (lenses, indexes, policies, guidelines, essays). |
 
-each domain entry is hand-authored at seed. `contentious: false` everywhere at seed. `evidence_grade_floor: D` everywhere at seed. one canonical question per domain at minimum.
+each domain entry is hand-authored. `contentious: false` and `evidence_grade_floor: D` are the starting values everywhere. one canonical question per domain at minimum.
 
-### 29.6 seed agent set
+### 29.6 the agent set
 
 | slug                            | kind    | scope                                                                                   | starting reputation |
 | ------------------------------- | ------- | --------------------------------------------------------------------------------------- | ------------------- |
@@ -2563,9 +2421,9 @@ each domain entry is hand-authored at seed. `contentious: false` everywhere at s
 
 lint agents start at 10.0 because their work is mechanical and a small reputation buffer prevents pending-routing of mechanically correct findings.
 
-### 29.7 seed agent tests
+### 29.7 the agent-test set
 
-at minimum, the persona agent has 8 human-authored seed tests:
+at minimum, the persona agent has 8 baseline tests authored at bootstrap:
 
 1. "what is the difference between primary and secondary biological knowledge?" — expected: cite [[biologically-primary-and-secondary-knowledge]]; name the distinction; reference [[david-geary]].
 2. "how does desirable difficulty improve long-term retention?" — expected: cite [[desirable-difficulty]]; describe the mechanism; reference at least one source entry.
@@ -2576,11 +2434,11 @@ at minimum, the persona agent has 8 human-authored seed tests:
 7. "name three distinct study strategies and their trade-offs." — expected: three concrete strategies, with trade-offs.
 8. "is multi-tasking effective for learning?" — expected: clear no, with evidence.
 
-these are author-authored; their `authoritative: true` flag marks them as canonical.
+their `authoritative: true` flag marks them as canonical.
 
-### 29.8 seed thesis-eval panel
+### 29.8 the thesis-eval panel
 
-a fixed set of verifiable tasks with recorded unaided baselines. example tasks (drawn from the existing wiki seed):
+a fixed set of verifiable tasks with recorded unaided baselines. example tasks:
 
 1. "describe the mechanism by which spaced repetition produces stronger long-term retention than massed practice." — verifiable: must name encoding-retrieval gap, cite primary sources.
 2. "list three pedagogical implications of the primary/secondary biological knowledge distinction." — verifiable: each implication must be a defensible practice.
@@ -2590,9 +2448,9 @@ a fixed set of verifiable tasks with recorded unaided baselines. example tasks (
 
 each task has 5 unaided runs with a baseline model recorded as the variance baseline. the panel and baselines live in `policy-thesis-eval` and accompanying agent-tests.
 
-### 29.9 seed runtime
+### 29.9 the runtime
 
-the runtime at seed is small enough to specify here as a set of capabilities:
+the runtime is described as a set of capabilities:
 
 - the ability to run an agent per its `prompt_ref`.
 - a write-interceptor that gates per `edit_hardness` and reputation.
@@ -2600,72 +2458,51 @@ the runtime at seed is small enough to specify here as a set of capabilities:
 - a `run-*` emitter.
 - a queue for over-budget runs.
 
-it does not implement: rich UIs, multi-tenant orchestration, real-time discussions, automated discussion-moderator agents. those are downstream.
-
 ---
 
 ## 30. bootstrap procedure
 
 ### 30.1 the bootstrap order
 
-at first run, the vault is empty. bootstrap is **entirely human-authored** — agents do not exist yet, and even after their manifests are written, they have no permission to write structural entries (§1.6.1). the bootstrap order:
+bootstrap is the act of producing the starting state described in §29 from an empty vault. it is **entirely human-authored**; agents do not exist until their manifests are written and never write structural entries (§1.5). the order:
 
 1. **write `lens-lens` first.** without it, no other lens can be classified.
 2. **write the other 13 decision-tree lenses** in priority order.
 3. **write the 6 annotation lenses.**
-4. **write the 6 seed domain entries.**
-5. **write the seed policies** (§29.2). order:
-   - `policy-phase` first, declaring the operative phase as `phase-1` (the runtime reads this to enforce §1.6.1 lockdown on every subsequent write).
-   - `policy-runtime` next (the runtime needs to know its boundaries).
+4. **write the 6 domain entries.**
+5. **write the policy set** (§29.2). order:
+   - `policy-runtime` first (the runtime needs to know its boundaries).
    - `policy-classification`, `policy-entry-layout`, `policy-claim-segmentation`, `policy-edit-hardness` next (they shape every subsequent write).
    - `policy-ingestion`, `policy-merge`, `policy-lint`, `policy-assessment`, `policy-archival`, `policy-reputation-weighting`, `policy-thesis-eval`.
-   - `policy-notability`, `policy-structure-notes`, `policy-high-stakes`, `policy-contentious-domain`, `policy-pending-changes`, `policy-rule-promotion`, `policy-discussions`, `policy-reingestion`, `policy-content-quality`.
-   - `policy-agent-lifecycle` last (it depends on most of the others; inert in phase 1 per §16.3.0).
-6. **write the seed guidelines and essays** (§29.3).
-7. **write the seed agent entries** (§29.6) with `lifecycle_stage: proposed`.
-8. **write the seed agent-test entries** (§29.7), `authoritative: true`.
-9. **run the seed agent-tests** against the bootstrapped vault. record results in `run-seed-tests-{date}`.
-10. **write the seed thesis-eval panel** entries and run the unaided baseline. record in `run-seed-thesis-eval-baseline-{date}`.
-11. **promote seed agents** from `proposed` to `active` via human review.
-12. **build initial indexes** by running the deterministic rebuild over the entries pile.
-13. **emit `run-bootstrap-{date}`** recording the entire bootstrap.
+   - `policy-notability`, `policy-structure-notes`, `policy-high-stakes`, `policy-contentious-domain`, `policy-pending-changes`, `policy-discussions`, `policy-reingestion`, `policy-content-quality`.
+   - `policy-agent-retirement` last.
+6. **write the guideline and essay set** (§29.3).
+7. **write the agent entries** (§29.6) with `lifecycle_stage: active`.
+8. **write the agent-test entries** (§29.7), `authoritative: true`.
+9. **run the agent-tests** against the bootstrapped vault. record results in `run-bootstrap-tests-{date}`.
+10. **write the thesis-eval panel** entries and run the unaided baseline. record in `run-bootstrap-thesis-eval-baseline-{date}`.
+11. **build initial indexes** by running the deterministic rebuild over the entries pile.
+12. **emit `run-bootstrap-{date}`** recording the entire bootstrap.
 
-### 30.2 bootstrap human-review check
-
-the bootstrap is the period before reputation gates can take over. a human reviewer:
-
-1. reads every seed lens and approves.
-2. reads every seed policy and approves.
-3. reads every seed agent manifest and approves promotion to `active`.
-4. reads the seed thesis-eval baseline and approves it as the reference.
-
-the human reviewer's approvals are recorded as `notification-approval-*` entries linked from the seed runs.
-
-### 30.3 first-source ingestion
+### 30.2 first-source ingestion
 
 once bootstrap is complete, the first source can be ingested per §17. the first ingestion is the test of whether bootstrap was correct: lint must run, findings must surface, the agent's writes must land (subject to edit-hardness), and the closeout must emit a clean `run-chapter-closeout-*` entry.
 
-if any of those fails, the failure is debugged in the seed phase before opening to a second source. seed-phase failures are not findings; they are bootstrap defects, recorded in a `run-bootstrap-defect-{date}` entry and corrected by human edit.
-
 ---
 
-## 31. governance: edits to this document
+## 31. the spec is absolute
 
-### 31.1 this spec is itself a governance object
+### 31.1 the spec is the blueprint, not a governance object inside the vault
 
-amendments to this document are `restricted`-tier edits. they require:
-
-- a `discussion-spec-amend-{date}` entry where the proposed change is described and debated.
-- meta-rule quorum (§9.4).
-- a `run-spec-amend-{date}` entry that records the change.
+this spec is read once at the moment a system is produced from it; nothing inside the running vault refers back to it. agents cannot amend it. the structure described here is what the vault is, full stop.
 
 ### 31.2 the spec is descriptive once an implementation exists
 
-once an implementation has been generated from this spec — a policy entry, a runtime, a lens — that implementation is the authority on its own behavior. divergence between such an implementation and this spec is not a conflict that the spec adjudicates: the implementation governs itself; the spec, if it still serves any purpose, may be updated as a historical record of the original blueprint, but it does not enforce against the running artifact.
+once an implementation has been generated from this spec — a policy entry, a runtime, a lens — that implementation is the authority on its own behavior. divergence between such an implementation and this spec is not a conflict that the spec adjudicates: the implementation governs itself; the spec, at most, is a historical record of the original blueprint, but it does not enforce against the running artifact.
 
 ### 31.3 the spec is not referenced from the implementation
 
-per §1.2, an implementation does not link back to this spec. the spec's reach ends at the moment of translation. amendments to this spec therefore have no effect on an already-generated implementation; their effect is limited to subsequent translation passes that produce a new implementation from the amended blueprint.
+per §1.2, an implementation does not link back to this spec. the spec's reach ends at the moment of translation.
 
 ---
 
@@ -2682,7 +2519,7 @@ a quick reference for terms used throughout this spec.
 | blocking finding          | §20.5                                                                                           |
 | borderline (notability)   | §8.2                                                                                            |
 | bootstrap                 | §30                                                                                             |
-| category                  | §1.4, §3 (synonymous with `kind` in this spec; see [§35.1](#351-the-category-vocabulary-clash)) |
+| category                  | §1.4, §3 (synonymous with `kind` in this spec)                                                  |
 | claim                     | §10.1                                                                                           |
 | classified_by             | §4.2                                                                                            |
 | cluster                   | §11.1, §11.4                                                                                    |
@@ -2728,7 +2565,7 @@ a quick reference for terms used throughout this spec.
 
 ## 33. worked example — ingesting a single chapter end-to-end
 
-a concrete walkthrough of phases 0–4 for one chapter of one source. illustrative only; not normative beyond the rules already given.
+a concrete walkthrough of stages 0–4 for one chapter of one source. illustrative only; not normative beyond the rules already given.
 
 ### 33.1 the source
 
@@ -2736,17 +2573,17 @@ book: "make it stick: the science of successful learning" by peter c. brown, hen
 
 source slug: `make-it-stick`.
 
-### 33.2 phase 0 — source intake
+### 33.2 stage 0 — source intake
 
 1. the source text is admitted into source-intake under the slug `make-it-stick`. immutable from this point.
 2. a process trace is bound to the source carrying: title (Make It Stick); author (Brown, Roediger, McDaniel); year (2014); 8 chapters; editor agent `agent-editor-learning-theory`; `high_stakes_class: none`; `domains: [learning-theory, pedagogy]`.
 3. a source entry, identified `make-it-stick`, is drafted in the entries pile. its header carries: `category: source`; `produced_by: pipeline-source-intake`; `domains: [learning-theory, pedagogy]`; `tags: [book]`; `sources: [make-it-stick]`; aliases including the full subtitle; `confidence: high`; `status: stub`; `notability_status: passes`; `edit_hardness: confirmed`; `high_stakes_class: none`; `quality: stub`; author and year as on the trace; `intake_ref` pointing at the source-intake binding; `date_ingested: 2026-04-27`. its body has a lead, an initial summary, and empty key-ideas, notable-claims, and connections sections.
 4. domain inheritance: both `learning-theory` and `pedagogy` are non-contentious. `evidence_grade_floor: D`. defaults apply.
 5. source-level high-stakes: `none`.
-6. editor agent: `agent-editor-learning-theory`, reputation 5.0 (sub-confirmed; writes will land as pending). human reviewer is the confirmed proxy for seed.
+6. editor agent: `agent-editor-learning-theory`, reputation 5.0 (sub-confirmed; writes will land as pending).
 7. emit `run-source-intake-make-it-stick`.
 
-### 33.3 phase 1 — chapter 1 setup
+### 33.3 stage 1 — chapter 1 setup
 
 chapter 1: "learning is misunderstood" (32 pages).
 
@@ -2756,7 +2593,7 @@ chapter 1: "learning is misunderstood" (32 pages).
 4. tracker rows for sub-sections added.
 5. staging index created in ephemeral staging.
 
-### 33.4 phase 2 — sub-section 1 ("what we get wrong about learning")
+### 33.4 stage 2 — sub-section 1 ("what we get wrong about learning")
 
 candidates identified:
 
@@ -2768,7 +2605,7 @@ processing each:
 
 1. **fluency illusion**:
    - notability: `passes` (covered in multiple sources, referenced widely).
-   - decision tree: walks past lens-lens, lens-policy-tier, lens-source, lens-structure-note, lens-disambiguation, lens-illustration (no story), lens-relation (not an edge), lens-claim (not a single atom), lens-application (not steps), lens-question (not a question), lens-entity (not a proper noun), lens-process (not stages), lens-insight (not a 2+ concept relationship), lens-concept → match. `category: concept`, `classified_by: lens-concept`.
+   - decision tree: walks past lens-lens, lens-policy-tier, lens-source, lens-structure-note, lens-disambiguation, lens-illustration (no story), lens-relation (not an edge), lens-claim (not a single atom), lens-application (not steps), lens-question (not a question), lens-entity (not a proper noun), lens-process (no multi-step sequence), lens-insight (not a 2+ concept relationship), lens-concept → match. `category: concept`, `classified_by: lens-concept`.
    - annotation: `confidence: high`, `evidence_grade` n/a (not a claim), `high_stakes_class: none`, `edit_hardness: open`.
    - slug: `fluency-illusion`. check the entries pile — no entry exists at this slug. `new`.
    - lead: body is ~300 words; lead required. drafted: "the fluency illusion is the metacognitive failure of mistaking the ease of recognizing material for the ability to recall it; readers who re-read fluent text feel they have mastered it but cannot reproduce its content under test."
@@ -2785,7 +2622,7 @@ processing each:
 
 the staging index is updated. sub-section 1 row marked complete.
 
-### 33.5 phase 2 — sub-sections 2, 3 (compressed)
+### 33.5 stage 2 — sub-sections 2, 3 (compressed)
 
 sub-section 2 produces: a concept entry `testing-effect`, a claim about retrieval-strength asymmetry, an illustration retold from a study described in the chapter.
 
@@ -2793,7 +2630,7 @@ sub-section 3 produces: a structure-note candidate? — the chapter introduces a
 
 each sub-section's invariants are checked and marked complete.
 
-### 33.6 phase 3 — chapter 1 merge
+### 33.6 stage 3 — chapter 1 merge
 
 for each staged unit:
 
@@ -2803,14 +2640,14 @@ for each staged unit:
 - `structure-misunderstood-learning-traps` — no existing entry → promote.
 - claims and other staged units handled likewise.
 
-### 33.7 phase 4 — chapter 1 closeout
+### 33.7 stage 4 — chapter 1 closeout
 
 1. update source entry: append "fluency illusion", "testing effect", "metacognitive failure" to its key-ideas section. update its connections with the new entries.
 2. structure-note coverage: chapter created a new structure note covering 3 entries. cluster size below threshold (8) elsewhere. no findings.
 3. notability promotion: no borderline entries from this chapter.
 4. high-stakes review: no high-stakes claims.
 5. lint sweep: every touched entry. fluency-illusion's body has 2 outbound references; passes `low-link-density` floor. lead present; passes `lead-missing`. no blocking findings.
-6. pending review: editor was sub-confirmed, so all writes landed as pending. human reviewer accepts each. on accept, the proposals merge; final entries appear in the entries pile. emit `run-merge-*` per acceptance.
+6. pending review: editor was sub-confirmed, so all writes landed as pending. a confirmed reviewer agent accepts each. on accept, the proposals merge; final entries appear in the entries pile. emit `run-merge-*` per acceptance.
 7. index rebuild: the deterministic rebuild runs over the entries pile. the master catalog gains 3 new entries; learning-theory and pedagogy domain catalogs gain entries.
 8. noticeboard rebuild: no findings of note this chapter, so most boards unchanged. the notability-deferrals board is unchanged. the pending-changes board shrinks (proposals accepted).
 9. structure-note narrative pass: `structure-misunderstood-learning-traps` is the chapter's own contribution, so its how-the-cluster-is-held-together section is fully written this pass; no other structure notes were materially reshaped, so no further updates.
@@ -2820,7 +2657,7 @@ for each staged unit:
 
 ### 33.8 lessons illustrated
 
-- the editor agent's sub-confirmed reputation is the load-bearing constraint that puts every write through human review during seed.
+- the editor agent's sub-confirmed reputation is the load-bearing constraint that routes every write through reviewer-tier acceptance.
 - the structure note is what gives the chapter cohesion at retrieval time — its lead summarizes the chapter's organizing frame in 1–3 sentences.
 - the claim is treated as its own entry because it is multi-source and load-bearing; if the chapter had only one weak source, the claim would be borderline-notability and stage as pending.
 - merging an existing entry (testing-effect) preserves the existing entry's connections from later chapters of other sources; the staged version's prose is consolidated, but the connections remain intact.
@@ -2833,17 +2670,17 @@ for each staged unit:
 
 | stage   | error class                                                | response                                                                                |
 | ------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| phase 0 | source slug collision                                      | halt; rename and retry.                                                                 |
-| phase 0 | malformed process trace                                    | halt; repair; retry.                                                                    |
-| phase 1 | ephemeral staging not clean                                | halt; clear; retry.                                                                     |
-| phase 1 | sub-section identification failure                         | halt; manual sub-section assignment by editor.                                          |
-| phase 2 | candidate classification gap                               | emit `finding-classification-gap`; continue with other candidates; revisit at closeout. |
-| phase 2 | slug collision (different subject)                         | per §6.4 disambiguation.                                                                |
-| phase 2 | slug collision in temp (different subject in same chapter) | halt sub-section; manual repair.                                                        |
-| phase 3 | merge classification mismatch                              | emit blocking finding; halt that file's merge; other files proceed.                     |
-| phase 3 | merge high-stakes mismatch                                 | emit blocking finding; halt that file's merge.                                          |
-| phase 4 | lint blocking finding                                      | halt closeout for affected entry; finding must resolve before closeout completes.       |
-| phase 4 | pending-review timeout                                     | continue closeout; pending proposals roll forward; advisory finding.                    |
+| stage 0 | source slug collision                                      | halt; rename and retry.                                                                 |
+| stage 0 | malformed process trace                                    | halt; repair; retry.                                                                    |
+| stage 1 | ephemeral staging not clean                                | halt; clear; retry.                                                                     |
+| stage 1 | sub-section identification failure                         | halt; manual sub-section assignment by editor.                                          |
+| stage 2 | candidate classification gap                               | emit `finding-classification-gap`; continue with other candidates; revisit at closeout. |
+| stage 2 | slug collision (different subject)                         | per §6.4 disambiguation.                                                                |
+| stage 2 | slug collision in temp (different subject in same chapter) | halt sub-section; manual repair.                                                        |
+| stage 3 | merge classification mismatch                              | emit blocking finding; halt that file's merge; other files proceed.                     |
+| stage 3 | merge high-stakes mismatch                                 | emit blocking finding; halt that file's merge.                                          |
+| stage 4 | lint blocking finding                                      | halt closeout for affected entry; finding must resolve before closeout completes.       |
+| stage 4 | pending-review timeout                                     | continue closeout; pending proposals roll forward; advisory finding.                    |
 
 ### 34.2 partial completion
 
@@ -2852,86 +2689,6 @@ a chapter that does not reach closeout cleanly remains `in-progress`. retry is t
 ### 34.3 catastrophic recovery
 
 the audit log is the canonical recovery substrate. a vault that becomes inconsistent (e.g., simultaneous lock failure) is rolled back by reverting the offending writes through the audit log. `run-*` history may show writes that no longer correspond to live entries; lint `dangling-run-references` flags these for cleanup.
-
-### 34.4 human-in-the-loop handoffs
-
-the seed phase has the human reviewer in the loop for every quorum action and every pending-review acceptance. as the population matures, these handoffs migrate to confirmed agents. the migration is a per-policy decision: each policy declares when reputation-gating supersedes human review.
-
----
-
-## 35. open issues / deferred decisions
-
-### 35.1 the "category" vocabulary clash
-
-the vault uses "category" for the lens-output kind of an entry. wikipedia uses "category" for navigational hierarchies, which are closer to the vault's domains plus tags. reader confusion is real. the planned rename is "category" → "kind" everywhere, with corresponding lens nomenclature shift (`lens_covers_category` → `lens_covers_kind`). mechanical but invasive across the spec. retained through seed; revisited before opening to outside contributions.
-
-### 35.2 reputation thresholds
-
-the v0 thresholds in §9.1 (30, 60, 80) are placeholders. once population behavior is observable, they will be recalibrated. the recalibration is itself a `policy-edit-hardness` edit.
-
-### 35.3 promotion-path calibration
-
-the citation-count and finding-count thresholds for essay→guideline→policy promotion are placeholders. specifically:
-
-- "3 citations" for essay→guideline.
-- "5 findings citing the guideline" for guideline→policy.
-
-these are guesses. once promotion has been exercised a few dozen times, the rule will be recalibrated against observed quality.
-
-### 35.4 lifecycle stage on rule entries
-
-§13.4.4 names retirement of rules. an additional infrastructure header field `lifecycle_stage: active | proposed | retired` for rule entries (parallel to agents) is implied but not added to §4.3.14. resolution: add the field, lint enforces.
-
-### 35.5 aborted run status
-
-§26.8 names a `status: aborted` field on `run-*` entries. the field is not in §4.3.16. resolution: add.
-
-### 35.6 seed-thickness calibration
-
-the seed in §29 is a v0 commitment. how much can be cut without the loop failing to reach a stable state, and how much must be added before reputation gates can take over from human review, will become clear only once the seed runs. expect revision.
-
-### 35.7 generalizing ingestion to arbitrary text
-
-the pipeline (§17) is shaped for long-form structured sources. extending to transcripts, emails, chat logs, and unstructured notes will need new policies and possibly new lenses. seed phase scopes to structured sources.
-
-### 35.8 retrieval shape beyond v0
-
-the v0 retrieval algorithm (§27) is a sketch. the right shape is whatever maximizes variance reduction per token. expect revisions to:
-
-- the slice-resolution step.
-- the orthogonality threshold.
-- the lead-vs-body switch logic.
-- the relation-traversal depth (currently fixed at 1 hop).
-
-each revision is a `policy-content-quality` or `policy-thesis-eval` edit.
-
-### 35.9 adversarial robustness
-
-population mechanics assume good-faith collaboration. collusion, sybil patterns, prompt-injection from sources, and recursive privilege-escalation (a high-reputation agent editing the lens that confers its authority) are not yet modeled. an explicit threat model is required before the vault is exposed to outside contributions.
-
-### 35.10 the runtime / vault boundary
-
-the runtime is described in §26.6 and `policy-runtime`, but the exact contract between vault entries and runtime invocation is not spelled out here. resolution: a `policy-runtime` entry with the contract specification, written before the seed agents are activated.
-
-### 35.11 backup and migration
-
-archival (§26.3) describes hot-cold split; backup of the cold archive is not specified. resolution: the cold archive is backed up to a write-ahead log managed by the runtime per `policy-archival`.
-
-### 35.12 cross-language and cross-locale
-
-every entry assumes a single language (english at seed). multilingual ingestion (translations, source in another language) is not specified. resolution: deferred until a non-english source is required.
-
-### 35.13 the agent-test answer-shape grader
-
-agent tests have an `expected_shape`. how exactly the grader compares an answer to the shape is not specified. resolution: a `policy-agent-test-grading` entry, with a v0 grader that uses semantic similarity over key concepts plus a checklist over named entities.
-
-### 35.14 what counts as good reputation, formally
-
-the events in §9.6 are first candidates. the weighting in `policy-reputation-weighting` is a placeholder. resolution: ongoing calibration during seed and for the first six months of operation.
-
-### 35.15 retrieval quality measurement granularity
-
-the variance-reduction metric in §28.5 is computed over the panel as a whole. per-task and per-domain variance reduction are useful too. resolution: extend `policy-thesis-eval` to track per-domain metrics once enough data accumulates.
 
 ---
 
