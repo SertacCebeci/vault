@@ -4,6 +4,7 @@
 
 ## table of contents
 
+0. [context glossary](#0-context-glossary)
 1. [document scope and conventions](#1-document-scope-and-conventions)
 2. [storage scopes](#2-storage-scopes)
 3. [entry kinds — the complete catalog](#3-entry-kinds--the-complete-catalog)
@@ -38,6 +39,130 @@
 32. [vocabulary index](#32-vocabulary-index)
 33. [worked example — ingesting a single chapter end-to-end](#33-worked-example--ingesting-a-single-chapter-end-to-end)
 34. [error and failure handling](#34-error-and-failure-handling)
+
+---
+
+## 0. context glossary
+
+a plain-language guide to the vocabulary used throughout this spec. each term is described in everyday words, with the problem it solves attached. read this section first if the rest of the document feels dense; it answers "what is this and why does it exist." the terse, pointer-only index is at §32.
+
+### 0.1 the substance: entries and where they live
+
+**entry.** the atomic unit of the vault. one identifier, one header, one body. a concept entry, a source entry, a policy entry, a run entry — every artifact in the vault, content or infrastructure, is an entry. the vault is a single uniform pile of entries that link to each other.
+
+**slug.** an entry's unique identifier — lowercase, hyphenated. `desirable-difficulty`, `policy-ingestion`, `agent-editor-learning-theory`. how entries reference each other.
+
+**the entries pile.** the single flat collection of every entry the vault holds. no folders, no nesting. you find an entry by its slug. flatness is intentional: hierarchy biases what is findable; the link graph is the answer instead.
+
+**source intake.** the area where raw documents (books, articles, transcripts) live before and during ingestion. immutable; never modified after admission. the source document and the entries the vault produces from it are kept separate.
+
+**ephemeral staging.** a scratchpad used during ingestion. when a chapter is being processed, all the draft entries get written here first. they are merged into the entries pile in a single batch and the scratchpad is wiped. the reason it exists: ingestion writes **blind** — without reading any pre-existing entry on the same topic — to avoid anchoring bias. staging is where those blind drafts wait so the merge step can compare them against what already exists, deliberately, in one pass. without staging, every chapter would dribble edits piecemeal into existing entries, biased by what was already written.
+
+**meta projections.** rebuilt views over the entries pile — domain catalogs, noticeboards, dashboards. think cached query results. they are never source-of-truth; the entries pile is. they are reproducible by mechanical rebuild from the entries.
+
+**runtime.** the process that actually executes agents, accepts their writes, and applies the gates (reputation checks, edit-hardness checks, lockdown checks). it sits outside the entries pile. agents propose; the runtime decides whether the write lands directly or becomes a pending proposal.
+
+### 0.2 the kinds: what an entry can be
+
+**content vs. infrastructure.** content entries carry knowledge — concepts, claims, illustrations, sources. infrastructure entries carry vault state — runs, findings, policies, lenses, agent manifests. they share the same shape but differ in classification path, retention, and write rate.
+
+**concept.** the catch-all content entry. one idea, explained on its own terms. e.g., `desirable-difficulty`.
+
+**source.** the literature note for one raw document. cites and summarizes; does not synthesize.
+
+**claim.** the smallest verifiable assertion in the vault — one sentence with evidence. e.g., "spaced repetition outperforms massed practice for long-term retention." promoted from inline mention to its own entry only when load-bearing.
+
+**relation.** a typed, directed edge between two entries — `supports`, `contradicts`, `instance-of`, `supersedes`, `depends-on`. carries its own evidence, like a claim.
+
+**question.** an open question the vault cannot yet answer. an explicit way to mark a gap rather than pretend it isn't there.
+
+**illustration / application / entity / process / insight.** the other content kinds, each handling a recognizable shape: illustration is a story (protagonist, setting, outcome), application is steps a practitioner can follow, entity is a proper-noun subject (person, framework, theory), process is a multi-stage sequence, insight names a non-trivial connection between two or more concepts.
+
+**structure note.** organizing prose plus an annotated link list, holding a region of the graph together. the vault's answer to "how do you carry big-picture information without imposing a hierarchy." instead of a parent article, several structure notes can frame the same cluster from different angles (a learning-theory frame, a neuroscience frame).
+
+**disambiguation.** a routing entry for a slug that could mean more than one thing. lists each variant with a one-line distinguisher.
+
+**lens.** a classification rule, written as a yes/no question with criteria. lenses decide which kind a new entry is. lenses are themselves entries.
+
+### 0.3 lenses: how an entry's kind gets decided
+
+**why lenses exist.** the question "is this entry a concept or an illustration?" needs a deterministic answer. a lens is the recorded answer for one question, applied to one new entry by walking down a tree of yes/no checks. the entry's `classified_by` field names which lens ruled, so the decision is auditable years later.
+
+**decision-tree lens.** answers "what kind is this entry?" — exactly one rules per entry; first match along a priority order wins.
+
+**annotation lens.** answers "what other label does this entry need?" — confidence, evidence grade, edit-hardness, etc. annotation lenses do not compete; each runs independently and stamps its own field.
+
+**notability.** the gate that asks "does this idea deserve its own entry, or should it just be a sentence inside another entry?" a unit passes if it has multi-source coverage, routing necessity (other entries already point at it), or an explicit policy carve-out. units that pass become entries; units that fail get folded into a parent. units that are borderline get held in a pending area until a later ingestion provides another inbound link or another source.
+
+### 0.4 governance: policies, guidelines, essays — and why they exist
+
+**policy.** a binding rule. examples: "every claim must cite a source." "every entry has a slug." policies are how the vault tells itself what is and is not allowed. when a write violates a policy, lint produces a blocking finding and the write does not land. policies exist because a self-governing system needs its rules written down where agents can read them, not baked invisibly into code that no one revisits.
+
+**guideline.** a non-binding norm. example: "prefer noun-first slug names." violations produce advisory findings — recorded and reviewed, but the write still lands. guidelines exist because not every preference deserves to be a hard rule, but the preference still wants to be visible.
+
+**essay.** an under-development take that binds nothing. the staging ground for ideas that might one day become guidelines or policies. having an explicit "we suspect this but haven't ratified it" tier prevents premature ratification and keeps the policy set honest.
+
+**why three tiers and not one.** binding rules, soft norms, and exploratory thoughts have very different consequences when wrong. mixing them flattens the consequences. separating them lets an agent know whether a violation is fatal, advisory, or just intellectual chatter.
+
+**structural lockdown.** policies, guidelines, essays, lenses, domains, agent manifests, and this spec are written by humans at bootstrap and are never edited by agents thereafter. agents enforce the rules within the structure; they do not author the structure. this is the firewall that prevents an agent from rewriting its own constraints.
+
+### 0.5 edit-hardness, reputation, and pending changes
+
+**edit-hardness.** a per-entry tier — `open`, `confirmed`, `extended-confirmed`, `restricted`, `locked` — that says "how trusted does an agent have to be to edit this directly." a fresh concept entry is `open`; a structure note is `confirmed`; a policy is `locked`.
+
+**reputation.** a 0.0–100.0 score per agent that grows with successful work (passing tests, producing entries that survive lint, being cited) and shrinks with reverts and failed tests. it is a permission mechanism, not a market signal — agents do not "spend" reputation, only earn or lose it.
+
+**pending changes.** when a low-reputation agent attempts a write to an entry it lacks the trust to edit directly, the write does not land. it is converted into a `pending-*` proposal — a parallel entry attached to the target — that a higher-reputation agent later reviews and either accepts (merges) or rejects. exists because a system with many agents of varying trustworthiness needs to admit contributions without granting low-trust agents direct write access. pending changes is the queue that reconciles "lots of agents want to write" with "not all of them have earned the right to write directly."
+
+**quorum.** a heavyweight action requiring multiple high-reputation agents voting independently. used for reversibility-low actions: overriding a blocking finding, retiring an agent.
+
+### 0.6 domains, contentious domains, and high-stakes
+
+**domain.** a subject axis — `learning-theory`, `pedagogy`, etc. each entry declares one or more domains in its header. domains are how retrieval is sliced and how editor agents are scoped (a learning-theory editor reads and writes within learning-theory).
+
+**contentious domain.** a domain where claims are politically or scientifically loaded. toggling `contentious: true` on a domain raises floors across every entry in it (stricter evidence floor, harder edit-hardness, shorter discussions, mandatory citations). exists because the ordinary rules are calibrated for cooperative, non-contentious knowledge work; some subjects need stricter handling by default.
+
+**high-stakes class.** a per-claim flag for claims whose error has real-world cost — `medical`, `legal`, `safety`, `identifiable-individual`. when a high-stakes claim's evidence is below a stricter floor, the claim is **removed** from the entry and replaced with a placeholder until evidence improves. exists because the cost of a wrong claim varies enormously by subject; a wrong claim about study tactics is harmless, a wrong claim about drug dosages is not. defaulting to "remove rather than display" inverts the usual bias toward showing whatever you have.
+
+**evidence grade.** `A` (primary literature) → `D` (anecdotal). every claim and relation carries one. domains can require minimum grades.
+
+### 0.7 activity: runs, findings, discussions, noticeboards
+
+**run.** the record of one agent execution. who ran, what they read, what they wrote, what findings they raised, which lens and policy versions were active. immutable. runs are the canonical "what happened" record at the agent-action level; together with the audit log (entry-content level), they support full auditability without a separate hand-authored log.
+
+**finding.** a problem the vault has noticed about itself — a missing lead, a broken reference, a contradiction. every finding is its own entry. the union of open findings is the vault's running to-do list. `severity: blocking` stops the offending write; `advisory` just records.
+
+**discussion.** a recorded exchange between agents who disagree about an entry. round-bounded (5 rounds max, 3 in contentious domains). exists because agents will disagree; without a structured place for the disagreement, it has nowhere to go. discussions terminate via a named protocol: `content-quorum` for content disputes, `meta-rule-quorum` for reversibility-low actions, `advisory` (no binding outcome) for disputes about structural entries — agents may discuss a policy or a lens, but they cannot change one through the discussion.
+
+**noticeboard.** a projection — a cached list — of open findings of a given kind. agents that specialize in a kind of issue (e.g., "I review contradictions") subscribe to the relevant noticeboard instead of scanning the whole finding list. this keeps each agent's working set bounded.
+
+### 0.8 lead, body shape, references
+
+**lead.** a 1–3 sentence compression of an entry's content, placed at the top of the body. retrieval (§27) returns leads first; full bodies only when the consumer's token budget allows. so the lead is not flavor text — it is the entry's retrieval-time face. a sloppy lead (mostly restating the title, hedging where the body is decisive) degrades quality across every query that lands on the entry. that is why leads are lint-checked, why structure notes and source entries always need one regardless of size, and why contentious domains require leads regardless of size.
+
+**body shape.** every entry's body is named sections in a defined order: lead, then a kind-specific main section, then connections, sources, and an optional mentioned-in. order is enforced because retrieval reads in this order.
+
+**reference.** a link from one entry to another, written `[[slug]]` in this spec's notation. references must resolve — the target must exist. every content entry needs at least 2 outbound references (the link-density floor), or it is a finding; structure notes need many more.
+
+**connections section.** the structured list of typed links at the bottom of a body. inline predicates (`Related to`, `Coined by`) stay in the connections section; load-bearing predicates (`Supports`, `Contradicts`) produce a separate `relation-*` entry because they participate in retrieval traversal.
+
+### 0.9 agents: who acts on what
+
+**agent.** an entry of kind `agent-*` describing one active process. its manifest names what it reads, what it writes, its prompt strategy, its reputation, its baseline tests. an agent is exactly one of three kinds.
+
+**editor.** an agent that writes content during ingestion. one editor per source domain is typical.
+
+**persona.** an agent that answers queries against its declared slice. does not write content. used to test the vault: if a learning-theory persona cannot answer a learning-theory question, the vault has a gap. failing a persona's baseline test surfaces that gap as a finding.
+
+**lint.** an agent that mechanically enforces policies and guidelines by emitting findings. never writes content.
+
+**slice.** what an agent reads and writes — its `read_domains`, `write_domains`, voice rules (for personas), refusal rules (for personas), policy targets (for lint). the slice constrains everything the agent does.
+
+**ingestion.** the multi-stage pipeline by which a raw source becomes entries: source intake (admit the document), chapter setup, per-sub-section staging (write blind into ephemeral staging), chapter merge (merge staged drafts into the entries pile), chapter closeout (update indexes, run lint, etc.). a chapter is the natural unit; the default is one chapter per turn.
+
+**reingestion.** redoing a chapter that was already ingested — usually because the lens set or policy set changed. the staged content is treated as a depth upgrade on prose; existing connections (which accumulated from later chapters) are preserved.
+
+**thesis-eval.** the fixed panel of verifiable tasks that measures the vault's actual usefulness. the **unaided baseline** is recorded once (a capable model attempting the task with no vault context); the **vault-augmented runs** are recorded over time. variance reduction between unaided and augmented runs is the headline metric — it is how the vault knows whether it is doing the thing it claims to do.
 
 ---
 
@@ -2508,7 +2633,7 @@ per §1.2, an implementation does not link back to this spec. the spec's reach e
 
 ## 32. vocabulary index
 
-a quick reference for terms used throughout this spec.
+a quick reference for terms used throughout this spec — pointers to the section that defines each term. for plain-language summaries of the same terms (what they mean and why they exist), see §0.
 
 | term                      | section                                                                                         |
 | ------------------------- | ----------------------------------------------------------------------------------------------- |
